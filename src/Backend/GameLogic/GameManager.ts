@@ -33,7 +33,6 @@ import {
   isUnconfirmedDeactivateArtifact,
   isUnconfirmedActivateArtifact,
   isUnconfirmedReveal,
-  isUnconfirmedBuyGPTCredits,
   isUnconfirmedWithdrawSilver,
 } from "../Utils/TypeAssertions";
 import {
@@ -57,7 +56,6 @@ import {
   TxIntent,
   UnconfirmedMove,
   SubmittedTx,
-  UnconfirmedInit,
   UnconfirmedPlanetTransfer,
   UnconfirmedFindArtifact,
   UnconfirmedDepositArtifact,
@@ -66,7 +64,6 @@ import {
   UnconfirmedActivateArtifact,
   UnconfirmedDeactivateArtifact,
   UnconfirmedReveal,
-  UnconfirmedBuyGPTCredits,
   UnconfirmedWithdrawSilver,
   ArtifactType,
   ArtifactRarity,
@@ -78,7 +75,7 @@ import {
 } from "@darkforest_eth/types";
 import NotificationManager from "../../Frontend/Game/NotificationManager";
 import { MIN_CHUNK_SIZE } from "../../Frontend/Utils/constants";
-import { Monomitter } from "../../Frontend/Utils/Monomitter";
+import { Monomitter, Subscription } from "../../Frontend/Utils/Monomitter";
 import { TerminalTextStyle } from "../../Frontend/Utils/TerminalTypes";
 import UIEmitter from "../../Frontend/Utils/UIEmitter";
 import { TerminalHandle } from "../../Frontend/Views/Terminal";
@@ -96,12 +93,7 @@ import { SerializedPlugin } from "../Plugins/SerializedPlugin";
 import { ProcgenUtils } from "../Procedural/ProcgenUtils";
 import SnarkArgsHelper from "../Utils/SnarkArgsHelper";
 import { isActivated } from "./ArtifactUtils";
-import stringify from "json-stable-stringify";
-import {
-  getConversation,
-  startConversation,
-  stepConversation,
-} from "../Network/ConversationAPI";
+import { getConversation } from "../Network/ConversationAPI";
 import {
   address,
   locationIdToDecStr,
@@ -114,7 +106,9 @@ import { Diagnostics } from "../../Frontend/Panes/DiagnosticsPane";
 import {
   pollSetting,
   setSetting,
+  getSetting,
   Setting,
+  settingChanged,
 } from "../../Frontend/Utils/SettingsHooks";
 import {
   addMessage,
@@ -123,7 +117,6 @@ import {
 } from "../Network/MessageAPI";
 import { getEmojiMessage } from "./ArrivalUtils";
 import { easeInAnimation, emojiEaseOutAnimation } from "../Utils/Animation";
-import { EMPTY_ADDRESS } from "@darkforest_eth/constants";
 
 export enum GameManagerEvent {
   PlanetUpdate = "PlanetUpdate",
@@ -261,6 +254,8 @@ class GameManager extends EventEmitter {
    */
   private diagnostics: Diagnostics;
 
+  private settingsSubscription: Subscription | undefined;
+
   public get planetRarity(): number {
     return this.contractConstants.PLANET_RARITY;
   }
@@ -355,6 +350,17 @@ class GameManager extends EventEmitter {
     this.ethConnection = ethConnection;
 
     this.hashRate = 0;
+
+    this.settingsSubscription = settingChanged.subscribe(
+      this.onSettingChanged.bind(this)
+    );
+  }
+
+  private onSettingChanged(setting: Setting) {
+    if (setting === Setting.MiningCores && this.minerManager) {
+      const cores = parseInt(getSetting(this.account, Setting.MiningCores), 10);
+      this.minerManager.setCores(cores);
+    }
   }
 
   public getEthConnection() {
@@ -371,6 +377,7 @@ class GameManager extends EventEmitter {
     }
     this.contractsAPI.destroy();
     this.persistentChunkStore.destroy();
+    this.settingsSubscription?.unsubscribe();
   }
 
   static async create(
@@ -991,7 +998,8 @@ class GameManager extends EventEmitter {
       }
     );
 
-    this.minerManager.startExplore();
+    const cores = parseInt(getSetting(this.account, Setting.MiningCores), 10);
+    this.minerManager.setCores(cores);
   }
 
   /**
