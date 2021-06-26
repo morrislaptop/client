@@ -312,6 +312,7 @@ class RemoteExplorerPlugin {
     // TODO: Somehow set a default coords
     const pattern = getPattern({ x: 0, y: 0 }, patternType, chunkSize);
     const miner = Miner.create(
+      df.account,
       df.getChunkStore(),
       pattern,
       df.getWorldRadius(),
