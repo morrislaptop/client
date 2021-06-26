@@ -78,13 +78,12 @@ import {
 } from '@darkforest_eth/types';
 import NotificationManager from '../../Frontend/Game/NotificationManager';
 import { MIN_CHUNK_SIZE } from '../../Frontend/Utils/constants';
-import { monomitter, Monomitter } from '../../Frontend/Utils/Monomitter';
+import { Monomitter } from '../../Frontend/Utils/Monomitter';
 import { TerminalTextStyle } from '../../Frontend/Utils/TerminalTypes';
 import UIEmitter from '../../Frontend/Utils/UIEmitter';
 import { TerminalHandle } from '../../Frontend/Views/Terminal';
 import { MiningPattern, SpiralPattern, SwissCheesePattern } from '../Miner/MiningPatterns';
 import EthConnection from '../Network/EthConnection';
-import { ThrottledConcurrentQueue } from '../Network/ThrottledConcurrentQueue';
 import { getAllTwitters, verifyTwitterHandle } from '../Network/UtilityServerAPI';
 import { SerializedPlugin } from '../Plugins/SerializedPlugin';
 import { ProcgenUtils } from '../Procedural/ProcgenUtils';
@@ -101,6 +100,7 @@ import { pollSetting, setSetting, Setting } from '../../Frontend/Utils/SettingsH
 import { addMessage, deleteMessages, getMessagesOnPlanets } from '../Network/MessageAPI';
 import { getEmojiMessage } from './ArrivalUtils';
 import { easeInAnimation, emojiEaseOutAnimation } from '../Utils/Animation';
+import { EMPTY_ADDRESS } from '@darkforest_eth/constants';
 
 export enum GameManagerEvent {
   PlanetUpdate = 'PlanetUpdate',
@@ -214,36 +214,6 @@ class GameManager extends EventEmitter {
   private readonly planetHashMimc: (...inputs: number[]) => BigInteger;
 
   /**
-   * This is kept relatively up-to-date with the balance of the player's wallet on the latest block
-   * of whatever blockchain we're connected to.
-   *
-   * @todo move this into a new `PlayerState` class.
-   */
-  private balance: number;
-
-  /**
-   * Any time the balance of the player's address changes, we publish an event here.
-   *
-   * @todo move this into a new `PlayerState` class.
-   */
-  private myBalance$: Monomitter<number>;
-
-  /**
-   * Handle to an interval that periodically refreshes the player's balance.
-   *
-   * @todo move this into a new `PlayerState` class.
-   */
-  private balanceInterval: ReturnType<typeof setInterval>;
-
-  /**
-   * Handle to an interval that periodically refreshes some information about the player from the
-   * blockchain.
-   *
-   * @todo move this into a new `PlayerState` class.
-   */
-  private playerInterval: ReturnType<typeof setInterval>;
-
-  /**
    * Manages the process of mining new space territory.
    */
   private minerManager?: MinerManager;
@@ -257,51 +227,11 @@ class GameManager extends EventEmitter {
   private hashRate: number;
 
   /**
-   * The spawn location of the current player.
-   *
-   * @todo, make this smarter somehow. It's really annoying to have to import world coordinates, and
-   * get them wrong or something. Maybe we need to mark a planet, once it's been initialized
-   * contract-side, as the homeworld of the user who initialized on it. That way, when you import a
-   * new account into the game, and you import map data that contains your home planet, the client
-   * would be able to automatically detect which planet is the player's home planet.
-   *
-   * @todo move this into a new `PlayerState` class.
-   */
-  private homeLocation: WorldLocation | undefined;
-
-  /**
    * Sometimes the universe gets bigger... Sometimes it doesn't.
    *
    * @todo move this into a new `GameConfiguration` class.
    */
   private worldRadius: number;
-
-  /**
-   * Price of a single gpt credit, which buys you a single interaction with the GPT-powered AI
-   * Artifact Chat Bots.
-   *
-   * @todo move this into a new `GameConfiguration` class.
-   */
-  private gptCreditPriceEther: number;
-
-  /**
-   * Whenever the price of single GPT credit changes, we emit that event here.
-   */
-  private gptCreditPriceEtherEmitter$: Monomitter<number>;
-
-  /**
-   * The total amount of GPT credits that belong to the current player.
-   *
-   * @todo move this into a new `PlayerState` class.
-   */
-  private myGPTCredits: number;
-
-  /**
-   * Whenever the amount of the GPT credits that this player owns changes, we publish an event here.
-   *
-   * @todo move this into a new `PlayerState` class.
-   */
-  private myGPTCredits$: Monomitter<number>;
 
   /**
    * Diagnostic information about the game.
@@ -315,7 +245,6 @@ class GameManager extends EventEmitter {
   private constructor(
     terminal: React.MutableRefObject<TerminalHandle | undefined>,
     account: EthAddress | undefined,
-    balance: number,
     players: Map<string, Player>,
     touchedPlanets: Map<LocationId, Planet>,
     allTouchedPlanetIds: Set<LocationId>,
@@ -327,12 +256,9 @@ class GameManager extends EventEmitter {
     contractConstants: ContractConstants,
     persistentChunkStore: PersistentChunkStore,
     snarkHelper: SnarkArgsHelper,
-    homeLocation: WorldLocation | undefined,
     useMockHash: boolean,
     artifacts: Map<ArtifactId, Artifact>,
     ethConnection: EthConnection,
-    gptCreditPriceEther: number,
-    myGPTCredits: number
   ) {
     super();
 
@@ -351,17 +277,8 @@ class GameManager extends EventEmitter {
 
     this.terminal = terminal;
     this.account = account;
-    this.balance = balance;
-    this.myBalance$ = monomitter(true);
-    this.myBalance$.publish(balance);
     this.players = players;
     this.worldRadius = worldRadius;
-    this.gptCreditPriceEther = gptCreditPriceEther;
-    this.myGPTCredits$ = monomitter(true);
-    this.gptCreditPriceEtherEmitter$ = monomitter(true);
-    this.myGPTCredits = myGPTCredits;
-    this.myGPTCredits$.publish(myGPTCredits);
-    this.gptCreditPriceEtherEmitter$.publish(gptCreditPriceEther);
 
     this.hashConfig = {
       planetHashKey: contractConstants.PLANETHASH_KEY,
@@ -374,7 +291,6 @@ class GameManager extends EventEmitter {
     this.planetHashMimc = useMockHash ? fakeHash : mimcHash(this.hashConfig.planetHashKey);
 
     this.contractConstants = contractConstants;
-    this.homeLocation = homeLocation;
 
     const revealedLocations = new Map<LocationId, RevealedLocation>();
     for (const [locationId, coords] of revealedCoords) {
@@ -410,21 +326,6 @@ class GameManager extends EventEmitter {
 
     this.ethConnection = ethConnection;
 
-    this.balanceInterval = setInterval(() => {
-      if (this.account) {
-        ethConnection.getBalance(this.account).then((balance) => {
-          this.balance = balance;
-          this.myBalance$.publish(balance);
-        });
-      }
-    }, 1000);
-
-    this.playerInterval = setInterval(() => {
-      if (this.account) {
-        this.hardRefreshPlayer(this.account);
-      }
-    }, 5000);
-
     this.hashRate = 0;
   }
 
@@ -440,8 +341,6 @@ class GameManager extends EventEmitter {
     }
     this.contractsAPI.destroy();
     this.persistentChunkStore.destroy();
-    clearInterval(this.balanceInterval);
-    clearInterval(this.playerInterval);
   }
 
   static async create(
@@ -452,7 +351,8 @@ class GameManager extends EventEmitter {
       throw new Error('you must pass in a handle to a terminal');
     }
 
-    const account = ethConnection.getAddress();
+    const account = address('0xffffffffffffffffffffffffffffffffffffffff');
+    // const account = EMPTY_ADDRESS;
     const gameStateDownloader = new InitialGameStateDownloader(terminal.current);
     const contractsAPI = await ContractsAPI.create(ethConnection);
 
@@ -466,7 +366,6 @@ class GameManager extends EventEmitter {
     terminal.current?.newline();
 
     const initialState = await gameStateDownloader.download(contractsAPI, persistentChunkStore);
-    const possibleHomes = await persistentChunkStore.getHomeLocations();
 
     await persistentChunkStore.saveTouchedPlanetIds(initialState.allTouchedPlanetIds);
     await persistentChunkStore.saveRevealedCoords(initialState.allRevealedCoords);
@@ -487,24 +386,6 @@ class GameManager extends EventEmitter {
       }
     }
 
-    for (const myArtifact of initialState.myArtifacts) {
-      knownArtifacts.set(myArtifact.id, myArtifact);
-    }
-
-    for (const artifact of initialState.artifactsOnVoyages) {
-      knownArtifacts.set(artifact.id, artifact);
-    }
-
-    // figure out what's my home planet
-    let homeLocation: WorldLocation | undefined = undefined;
-    for (const loc of possibleHomes) {
-      if (initialState.allTouchedPlanetIds.includes(loc.hash)) {
-        homeLocation = loc;
-        await persistentChunkStore.confirmHomeLocation(loc);
-        break;
-      }
-    }
-
     const hashConfig: HashConfig = {
       planetHashKey: initialState.contractConstants.PLANETHASH_KEY,
       spaceTypeKey: initialState.contractConstants.SPACETYPE_KEY,
@@ -520,7 +401,6 @@ class GameManager extends EventEmitter {
     const gameManager = new GameManager(
       terminal,
       account,
-      initialState.balance,
       initialState.players,
       initialState.touchedAndLocatedPlanets,
       new Set(Array.from(initialState.allTouchedPlanetIds)),
@@ -532,12 +412,9 @@ class GameManager extends EventEmitter {
       initialState.contractConstants,
       persistentChunkStore,
       snarkHelper,
-      homeLocation,
       useMockHash,
       knownArtifacts,
       ethConnection,
-      initialState.gptCreditPriceEther,
-      initialState.myGPTCredits
     );
 
     pollSetting(gameManager.getAccount(), Setting.AutoApproveNonPurchaseTransactions);
@@ -601,10 +478,6 @@ class GameManager extends EventEmitter {
           gameManager.emit(GameManagerEvent.PlanetUpdate);
         }
       )
-      .on(ContractsAPIEvent.ChangedGPTCreditPrice, async (newPriceInEther: number) => {
-        gameManager.gptCreditPriceEther = newPriceInEther;
-        gameManager.gptCreditPriceEtherEmitter$.publish(newPriceInEther);
-      })
       .on(ContractsAPIEvent.TxSubmitted, (unconfirmedTx: SubmittedTx) => {
         gameManager.persistentChunkStore.onEthTxSubmit(unconfirmedTx);
         gameManager.onTxSubmit(unconfirmedTx);
@@ -657,8 +530,6 @@ class GameManager extends EventEmitter {
           ]);
         } else if (isUnconfirmedWithdrawSilver(unconfirmedTx)) {
           await gameManager.softRefreshPlanet(unconfirmedTx.locationId);
-        } else if (isUnconfirmedBuyGPTCredits(unconfirmedTx)) {
-          await gameManager.refreshMyGPTCredits();
         }
 
         gameManager.entityStore.clearUnconfirmedTxIntent(unconfirmedTx);
@@ -674,22 +545,7 @@ class GameManager extends EventEmitter {
         gameManager.setRadius(newRadius);
       });
 
-    const unconfirmedTxs = await persistentChunkStore.getUnconfirmedSubmittedEthTxs();
-    const confirmationQueue = new ThrottledConcurrentQueue(10, 1000, 1);
-
-    for (const unconfirmedTx of unconfirmedTxs) {
-      // recommits the tx to storage but whatever
-      gameManager.contractsAPI.waitFor(
-        unconfirmedTx,
-        confirmationQueue.add(() => ethConnection.waitForTransaction(unconfirmedTx.txHash))
-      );
-    }
-
-    // we only want to initialize the mining manager if the player has already joined the game
-    // if they haven't, we'll do this once the player has joined the game
-    if (!!homeLocation && initialState.players.has(account as string)) {
-      gameManager.initMiningManager(homeLocation.coords);
-    }
+    gameManager.initMiningManager({ x: 0, y: 0 });
 
     return gameManager;
   }
@@ -794,13 +650,6 @@ class GameManager extends EventEmitter {
     this.entityStore.replaceArtifactFromContractData(artifact);
   }
 
-  private async refreshMyGPTCredits(): Promise<void> {
-    if (this.account) {
-      this.myGPTCredits = await this.contractsAPI.getGPTCreditBalance(this.account);
-      this.myGPTCredits$.publish(this.myGPTCredits);
-    }
-  }
-
   private onTxSubmit(unminedTx: SubmittedTx): void {
     this.terminal.current?.print(
       `[TX SUBMIT] ${unminedTx.type} transaction (`,
@@ -861,14 +710,6 @@ class GameManager extends EventEmitter {
       TerminalTextStyle.Red
     );
     this.entityStore.clearUnconfirmedTxIntent(txIntent);
-  }
-
-  public getGptCreditPriceEmitter(): Monomitter<number> {
-    return this.gptCreditPriceEtherEmitter$;
-  }
-
-  public getGptCreditBalanceEmitter(): Monomitter<number> {
-    return this.myGPTCredits$;
   }
 
   /**
@@ -1293,25 +1134,6 @@ class GameManager extends EventEmitter {
   }
 
   /**
-   * Gets the private key of the burner wallet used by this account.
-   */
-  getPrivateKey(): string {
-    return this.ethConnection.getPrivateKey();
-  }
-
-  /**
-   * Gets the balance of the account
-   */
-  getMyBalance(): number {
-    if (!this.account) return 0;
-    return this.balance;
-  }
-
-  getMyBalanceEmitter(): Monomitter<number> {
-    return this.myBalance$;
-  }
-
-  /**
    * Gets all moves that this client has queued to be uploaded to the contract, but
    * have not been successfully confirmed yet.
    */
@@ -1339,18 +1161,14 @@ class GameManager extends EventEmitter {
    * Gets the location of your home planet.
    */
   getHomeCoords(): WorldCoords | undefined {
-    if (!this.homeLocation) return undefined;
-    return {
-      x: this.homeLocation.coords.x,
-      y: this.homeLocation.coords.y,
-    };
+    return undefined;
   }
 
   /**
    * Gets the hash of the location of your home planet.
    */
   getHomeHash(): LocationId | undefined {
-    return this.homeLocation?.hash;
+    return undefined
   }
 
   /**
@@ -1533,68 +1351,6 @@ class GameManager extends EventEmitter {
     return this;
   }
 
-  /**
-   * Attempts to join the game. Should not be called once you've already joined.
-   */
-  joinGame(beforeRetry: (e: Error) => Promise<boolean>): GameManager {
-    if (this.checkGameHasEnded()) return this;
-    let actionId: string;
-    let txIntent: UnconfirmedInit;
-    this.getRandomHomePlanetCoords()
-      .then(async (loc) => {
-        const {
-          coords: { x, y },
-          hash: h,
-        } = loc;
-        this.homeLocation = loc;
-        await this.persistentChunkStore.addHomeLocation(loc);
-        actionId = getRandomActionId();
-        txIntent = {
-          actionId,
-          type: EthTxType.INIT,
-          locationId: h,
-          location: loc,
-        };
-        this.handleTxIntent(txIntent as TxIntent);
-        const callArgs = await this.snarkHelper.getInitArgs(x, y, this.worldRadius);
-        this.initMiningManager(loc.coords); // get an early start
-
-        // if player initialization causes an error, give the caller an opportunity
-        // to resolve that error. if the asynchronous `beforeRetry` function returns
-        // true, retry initializing the player. if it returns false, or if the
-        // `beforeRetry` is undefined, then don't retry and throw an exception.
-        while (true) {
-          try {
-            this.terminal.current?.println(
-              'INIT: calculated SNARK with args:',
-              TerminalTextStyle.Sub
-            );
-            this.terminal.current?.println(
-              JSON.stringify(hexifyBigIntNestedArray(callArgs.slice(0, 3))),
-              TerminalTextStyle.Sub
-            );
-            this.terminal.current?.newline();
-            await this.contractsAPI.initializePlayer(callArgs, txIntent);
-            break;
-          } catch (e) {
-            if (beforeRetry) {
-              if (await beforeRetry(e)) {
-                continue;
-              }
-            } else {
-              throw e;
-            }
-          }
-        }
-      })
-      .catch((err) => {
-        this.onTxIntentFail(txIntent, err);
-        this.emit(GameManagerEvent.InitializedPlayerError, err);
-      });
-
-    return this;
-  }
-
   // this is slow, do not call in i.e. render/draw loop
   /**
    *
@@ -1608,124 +1364,6 @@ class GameManager extends EventEmitter {
       perlin: this.spaceTypePerlin(coords, true),
       biomebase: this.biomebasePerlin(coords, true),
     };
-  }
-
-  /**
-   * Initializes a new player's game to start at the given home planet. Must have already
-   * initialized the player on the contract.
-   */
-  async addAccount(coords: WorldCoords): Promise<boolean> {
-    const loc: WorldLocation = this.locationFromCoords(coords);
-    await this.persistentChunkStore.addHomeLocation(loc);
-    this.initMiningManager(coords);
-    this.homeLocation = loc;
-    return true;
-  }
-
-  private async getRandomHomePlanetCoords(): Promise<WorldLocation> {
-    return new Promise<WorldLocation>((resolve) => {
-      const initPerlinMin = this.contractConstants.INIT_PERLIN_MIN;
-      const initPerlinMax = this.contractConstants.INIT_PERLIN_MAX;
-      let minedChunksCount = 0;
-
-      let x: number;
-      let y: number;
-      let d: number;
-      let p: number;
-
-      const isProd = process.env.NODE_ENV === 'production';
-      let spawnInnerRadius = 0;
-      if (isProd) {
-        // there is always a fixed area for players to spawn in, equal to the
-        // area of a 32 radius disc
-        spawnInnerRadius = Math.sqrt(Math.max(this.worldRadius ** 2 - 32000 ** 2, 0));
-      }
-
-      do {
-        // sample from square
-        x = Math.random() * this.worldRadius * 2 - this.worldRadius;
-        y = Math.random() * this.worldRadius * 2 - this.worldRadius;
-        d = Math.sqrt(x ** 2 + y ** 2);
-        p = this.spaceTypePerlin({ x, y }, false);
-      } while (
-        p >= initPerlinMax || // keep searching if above or equal to the max
-        p < initPerlinMin || // keep searching if below the minimum
-        d >= this.worldRadius || // can't be out of bound
-        d <= spawnInnerRadius // can't be inside spawn percentage ring
-      );
-
-      // when setting up a new account in development mode, you can tell
-      // the game where to start searching for planets using this query
-      // string parameter. for example:
-      //
-      // ?searchCenter=2866,5627
-      //
-
-      const params = new URLSearchParams(window.location.search);
-
-      if (params.has('searchCenter')) {
-        const parts = params.get('searchCenter')?.split(',');
-
-        if (parts) {
-          x = parseInt(parts[0], 10);
-          y = parseInt(parts[1], 10);
-        }
-      }
-
-      const pattern: MiningPattern = new SpiralPattern({ x, y }, MIN_CHUNK_SIZE);
-      const chunkStore = new HomePlanetMinerChunkStore(
-        initPerlinMin,
-        initPerlinMax,
-        this.hashConfig
-      );
-      const homePlanetFinder = MinerManager.create(
-        undefined,
-        chunkStore,
-        pattern,
-        this.worldRadius,
-        this.planetRarity,
-        this.hashConfig,
-        this.useMockHash
-      );
-      homePlanetFinder.on(MinerManagerEvent.DiscoveredNewChunk, (chunk: Chunk) => {
-        chunkStore.addChunk(chunk);
-        minedChunksCount++;
-        if (minedChunksCount % 8 === 0) {
-          this.terminal.current?.println(
-            `Hashed ${minedChunksCount * MIN_CHUNK_SIZE ** 2} potential home planets...`
-          );
-        }
-        for (const planetLoc of chunk.planetLocations) {
-          const planetPerlin = planetLoc.perlin;
-          const planetX = planetLoc.coords.x;
-          const planetY = planetLoc.coords.y;
-          const planetLevel = this.entityStore.planetLevelFromHexPerlin(
-            planetLoc.hash,
-            planetLoc.perlin
-          );
-          const planetType = this.entityStore.planetTypeFromHexPerlin(
-            planetLoc.hash,
-            planetLoc.perlin
-          );
-          const planet = this.getPlanetWithId(planetLoc.hash);
-          if (
-            planetPerlin < initPerlinMax &&
-            planetPerlin >= initPerlinMin &&
-            planetX ** 2 + planetY ** 2 < this.worldRadius ** 2 &&
-            planetLevel === PlanetLevel.MIN &&
-            planetType === PlanetType.PLANET &&
-            (!planet || !planet.isInContract) // init will fail if planet has been initialized in contract already
-          ) {
-            // valid home planet
-            homePlanetFinder.stopExplore();
-            homePlanetFinder.destroy();
-            resolve(planetLoc);
-            break;
-          }
-        }
-      });
-      homePlanetFinder.startExplore();
-    });
   }
 
   public async prospectPlanet(planetId: LocationId, bypassChecks = false) {
@@ -2419,38 +2057,6 @@ class GameManager extends EventEmitter {
     return this;
   }
 
-  buyGPTCredits(amount: number) {
-    if (this.checkGameHasEnded()) return this;
-
-    const cost = this.gptCreditPriceEther * amount;
-
-    if (cost > this.balance) {
-      throw new Error('not enough balance to buy credits!');
-    }
-    if (this.entityStore.getUnconfirmedBuyGPTCredits()) {
-      throw new Error('already processing GPT credit purchase');
-    }
-
-    localStorage.setItem(
-      `${this.getAccount()?.toLowerCase()}-buyGPTCreditAmount`,
-      amount.toString()
-    );
-    localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buyGPTCreditCost`, cost.toString());
-
-    const actionId = getRandomActionId();
-    const txIntent: UnconfirmedBuyGPTCredits = {
-      actionId,
-      type: EthTxType.BUY_GPT_CREDITS,
-      amount,
-    };
-    this.handleTxIntent(txIntent);
-
-    this.contractsAPI
-      .buyGPTCredits(amount, actionId)
-      .catch((e) => this.onTxIntentFail(txIntent, e));
-    return this;
-  }
-
   private handleTxIntent(txIntent: TxIntent) {
     this.entityStore.onTxIntent(txIntent);
   }
@@ -2464,80 +2070,6 @@ class GameManager extends EventEmitter {
    */
   async getConversation(artifactId: ArtifactId): Promise<Conversation | undefined> {
     return getConversation(artifactId);
-  }
-
-  /**
-   * Starts a GPT conversation with an artifact
-   */
-  async startConversation(artifactId: ArtifactId): Promise<Conversation> {
-    const artifact = this.entityStore.getArtifactById(artifactId);
-
-    if (!artifact) {
-      throw new Error('artifact with this ID does not exist');
-    }
-    if (this.entityStore.getArtifactController(artifactId) !== this.account) {
-      throw new Error("can't talk with artifact you don't own");
-    }
-    if (!this.account) {
-      throw new Error('must be logged in');
-    }
-    if (this.myGPTCredits === 0) {
-      throw new Error("You don't have any GPT credits! You can purchase some below.");
-    }
-
-    const timestamp = Date.now();
-    const stringToSign = stringify({
-      timestamp,
-      artifactId,
-    });
-    const signature = await this.ethConnection.signMessage(stringToSign);
-    const conversation = await startConversation(timestamp, this.account, signature, artifactId);
-
-    await this.refreshMyGPTCredits();
-
-    return conversation;
-  }
-
-  /**
-   * Sends a message to an artifact you are having a GPT conversation with
-   */
-  async stepConversation(artifactId: ArtifactId, message: string): Promise<Conversation> {
-    const artifact = this.entityStore.getArtifactById(artifactId);
-
-    if (!artifact) {
-      throw new Error('artifact with this ID does not exist');
-    }
-    if (this.entityStore.getArtifactController(artifactId) !== this.account) {
-      throw new Error("can't talk with artifact you don't own");
-    }
-    if (!this.account) {
-      throw new Error('must be logged in');
-    }
-    if (this.myGPTCredits === 0) {
-      throw new Error("You don't have any GPT credits! You can purchase some below.");
-    }
-
-    const timestamp = Date.now();
-    const stringToSign = stringify({
-      timestamp,
-      artifactId,
-      message,
-    });
-    const signature = await this.ethConnection.signMessage(stringToSign);
-    const conversation = await stepConversation(
-      timestamp,
-      this.account,
-      signature,
-      artifactId,
-      message
-    );
-    if (!conversation) {
-      throw new Error("you're probably being rate limited!");
-    }
-
-    await this.refreshMyGPTCredits();
-
-    return conversation;
   }
 
   /**

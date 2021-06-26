@@ -1,18 +1,18 @@
-import { Artifact, Planet, PlanetType } from '@darkforest_eth/types';
-import React from 'react';
-import styled from 'styled-components';
-import { StatIdx } from '../../_types/global/GlobalTypes';
-import { TooltipName } from '../Game/WindowManager';
-import { TooltipTrigger } from '../Panes/Tooltip';
-import { planetBackground } from '../Styles/Mixins';
-import dfstyles from '../Styles/dfstyles';
-import { ArtifactImage } from '../Components/ArtifactImage';
+import { Artifact, Planet, PlanetType } from "@darkforest_eth/types";
+import React from "react";
+import styled from "styled-components";
+import { StatIdx } from "../../_types/global/GlobalTypes";
+import { TooltipName } from "../Game/WindowManager";
+import { TooltipTrigger } from "../Panes/Tooltip";
+import { planetBackground } from "../Styles/Mixins";
+import dfstyles from "../Styles/dfstyles";
+import { ArtifactImage } from "../Components/ArtifactImage";
 import {
   ArtifactBiomeText,
   ArtifactRarityLabelAnim,
   ArtifactTypeText,
-} from '../Components/Labels/ArtifactLabels';
-import { Sub } from '../Components/Text';
+} from "../Components/Labels/ArtifactLabels";
+import { Sub } from "../Components/Text";
 
 export const StyledPlanetCard = styled.div`
   width: 100%;
@@ -33,7 +33,7 @@ export const DestroyedMarker = styled.div`
   height: 100%;
   width: 100%;
 
-  background-image: url('/public/img/destroyedbg.png');
+  background-image: url("/public/img/destroyedbg.png");
   background-size: 100px 100px;
   background-position: right bottom;
   background-repeat: no-repeat;
@@ -68,6 +68,9 @@ export const StatRow = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  &:not(:last-child) {
+    border-bottom: 1px solid ${dfstyles.colors.subbertext};
+  }
 `;
 
 export const TopRow = styled(StatRow)`
@@ -121,7 +124,8 @@ export function PCStatIcon({
 }
 
 export const Small = styled(StatCell)<{ planet: Planet | undefined }>`
-  width: ${({ planet: p }) => (p?.planetType === PlanetType.SILVER_MINE ? '25%' : '20%')};
+  width: ${({ planet: p }) =>
+    p?.planetType === PlanetType.SILVER_MINE ? "25%" : "20%"};
   font-size: 0.8em;
 `;
 
@@ -129,8 +133,17 @@ export const BigStatCell = styled(StatCell)`
   width: 50%;
 `;
 
-export const RowTip = ({ name, children }: { name: TooltipName; children: React.ReactNode }) => (
-  <TooltipTrigger name={name} style={{ lineHeight: '100%', position: 'relative', top: '0.2em' }}>
+export const RowTip = ({
+  name,
+  children,
+}: {
+  name: TooltipName;
+  children: React.ReactNode;
+}) => (
+  <TooltipTrigger
+    name={name}
+    style={{ lineHeight: "100%", position: "relative", top: "0.2em" }}
+  >
     {children}
   </TooltipTrigger>
 );
@@ -179,7 +192,8 @@ export function PlanetActiveArtifact({
       </ImageWrapper>
       <Sub>
         Active:
-        <ArtifactRarityLabelAnim artifact={artifact} /> <ArtifactBiomeText artifact={artifact} />{' '}
+        <ArtifactRarityLabelAnim artifact={artifact} />{" "}
+        <ArtifactBiomeText artifact={artifact} />{" "}
         <ArtifactTypeText artifact={artifact} />
       </Sub>
     </StyledPlanetActiveArtifact>

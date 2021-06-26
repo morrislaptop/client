@@ -1,12 +1,12 @@
-import { PlanetType } from '@darkforest_eth/types';
-import React from 'react';
-import styled from 'styled-components';
-import { getPlanetRank, isFullRank } from '../../Backend/Utils/Utils';
-import { ScoreLabel, SilverLabel } from '../Components/Labels/KeywordLabels';
-import { SpacetimeRipLabel } from '../Components/Labels/SpacetimeRipLabel';
-import { Sub, White, Green, Red } from '../Components/Text';
-import { TooltipName } from '../Game/WindowManager';
-import { useUIManager, useSelectedPlanet, useAccount } from '../Utils/AppHooks';
+import { PlanetType } from "@darkforest_eth/types";
+import React from "react";
+import styled from "styled-components";
+import { getPlanetRank, isFullRank } from "../../Backend/Utils/Utils";
+import { ScoreLabel, SilverLabel } from "../Components/Labels/KeywordLabels";
+import { SpacetimeRipLabel } from "../Components/Labels/SpacetimeRipLabel";
+import { Sub, White, Green, Red } from "../Components/Text";
+import { TooltipName } from "../Game/WindowManager";
+import { useUIManager, useSelectedPlanet, useAccount } from "../Utils/AppHooks";
 
 const TooltipInfo = styled.div`
   & > div {
@@ -46,8 +46,8 @@ export function ScoreTooltipPane() {
   return (
     <div>
       <Sub>
-        Your current score. <ScoreLabel /> is obtained by withdrawing <SilverLabel /> on a{' '}
-        <SpacetimeRipLabel />, and by finding Artifacts!
+        Your current score. <ScoreLabel /> is obtained by withdrawing{" "}
+        <SilverLabel /> on a <SpacetimeRipLabel />, and by finding Artifacts!
       </Sub>
     </div>
   );
@@ -57,8 +57,8 @@ export function MiningPauseTooltipPane() {
   return (
     <div>
       <Sub>
-        Start / Stop your <White>explorer</White>. Your explorerer looks for planets in chunks of{' '}
-        <White>16</White> x <White>16</White>.
+        Start / Stop your <White>explorer</White>. Your explorerer looks for
+        planets in chunks of <White>16</White> x <White>16</White>.
       </Sub>
     </div>
   );
@@ -68,8 +68,8 @@ export function MiningTargetTooltipPane() {
   return (
     <div>
       <Sub>
-        Change the location of your <White>explorer</White>. Click anywhere on the{' '}
-        <White>Game Screen</White>, <br />
+        Change the location of your <White>explorer</White>. Click anywhere on
+        the <White>Game Screen</White>, <br />
         and your <White>miner</White> will start hashing around that chunk.
       </Sub>
     </div>
@@ -98,9 +98,10 @@ export function SilverTooltipPane() {
   return (
     <div>
       <Sub>
-        <White>Silver:</White> the universe's monetary resource. It allows you to buy upgrades.{' '}
-        <br />
-        Only <White>silver mines</White> produce silver. They're much rarer than planets!
+        <White>Silver:</White> the universe's monetary resource. It allows you
+        to buy upgrades. <br />
+        Only <White>silver mines</White> produce silver. They're much rarer than
+        planets!
       </Sub>
     </div>
   );
@@ -111,7 +112,7 @@ export function EnergyTooltipPane() {
     <div>
       <Sub>
         <White>Energy:</White> Energy allows you to make moves. <br />
-        Energy grows following an <White>S-curve</White>, and grows fastest at{' '}
+        Energy grows following an <White>S-curve</White>, and grows fastest at{" "}
         <White>50% capacity</White>.
       </Sub>
     </div>
@@ -149,8 +150,11 @@ export function PlanetRankTooltipPane() {
   return (
     <div>
       <Sub>
-        This planet is{' '}
-        <White>{isFullRank(selected.value) ? 'fully upgraded' : 'rank ' + rank}</White>!
+        This planet is{" "}
+        <White>
+          {isFullRank(selected.value) ? "fully upgraded" : "rank " + rank}
+        </White>
+        !
       </Sub>
     </div>
   );
@@ -215,9 +219,10 @@ export function RangeTooltipPane() {
   return (
     <div>
       <Sub>
-        <White>Range:</White> how far you can send your forces. <White>Forces decay</White> the
-        farther out you send them. <br />
-        Higher range means that you can send forces the same distance with less decay.
+        <White>Range:</White> how far you can send your forces.{" "}
+        <White>Forces decay</White> the farther out you send them. <br />
+        Higher range means that you can send forces the same distance with less
+        decay.
       </Sub>
     </div>
   );
@@ -248,7 +253,8 @@ export function Time90TooltipPane() {
   return (
     <div>
       <Sub>
-        Time to <White>90%</White> of full energy. Since energy grows on an <br />
+        Time to <White>90%</White> of full energy. Since energy grows on an{" "}
+        <br />
         s-curve, energy growth slows drastically by this point.
       </Sub>
     </div>
@@ -259,7 +265,8 @@ export function EnergyGrowthTooltipPane() {
   return (
     <div>
       <Sub>
-        <White>Energy Growth:</White> the maximum growth rate of this planet's energy <br />
+        <White>Energy Growth:</White> the maximum growth rate of this planet's
+        energy <br />
         representing the rate at the middle of the <White>s-curve</White>.
       </Sub>
     </div>
@@ -270,7 +277,8 @@ export function SilverGrowthTooltipPane() {
   return (
     <div>
       <Sub>
-        <White>Silver Growth</White>: the per-minute linear growth rate of this planet's silver.
+        <White>Silver Growth</White>: the per-minute linear growth rate of this
+        planet's silver.
       </Sub>
     </div>
   );
@@ -290,7 +298,8 @@ export function PiratesTooltipPane() {
   return (
     <div>
       <Sub>
-        <Red>This planet has space pirates!</Red> Move energy to unoccupied planets to conquer them!
+        <Red>This planet has space pirates!</Red> Move energy to unoccupied
+        planets to conquer them!
       </Sub>
     </div>
   );
@@ -300,7 +309,8 @@ export function UpgradesTooltipPane() {
   return (
     <div>
       <Sub>
-        <White>Planet Rank</White>: the number of times you've upgraded your planet.
+        <White>Planet Rank</White>: the number of times you've upgraded your
+        planet.
       </Sub>
     </div>
   );
@@ -405,15 +415,25 @@ function DefenseTooltipPane() {
 }
 
 function SpeedTooltipPane() {
-  return <div>Moves sent out from planets with higher speed travel the universe faster.</div>;
+  return (
+    <div>
+      Moves sent out from planets with higher speed travel the universe faster.
+    </div>
+  );
 }
 
 function ArtifactBuffPane() {
-  return <div>A powerful artifact on this planet is influencing this stat!</div>;
+  return (
+    <div>A powerful artifact on this planet is influencing this stat!</div>
+  );
 }
 
 function PluginsTooltipPane() {
-  return <div>Manage plugins, which allow you to add functionality to the client.</div>;
+  return (
+    <div>
+      Manage plugins, which allow you to add functionality to the client.
+    </div>
+  );
 }
 
 function SettingsPane() {
@@ -421,20 +441,25 @@ function SettingsPane() {
 }
 
 function YourArtifacts() {
-  return <div>View your artifacts.</div>;
+  return <div>View artifacts on planet.</div>;
 }
 
-const ModalWithdrawSilverTooltipPane = () => <div>Withdraw silver to earn score.</div>;
+const ModalWithdrawSilverTooltipPane = () => (
+  <div>Withdraw silver to earn score.</div>
+);
 
 const Hats = () => <div>Buy hats for the selected planet.</div>;
 
 const FindArtifact = () => (
   <div>
-    <Green>This planet has a powerful artifact hidden somewhere!</Green> Maybe you could find it...
+    <Green>This planet has a powerful artifact hidden somewhere!</Green> Maybe
+    you could find it...
   </div>
 );
 
-const ArtifactStored = () => <div>This planet has a powerful artifact on it!</div>;
+const ArtifactStored = () => (
+  <div>This planet has a powerful artifact on it!</div>
+);
 
 const HashesPerSec = () => <div>hashes / sec</div>;
 
@@ -469,12 +494,17 @@ export function TooltipContent({ name }: { name: TooltipName }) {
   if (name === TooltipName.BonusDefense) return <BonusDefenseTooltipPane />;
   if (name === TooltipName.Clowntown) return <ClowntownTooltipPane />;
   if (name === TooltipName.ModalHelp) return <ModalHelpTooltipPane />;
-  if (name === TooltipName.ModalPlanetDetails) return <ModalPlanetDetailsTooltipPane />;
-  if (name === TooltipName.ModalLeaderboard) return <ModalLeaderboardTooltipPane />;
+  if (name === TooltipName.ModalPlanetDetails)
+    return <ModalPlanetDetailsTooltipPane />;
+  if (name === TooltipName.ModalLeaderboard)
+    return <ModalLeaderboardTooltipPane />;
   if (name === TooltipName.ModalPlanetDex) return <ModalPlanetDexTooltipPane />;
-  if (name === TooltipName.ModalUpgradeDetails) return <ModalUpgradeDetailsTooltipPane />;
-  if (name === TooltipName.ModalTwitterVerification) return <ModalTwitterVerificationTooltipPane />;
-  if (name === TooltipName.ModalTwitterBroadcast) return <ModalBroadcastTooltipPane />;
+  if (name === TooltipName.ModalUpgradeDetails)
+    return <ModalUpgradeDetailsTooltipPane />;
+  if (name === TooltipName.ModalTwitterVerification)
+    return <ModalTwitterVerificationTooltipPane />;
+  if (name === TooltipName.ModalTwitterBroadcast)
+    return <ModalBroadcastTooltipPane />;
   if (name === TooltipName.Defense) return <DefenseTooltipPane />;
   if (name === TooltipName.Speed) return <SpeedTooltipPane />;
   if (name === TooltipName.ArtifactBuff) return <ArtifactBuffPane />;
@@ -485,7 +515,8 @@ export function TooltipContent({ name }: { name: TooltipName }) {
   if (name === TooltipName.FindArtifact) return <FindArtifact />;
   if (name === TooltipName.ArtifactStored) return <ArtifactStored />;
   if (name === TooltipName.HashesPerSec) return <HashesPerSec />;
-  if (name === TooltipName.ModalWithdrawSilver) return <ModalWithdrawSilverTooltipPane />;
+  if (name === TooltipName.ModalWithdrawSilver)
+    return <ModalWithdrawSilverTooltipPane />;
 
   return <></>;
 }

@@ -1,5 +1,5 @@
-import React from 'react';
-import { IconButton } from '../Components/IconButton';
+import React from "react";
+import { IconButton } from "../Components/IconButton";
 import {
   HelpIcon,
   PlanetIcon,
@@ -15,10 +15,10 @@ import {
   PluginIcon,
   ArtifactIcon,
   WithdrawIcon,
-} from '../Components/Icons';
-import { TooltipName } from '../Game/WindowManager';
-import { ModalName, ModalHook } from './ModalPane';
-import { TooltipTrigger } from '../Panes/Tooltip';
+} from "../Components/Icons";
+import { TooltipName } from "../Game/WindowManager";
+import { ModalName, ModalHook } from "./ModalPane";
+import { TooltipTrigger } from "../Panes/Tooltip";
 
 export function ModalIcon({
   modal,
@@ -48,15 +48,15 @@ export function ModalIcon({
   return (
     <TooltipTrigger
       name={TooltipName.ModalHelp + modal}
-      display='inline-block'
-      style={{ height: '1.5em' }}
+      display="inline-block"
+      style={{ height: "1.5em" }}
     >
       <IconButton
         onClick={(e) => {
           setActive((b) => !b);
           e.stopPropagation();
         }}
-        className={active ? 'active' : undefined}
+        className={active ? "active" : undefined}
       >
         {child()}
       </IconButton>
@@ -80,36 +80,12 @@ export function ModalLeaderboardIcon({ hook }: { hook: ModalHook }) {
   return <ModalIcon hook={hook} modal={ModalName.Leaderboard} />;
 }
 
-export function ModalPlanetDexIcon({ hook }: { hook: ModalHook }) {
-  return <ModalIcon hook={hook} modal={ModalName.PlanetDex} />;
-}
-
-export function ModalUpgradeDetailsIcon({ hook }: { hook: ModalHook }) {
-  return <ModalIcon hook={hook} modal={ModalName.UpgradeDetails} />;
-}
-
 export function ModalMapShareIcon({ hook }: { hook: ModalHook }) {
   return <ModalIcon hook={hook} modal={ModalName.MapShare} />;
 }
 
-export function ModalTwitterVerifyIcon({ hook }: { hook: ModalHook }) {
-  return <ModalIcon hook={hook} modal={ModalName.TwitterVerify} />;
-}
-
-export function ModalYourArtifactsIcon({ hook }: { hook: ModalHook }) {
-  return <ModalIcon hook={hook} modal={ModalName.YourArtifacts} />;
-}
-
-export function ModalTwitterBroadcastIcon({ hook }: { hook: ModalHook }) {
-  return <ModalIcon hook={hook} modal={ModalName.TwitterBroadcast} />;
-}
-
 export function ModalAccountIcon({ hook }: { hook: ModalHook }) {
   return <ModalIcon hook={hook} modal={ModalName.ManageAccount} />;
-}
-
-export function ModalHatIcon({ hook }: { hook: ModalHook }) {
-  return <ModalIcon hook={hook} modal={ModalName.Hats} />;
 }
 
 export function ModalSettingsIcon({ hook }: { hook: ModalHook }) {

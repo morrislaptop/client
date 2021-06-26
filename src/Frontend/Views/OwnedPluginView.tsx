@@ -1,11 +1,14 @@
-import React from 'react';
-import styled from 'styled-components';
-import { PluginManager } from '../../Backend/GameLogic/PluginManager';
-import { PluginId, SerializedPlugin } from '../../Backend/Plugins/SerializedPlugin';
-import { Btn } from '../Components/Btn';
-import { PluginElements, Truncate, Spacer } from '../Components/CoreUI';
-import { RemoteModal } from '../Components/RemoteModal';
-import dfstyles from '../Styles/dfstyles';
+import React from "react";
+import styled from "styled-components";
+import { PluginManager } from "../../Backend/GameLogic/PluginManager";
+import {
+  PluginId,
+  SerializedPlugin,
+} from "../../Backend/Plugins/SerializedPlugin";
+import { Btn } from "../Components/Btn";
+import { PluginElements, Truncate, Spacer } from "../Components/CoreUI";
+import { RemoteModal } from "../Components/RemoteModal";
+import dfstyles from "../Styles/dfstyles";
 
 const Error = styled.span`
   color: red;
@@ -68,10 +71,6 @@ export class OwnedPluginView extends React.Component<Props, State> {
   };
 
   private deletePluginClicked = () => {
-    if (this.props.plugin.isLocal) {
-      return;
-    }
-
     this.props.deletePlugin(this.props.plugin.id);
     this.closeEditor && this.closeEditor();
   };
@@ -84,7 +83,10 @@ export class OwnedPluginView extends React.Component<Props, State> {
     this.setState({ modalOpen: isOpen }, () => {
       if (this.state.modalOpen && this.renderedPluginRef) {
         // This is `async` but we don't care about the result
-        this.props.pluginManager?.render(this.props.plugin.id, this.renderedPluginRef);
+        this.props.pluginManager?.render(
+          this.props.plugin.id,
+          this.renderedPluginRef
+        );
       }
     });
   };
@@ -104,13 +106,13 @@ export class OwnedPluginView extends React.Component<Props, State> {
         <div>
           <Truncate>
             {this.props.plugin.name}
-            {this.state.error && <Error>{' ' + this.state.error}</Error>}
+            {this.state.error && <Error>{" " + this.state.error}</Error>}
           </Truncate>
 
           <Spacer width={8} />
           <Actions>
             <Btn
-              textColor={'#aaa'}
+              textColor={"#aaa"}
               color={dfstyles.colors.dfblue}
               noBorder={true}
               onClick={this.editClicked}
@@ -119,17 +121,16 @@ export class OwnedPluginView extends React.Component<Props, State> {
             </Btn>
             <Spacer width={4} />
             <Btn
-              textColor={'#aaa'}
+              textColor={"#aaa"}
               color={dfstyles.colors.dfred}
               noBorder={true}
-              disabled={this.props.plugin.isLocal}
               onClick={this.deletePluginClicked}
             >
               del
             </Btn>
             <Spacer width={4} />
             <Btn
-              textColor={'#aaa'}
+              textColor={"#aaa"}
               color={dfstyles.colors.dfgreen}
               noBorder={true}
               onClick={this.runClicked}

@@ -1,14 +1,18 @@
-import React, { useMemo } from 'react';
-import { Planet, PlanetType, PlanetTypeNames } from '@darkforest_eth/types';
-import { formatNumber, getPlanetRank } from '../../../Backend/Utils/Utils';
-import { Colored, Sub, White } from '../Text';
-import { ProcgenUtils } from '../../../Backend/Procedural/ProcgenUtils';
-import { SpacetimeRipLabel } from './SpacetimeRipLabel';
-import { EMPTY_ADDRESS } from '@darkforest_eth/constants';
-import { useAccount, useUIManager } from '../../Utils/AppHooks';
-import { TextPreview } from '../TextPreview';
-import dfstyles from '../../Styles/dfstyles';
-import { OptionalPlanetBiomeLabelAnim } from './BiomeLabels';
+import React, { useMemo } from "react";
+import { Planet, PlanetType, PlanetTypeNames } from "@darkforest_eth/types";
+import {
+  formatNumber,
+  getPlanetRank,
+  getPlanetMaxRank,
+} from "../../../Backend/Utils/Utils";
+import { Colored, Sub, White } from "../Text";
+import { ProcgenUtils } from "../../../Backend/Procedural/ProcgenUtils";
+import { SpacetimeRipLabel } from "./SpacetimeRipLabel";
+import { EMPTY_ADDRESS } from "@darkforest_eth/constants";
+import { useAccount, useUIManager } from "../../Utils/AppHooks";
+import { TextPreview } from "../TextPreview";
+import dfstyles from "../../Styles/dfstyles";
+import { OptionalPlanetBiomeLabelAnim } from "./BiomeLabels";
 
 /* note that we generally prefer `Planet | undefined` over `Planet` because it
    makes it easier to pass in selected / hovering planet from the emitters      */
@@ -22,7 +26,7 @@ export function StatText({
   planet: Planet | undefined;
   getStat: (p: Planet) => number;
 }) {
-  return <>{planet ? formatNumber(getStat(planet)) : 'n/a'}</>;
+  return <>{planet ? formatNumber(getStat(planet), 2) : "n/a"}</>;
 }
 
 const getSilver = (p: Planet) => p.silver;
@@ -48,7 +52,8 @@ export const EnergyCapText = ({ planet }: { planet: Planet | undefined }) => (
 export function PlanetEnergyLabel({ planet }: { planet: Planet | undefined }) {
   return (
     <span>
-      <EnergyText planet={planet} /> <Sub>/</Sub> <EnergyCapText planet={planet} />
+      <EnergyText planet={planet} /> <Sub>/</Sub>{" "}
+      <EnergyCapText planet={planet} />
     </span>
   );
 }
@@ -56,7 +61,8 @@ export function PlanetEnergyLabel({ planet }: { planet: Planet | undefined }) {
 export function PlanetSilverLabel({ planet }: { planet: Planet | undefined }) {
   return (
     <span>
-      <SilverText planet={planet} /> <Sub>/</Sub> <SilverCapText planet={planet} />
+      <SilverText planet={planet} /> <Sub>/</Sub>{" "}
+      <SilverCapText planet={planet} />
     </span>
   );
 }
@@ -77,14 +83,18 @@ export const SpeedText = ({ planet }: { planet: Planet | undefined }) => (
 );
 
 const getEnergyGrowth = (p: Planet) => p.energyGrowth;
-export const EnergyGrowthText = ({ planet }: { planet: Planet | undefined }) => (
-  <StatText planet={planet} getStat={getEnergyGrowth} />
-);
+export const EnergyGrowthText = ({
+  planet,
+}: {
+  planet: Planet | undefined;
+}) => <StatText planet={planet} getStat={getEnergyGrowth} />;
 
 const getSilverGrowth = (p: Planet) => p.silverGrowth;
-export const SilverGrowthText = ({ planet }: { planet: Planet | undefined }) => (
-  <StatText planet={planet} getStat={getSilverGrowth} />
-);
+export const SilverGrowthText = ({
+  planet,
+}: {
+  planet: Planet | undefined;
+}) => <StatText planet={planet} getStat={getSilverGrowth} />;
 
 // level and rank stuff
 export const PlanetLevelText = ({ planet }: { planet: Planet | undefined }) =>
@@ -102,7 +112,7 @@ export const LevelRankText = ({
 }) => (
   <>
     <PlanetLevelText planet={planet} />
-    {delim || ', '}
+    {delim || ", "}
     <PlanetRankText planet={planet} />
   </>
 );
@@ -113,18 +123,27 @@ export const LevelRankTextEm = ({
 }: {
   planet: Planet | undefined;
   delim?: string;
-}) =>
-  planet ? (
-    <Sub>
-      Level <White>{planet.planetLevel}</White>
-      {delim || ', '}
-      Rank <White>{getPlanetRank(planet)}</White>
-    </Sub>
-  ) : (
-    <></>
-  );
+}) => {
+  if (planet) {
+    const maxRank = getPlanetMaxRank(planet);
+    return (
+      <Sub>
+        Level <White>{planet.planetLevel}</White>
+        {delim || ", "}
+        Rank <White>{getPlanetRank(planet)}</White> (of {maxRank} <Sub>max</Sub>
+        )
+      </Sub>
+    );
+  } else {
+    return <></>;
+  }
+};
 
-export const PlanetTypeLabelAnim = ({ planet }: { planet: Planet | undefined }) => (
+export const PlanetTypeLabelAnim = ({
+  planet,
+}: {
+  planet: Planet | undefined;
+}) => (
   <>
     {planet &&
       (planet.planetType === PlanetType.TRADING_POST ? (
@@ -135,11 +154,15 @@ export const PlanetTypeLabelAnim = ({ planet }: { planet: Planet | undefined }) 
   </>
 );
 
-export const PlanetBiomeTypeLabelAnim = ({ planet }: { planet: Planet | undefined }) => (
+export const PlanetBiomeTypeLabelAnim = ({
+  planet,
+}: {
+  planet: Planet | undefined;
+}) => (
   <>
     {planet?.planetType !== PlanetType.TRADING_POST && (
       <>
-        <OptionalPlanetBiomeLabelAnim planet={planet} />{' '}
+        <OptionalPlanetBiomeLabelAnim planet={planet} />{" "}
       </>
     )}
     <PlanetTypeLabelAnim planet={planet} />
@@ -157,20 +180,23 @@ export function PlanetOwnerLabel({
 }) {
   const uiManager = useUIManager();
   const account = useAccount(uiManager);
-  const twitter = useMemo(() => planet && uiManager.getTwitter(planet.owner), [uiManager, planet]);
+  const twitter = useMemo(
+    () => planet && uiManager.getTwitter(planet.owner),
+    [uiManager, planet]
+  );
 
   let c = dfstyles.colors.subtext;
 
   let content;
-  if (!planet) content = '';
+  if (!planet) content = "";
   else {
-    if (planet.owner === EMPTY_ADDRESS) content = 'Unclaimed';
+    if (planet.owner === EMPTY_ADDRESS) content = "Unclaimed";
     else if (showYours && planet.owner === account) {
-      content = 'yours!';
+      content = "yours!";
       c = dfstyles.colors.dfgreen;
     } else {
       // has an owner, and it's not you (or we don't care if it is)
-      if (twitter) content = '@' + twitter;
+      if (twitter) content = "@" + twitter;
       else content = <TextPreview text={planet.owner} />;
 
       c = ProcgenUtils.getPlayerColor(planet.owner);

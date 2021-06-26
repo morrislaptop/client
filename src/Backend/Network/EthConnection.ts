@@ -325,13 +325,6 @@ class EthConnection extends EventEmitter {
     return parseFloat(utils.formatEther(balanceWeiBN));
   }
 
-  public getPrivateKey(): string {
-    if (!this.signer) {
-      throw new Error('no signer yet');
-    }
-    return this.signer.privateKey;
-  }
-
   public async waitForTransaction(txHash: string): Promise<TransactionReceipt> {
     return new Promise(async (resolve) => {
       let receipt = undefined;

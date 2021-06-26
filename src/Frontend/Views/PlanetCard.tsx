@@ -1,9 +1,9 @@
-import { Planet, PlanetType } from '@darkforest_eth/types';
-import React from 'react';
-import { useMemo } from 'react';
-import { ProcgenUtils } from '../../Backend/Procedural/ProcgenUtils';
-import { Wrapper } from '../../Backend/Utils/Wrapper';
-import { StatIdx } from '../../_types/global/GlobalTypes';
+import { Planet, PlanetType, UpgradeBranchName } from "@darkforest_eth/types";
+import React from "react";
+import { useMemo } from "react";
+import { ProcgenUtils } from "../../Backend/Procedural/ProcgenUtils";
+import { Wrapper } from "../../Backend/Utils/Wrapper";
+import { StatIdx } from "../../_types/global/GlobalTypes";
 import {
   DefenseIcon,
   EnergyGrowthIcon,
@@ -12,7 +12,7 @@ import {
   SilverGrowthIcon,
   SilverIcon,
   SpeedIcon,
-} from '../Components/Icons';
+} from "../Components/Icons";
 import {
   DefenseText,
   EnergyGrowthText,
@@ -24,12 +24,12 @@ import {
   SilverGrowthText,
   PlanetSilverLabel,
   SpeedText,
-} from '../Components/Labels/PlanetLabels';
-import { PlanetPreview } from '../Components/PlanetPreview';
-import { Red } from '../Components/Text';
-import { TooltipName } from '../Game/WindowManager';
-import { PlanetIcons } from '../Renderers/PlanetscapeRenderer/PlanetIcons';
-import { useUIManager, useActiveArtifact } from '../Utils/AppHooks';
+} from "../Components/Labels/PlanetLabels";
+import { PlanetPreview } from "../Components/PlanetPreview";
+import { Red } from "../Components/Text";
+import { TooltipName } from "../Game/WindowManager";
+import { PlanetIcons } from "../Renderers/PlanetscapeRenderer/PlanetIcons";
+import { useUIManager, useActiveArtifact } from "../Utils/AppHooks";
 import {
   StyledPlanetCard,
   PreviewSection,
@@ -46,16 +46,21 @@ import {
   ArtifactSection,
   PlanetActiveArtifact,
   DestroyedMarker,
-} from './PlanetCardComponents';
+} from "./PlanetCardComponents";
+import { getPlanetMaxRank } from "../../Backend/Utils/Utils";
 
 const DestroyedLabel = () => (
   <>
-    <Red>DESTROYED</Red>{' '}
+    <Red>DESTROYED</Red>{" "}
   </>
 );
 
 /** Preview basic planet information - used in `PlanetContextPane` and `HoverPlanetPane` */
-export function PlanetCard({ planetWrapper: p }: { planetWrapper: Wrapper<Planet | undefined> }) {
+export function PlanetCard({
+  planetWrapper: p,
+}: {
+  planetWrapper: Wrapper<Planet | undefined>;
+}) {
   const uiManager = useUIManager();
   const active = useActiveArtifact(p, uiManager);
   const planet = p.value;
@@ -66,6 +71,15 @@ export function PlanetCard({ planetWrapper: p }: { planetWrapper: Wrapper<Planet
   );
 
   const destroyed = p.value?.destroyed;
+
+  const maxRank = getPlanetMaxRank(planet);
+  const maxBranchRank = Math.min(4, maxRank);
+  const defenseUpgradeState =
+    (planet && planet.upgradeState[UpgradeBranchName.Defense]) || 0;
+  const rangeUpgradeState =
+    (planet && planet.upgradeState[UpgradeBranchName.Range]) || 0;
+  const speedUpgradeState =
+    (planet && planet.upgradeState[UpgradeBranchName.Speed]) || 0;
 
   return (
     <StyledPlanetCard>
@@ -80,13 +94,13 @@ export function PlanetCard({ planetWrapper: p }: { planetWrapper: Wrapper<Planet
       </TitleBar>
       <PreviewSection>
         {destroyed && <DestroyedMarker />}
-        <PlanetPreview planet={planet} size={'5em'} res={100} />
+        <PlanetPreview planet={planet} size={"5em"} res={100} />
         <PlanetTag planet={planet}>
           <p>
             <PlanetBiomeTypeLabelAnim planet={planet} />
           </p>
           <p>
-            <LevelRankTextEm planet={planet} delim={' / '} />
+            <LevelRankTextEm planet={planet} delim={" / "} />
           </p>
         </PlanetTag>
         <IconsWrapper>
@@ -140,6 +154,21 @@ export function PlanetCard({ planetWrapper: p }: { planetWrapper: Wrapper<Planet
               <RangeIcon />
             </PCStatIcon>
             <RangeText planet={planet} />
+          </Small>
+        </StatRow>
+        <StatRow>
+          <Small planet={planet}>Upgrades:</Small>
+          <Small planet={planet}>
+            {defenseUpgradeState} of {maxBranchRank}
+            <DefenseIcon />
+          </Small>
+          <Small planet={planet}>
+            {speedUpgradeState} of {maxBranchRank}
+            <SpeedIcon />
+          </Small>
+          <Small planet={planet}>
+            {rangeUpgradeState} of {maxBranchRank}
+            <RangeIcon />
           </Small>
         </StatRow>
       </StatSection>

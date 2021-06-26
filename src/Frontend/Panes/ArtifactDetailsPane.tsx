@@ -151,11 +151,9 @@ function HelpContent() {
 export function ArtifactDetailsBody({
   artifactWrapper,
   contractConstants,
-  openConversationForArtifact,
 }: {
   artifactWrapper: Wrapper<Artifact | undefined>;
   contractConstants: ContractConstants;
-  openConversationForArtifact: (id: ArtifactId) => void;
 }) {
   const uiManager = useUIManager();
   const artifact = artifactWrapper.value;
@@ -191,10 +189,6 @@ export function ArtifactDetailsBody({
 
   const planetClicked = (): void => {
     if (artifact.onPlanetId) uiManager?.setSelectedId(artifact.onPlanetId);
-  };
-
-  const openConversation = () => {
-    openConversationForArtifact(artifact.id);
   };
 
   let readyInStr = undefined;
@@ -274,10 +268,6 @@ export function ArtifactDetailsBody({
             <span>{readyInStr}</span>
           </div>
         )}
-        <Spacer height={8} />
-        <Btn wide color={dfstyles.colors.dfyellow} onClick={openConversation}>
-          Talk to {artifactName(artifact)}
-        </Btn>
       </StyledArtifactDetailsBody>
     </StyledArtifactPane>
   );
@@ -285,10 +275,8 @@ export function ArtifactDetailsBody({
 
 export function ArtifactDetailsPane({
   hook,
-  openConversationForArtifact,
 }: {
   hook: ModalHook;
-  openConversationForArtifact: (id: ArtifactId) => void;
 }) {
   const uiManager = useUIManager();
   const contractConstants = uiManager.getContractConstants();
@@ -301,7 +289,6 @@ export function ArtifactDetailsPane({
         <ArtifactDetailsBody
           artifactWrapper={artifactWrapper}
           contractConstants={contractConstants}
-          openConversationForArtifact={openConversationForArtifact}
         />
       )}
       {!artifact && <p>Please select an artifact.</p>}

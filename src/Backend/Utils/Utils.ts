@@ -1,26 +1,34 @@
-import * as bigInt from 'big-integer';
-import { BigInteger } from 'big-integer';
-import { StatIdx } from '../../_types/global/GlobalTypes';
-import { Planet, EthAddress, SpaceType, Upgrade, UpgradeBranchName } from '@darkforest_eth/types';
-import _ from 'lodash';
-import { EMPTY_ADDRESS } from '@darkforest_eth/constants';
+import * as bigInt from "big-integer";
+import { BigInteger } from "big-integer";
+import { StatIdx } from "../../_types/global/GlobalTypes";
+import {
+  Planet,
+  EthAddress,
+  SpaceType,
+  Upgrade,
+  UpgradeBranchName,
+} from "@darkforest_eth/types";
+import _ from "lodash";
+import { EMPTY_ADDRESS } from "@darkforest_eth/constants";
 
 export const ONE_DAY = 24 * 60 * 60 * 1000;
 
 type NestedBigIntArray = (BigInteger | string | NestedBigIntArray)[];
 type NestedStringArray = (string | NestedStringArray)[];
 
-export const hexifyBigIntNestedArray = (arr: NestedBigIntArray): NestedStringArray => {
+export const hexifyBigIntNestedArray = (
+  arr: NestedBigIntArray
+): NestedStringArray => {
   return arr.map((value) => {
     if (Array.isArray(value)) {
       return hexifyBigIntNestedArray(value);
     } else {
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         const valueBI = bigInt(value as string);
-        return '0x' + valueBI.toString(16);
+        return "0x" + valueBI.toString(16);
       } else {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return '0x' + (value as any).toString(16);
+        return "0x" + (value as any).toString(16);
       }
     }
   });
@@ -40,12 +48,16 @@ export const getUpgradeStat = (upgrade: Upgrade, stat: StatIdx): number => {
 
 // color utils
 
-export const hslStr: (h: number, s: number, l: number) => string = (h, s, l) => {
+export const hslStr: (h: number, s: number, l: number) => string = (
+  h,
+  s,
+  l
+) => {
   return `hsl(${h % 360},${s}%,${l}%)`;
 };
 function hashToHue(hash: string): number {
   let seed = bigInt(hash, 16).and(0xffffff).toString(16);
-  seed = '0x' + '0'.repeat(6 - seed.length) + seed;
+  seed = "0x" + "0".repeat(6 - seed.length) + seed;
 
   const baseHue = parseInt(seed) % 360;
   return baseHue;
@@ -56,13 +68,19 @@ export const getPlayerColor: (player: EthAddress) => string = (player) => {
 };
 
 export const getOwnerColor: (planet: Planet) => string = (planet) => {
-  return planet.owner ? getPlayerColor(planet.owner) : 'hsl(0,1%,50%)';
+  return planet.owner ? getPlayerColor(planet.owner) : "hsl(0,1%,50%)";
 };
 
-export const formatNumber = (num: number): string => {
-  if (num < 1000) return `${num.toFixed(0)}`;
+export const formatNumber = (num: number, dec = 0): string => {
+  if (num < 1000) {
+    if (`${num}` === num.toFixed(0)) {
+      return `${num.toFixed(0)}`;
+    } else {
+      return `${num.toFixed(dec)}`;
+    }
+  }
 
-  const suffixes = ['', 'K', 'M', 'B', 'T', 'q', 'Q'];
+  const suffixes = ["", "K", "M", "B", "T", "q", "Q"];
   let log000 = 0;
   let rem = num;
   while (rem / 1000 >= 1) {
@@ -74,25 +92,29 @@ export const formatNumber = (num: number): string => {
 
   if (rem < 10) return `${rem.toFixed(1)}${suffixes[log000]}`;
   else if (rem < 100) return `${rem.toFixed(1)}${suffixes[log000]}`;
-  else if (log000 < suffixes.length) return `${rem.toFixed(0)}${suffixes[log000]}`;
+  else if (log000 < suffixes.length)
+    return `${rem.toFixed(0)}${suffixes[log000]}`;
   else return `${rem.toFixed(0)}E${log000 * 3}`;
 };
 
 export const getRandomActionId = () => {
-  const hex = '0123456789abcdef';
+  const hex = "0123456789abcdef";
 
-  let ret = '';
+  let ret = "";
   for (let i = 0; i < 10; i += 1) {
     ret += hex[Math.floor(hex.length * Math.random())];
   }
   return ret;
 };
 
-export const getFormatProp = (planet: Planet | undefined, prop: string): string => {
-  if (!planet) return '0';
+export const getFormatProp = (
+  planet: Planet | undefined,
+  prop: string
+): string => {
+  if (!planet) return "0";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const myPlanet = planet as any;
-  if (prop === 'silverGrowth') return formatNumber(myPlanet[prop] * 60);
+  if (prop === "silverGrowth") return formatNumber(myPlanet[prop] * 60);
   else return formatNumber(myPlanet[prop]);
 };
 
@@ -102,7 +124,7 @@ export const getPlanetRank = (planet: Planet | undefined): number => {
 };
 
 export const getPlanetShortHash = (planet: Planet | undefined): string => {
-  if (!planet) return '00000';
+  if (!planet) return "00000";
   else return planet.locationId.substring(4, 9);
 };
 
@@ -119,7 +141,7 @@ export const isFullRank = (planet: Planet | undefined): boolean => {
 };
 
 export const upgradeName = (branchName: UpgradeBranchName) => {
-  return ['Defense', 'Range', 'Speed'][branchName];
+  return ["Defense", "Range", "Speed"][branchName];
 };
 
 export const getPlanetMaxRank = (planet: Planet | undefined): number => {
@@ -135,17 +157,19 @@ export const titleCase = (title: string): string =>
     .split(/ /g)
     .map((word, i) => {
       // don't capitalize articles unless it's the first word
-      if (i !== 0 && ['of', 'the'].includes(word)) return word;
+      if (i !== 0 && ["of", "the"].includes(word)) return word;
       return `${word.substring(0, 1).toUpperCase()}${word.substring(1)}`;
     })
-    .join(' ');
+    .join(" ");
 
 export const hasOwner = (planet: Planet) => {
   return planet.owner !== EMPTY_ADDRESS;
 };
 
 export function sleep<T>(timeout: number, returns?: T): Promise<T> {
-  return new Promise<T>((resolve) => setTimeout(() => resolve(returns as T), timeout));
+  return new Promise<T>((resolve) =>
+    setTimeout(() => resolve(returns as T), timeout)
+  );
 }
 
 export async function rejectAfter<T>(ms: number, msg: string): Promise<T> {
@@ -222,7 +246,9 @@ export const callWithRetry = async <T>(
         }
 
         if (i < maxRetries - 1) {
-          await sleep(Math.min(retryInterval * 2 ** i + Math.random() * 100, 15000));
+          await sleep(
+            Math.min(retryInterval * 2 ** i + Math.random() * 100, 15000)
+          );
         } else {
           reject(e);
         }
@@ -231,11 +257,19 @@ export const callWithRetry = async <T>(
   });
 };
 
-export const timeoutAfter = async <T>(promise: Promise<T>, ms: number, timeoutMsg: string) => {
+export const timeoutAfter = async <T>(
+  promise: Promise<T>,
+  ms: number,
+  timeoutMsg: string
+) => {
   return Promise.race([promise, rejectAfter<T>(ms, timeoutMsg)]);
 };
 
-export function deferred<T>(): [(t: T) => void, (t: Error) => void, Promise<T>] {
+export function deferred<T>(): [
+  (t: T) => void,
+  (t: Error) => void,
+  Promise<T>
+] {
   let resolve: ((t: T) => void) | null = null;
   let reject: ((t: Error) => void) | null = null;
   const promise = new Promise<T>((r, rj) => {

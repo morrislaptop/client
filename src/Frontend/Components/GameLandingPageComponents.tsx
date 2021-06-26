@@ -1,18 +1,16 @@
-import styled, { css } from 'styled-components';
-import dfstyles from '../Styles/dfstyles';
-import React, { Dispatch, SetStateAction, useLayoutEffect } from 'react';
-import { InitRenderState } from '../Pages/GameLandingPage';
-import UIEmitter, { UIEmitterEvent } from '../Utils/UIEmitter';
+import styled, { css } from "styled-components";
+import dfstyles from "../Styles/dfstyles";
+import React, { Dispatch, SetStateAction, useLayoutEffect } from "react";
+import { InitRenderState } from "../Pages/GameLandingPage";
+import UIEmitter, { UIEmitterEvent } from "../Utils/UIEmitter";
 
 type LandingWrapperProps = {
   children: React.ReactNode;
   initRender: InitRenderState;
-  terminalEnabled: boolean;
 };
 
 const StyledWrapper = styled.div<{
   initRender: InitRenderState;
-  terminalEnabled: boolean;
 }>`
   width: 100%;
   height: 100%;
@@ -22,15 +20,13 @@ const StyledWrapper = styled.div<{
   flex-direction: row;
 
   justify-content: ${(props) =>
-    props.initRender !== InitRenderState.NONE ? 'space-between' : 'space-around'};
+    props.initRender !== InitRenderState.NONE
+      ? "space-between"
+      : "space-around"};
 `;
 
-export function Wrapper({ children, initRender, terminalEnabled }: LandingWrapperProps) {
-  return (
-    <StyledWrapper initRender={initRender} terminalEnabled={terminalEnabled}>
-      {children}
-    </StyledWrapper>
-  );
+export function Wrapper({ children, initRender }: LandingWrapperProps) {
+  return <StyledWrapper initRender={initRender}>{children}</StyledWrapper>;
 }
 
 const STWInit = css`
@@ -51,22 +47,19 @@ const STWNoInit = css`
 
 const StyledTerminalWrapper = styled.div<{
   initRender: InitRenderState;
-  terminalEnabled: boolean;
 }>`
-  display: ${({ initRender, terminalEnabled }) => {
-    if (initRender === InitRenderState.NONE) return 'block';
-    else return terminalEnabled ? 'block' : 'none';
+  display: ${({ initRender }) => {
+    if (initRender === InitRenderState.NONE) return "block";
+    else return "none";
   }};
-  border-left: ${({ terminalEnabled, initRender }) =>
-    terminalEnabled && initRender !== InitRenderState.NONE
-      ? `1px solid ${dfstyles.colors.text}`
-      : 'none'};
+  border-left: "none"
   height: 100%;
   // overflow: hidden;
   background: ${dfstyles.colors.background};
   position: relative;
 
-  ${(props) => (props.initRender !== InitRenderState.NONE ? STWInit : STWNoInit)};
+  ${(props) =>
+    props.initRender !== InitRenderState.NONE ? STWInit : STWNoInit};
 
   @media (max-width: 660px) {
     width: 100%;
@@ -74,12 +67,16 @@ const StyledTerminalWrapper = styled.div<{
   }
 `;
 
-export function TerminalWrapper({ children, initRender, terminalEnabled }: LandingWrapperProps) {
-  return (
-    <StyledTerminalWrapper initRender={initRender} terminalEnabled={terminalEnabled}>
-      {children}
-    </StyledTerminalWrapper>
-  );
+export function TerminalWrapper({ children, initRender }: LandingWrapperProps) {
+  if (initRender === InitRenderState.COMPLETE) {
+    return <></>;
+  } else {
+    return (
+      <StyledTerminalWrapper initRender={initRender}>
+        {children}
+      </StyledTerminalWrapper>
+    );
+  }
 }
 
 const StyledTerminalToggler = styled.div<{ terminalEnabled: boolean }>`
@@ -129,30 +126,32 @@ export function TerminalToggler({
       terminalEnabled={terminalEnabled}
       onClick={() => setTerminalEnabled((b: boolean): boolean => !b)}
     >
-      <span>{terminalEnabled ? '>' : '<'}</span>
+      <span>{terminalEnabled ? ">" : "<"}</span>
     </StyledTerminalToggler>
   );
 }
 
 const StyledGameWindowWrapper = styled.div<{
   initRender: InitRenderState;
-  terminalEnabled: boolean;
 }>`
   background: ${dfstyles.colors.background};
   position: absolute;
   left: 0;
   top: 0;
 
-  width: ${(props) =>
-    props.terminalEnabled ? `calc(100% - ${dfstyles.game.terminalWidth})` : '100%'};
+  width: 100%;
   height: 100%;
 
-  display: ${(props) => (props.initRender !== InitRenderState.NONE ? 'block' : 'none')};
+  display: ${(props) =>
+    props.initRender !== InitRenderState.NONE ? "block" : "none"};
 `;
 
-export function GameWindowWrapper({ children, initRender, terminalEnabled }: LandingWrapperProps) {
+export function GameWindowWrapper({
+  children,
+  initRender,
+}: LandingWrapperProps) {
   return (
-    <StyledGameWindowWrapper initRender={initRender} terminalEnabled={terminalEnabled}>
+    <StyledGameWindowWrapper initRender={initRender}>
       {initRender && <>{children}</>}
     </StyledGameWindowWrapper>
   );

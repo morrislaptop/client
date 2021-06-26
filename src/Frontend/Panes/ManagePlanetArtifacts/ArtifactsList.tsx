@@ -10,12 +10,10 @@ export function ArtifactsList({
   artifacts,
   sortBy,
   openArtifactDetails,
-  actions,
 }: {
   artifacts: Array<Artifact | undefined>;
   sortBy: keyof Upgrade | undefined;
   openArtifactDetails: (artifactId: ArtifactId) => void;
-  actions: (artifact: Artifact) => React.ReactElement | undefined;
 }) {
   const [sortedArtifacts, setSortedArtifacts] = useState([...artifacts]);
 
@@ -43,7 +41,6 @@ export function ArtifactsList({
         <ArtifactListItem
           key={a?.id + '' + i}
           artifact={a}
-          actions={actions}
           openArtifactDetails={openArtifactDetails}
         />
       ))}

@@ -43,7 +43,6 @@ import { deferred } from '../Utils/Utils';
 import { biomeName } from './ArtifactUtils';
 import GameManager, { GameManagerEvent } from './GameManager';
 import { PluginManager } from './PluginManager';
-import TutorialManager, { TutorialState } from './TutorialManager';
 import { EMPTY_ADDRESS } from '@darkforest_eth/constants';
 import { planetHasBonus } from '@darkforest_eth/hexgen';
 import { ViewportEntities } from './ViewportEntities';
@@ -267,37 +266,12 @@ class GameUIManager extends EventEmitter {
     this.centerPlanet(planet);
   }
 
-  public joinGame(beforeRetry: (e: Error) => Promise<boolean>): GameUIManager {
-    this.gameManager
-      .joinGame(beforeRetry)
-      .once(GameManagerEvent.InitializedPlayer, this.onEmitInitializedPlayer)
-      .once(GameManagerEvent.InitializedPlayerError, this.onEmitInitializedPlayerError);
-
-    return this;
-  }
-
-  public addAccount(coords: WorldCoords): Promise<boolean> {
-    return this.gameManager.addAccount(coords);
-  }
-
   public verifyTwitter(twitter: string): Promise<boolean> {
     return this.gameManager.verifyTwitter(twitter);
   }
 
   public getPluginManager(): PluginManager {
     return this.plugins;
-  }
-
-  public getPrivateKey(): string {
-    return this.gameManager.getPrivateKey();
-  }
-
-  public getMyBalance(): number {
-    return this.gameManager.getMyBalance();
-  }
-
-  public getMyBalanceEmitter(): Monomitter<number> {
-    return this.gameManager.getMyBalanceEmitter();
   }
 
   public findArtifact(planetId: LocationId) {
@@ -383,14 +357,6 @@ class GameUIManager extends EventEmitter {
 
   public getConversation(artifactId: ArtifactId): Promise<Conversation | undefined> {
     return this.gameManager.getConversation(artifactId);
-  }
-
-  public startConversation(artifactId: ArtifactId): Promise<Conversation> {
-    return this.gameManager.startConversation(artifactId);
-  }
-
-  public stepConversation(artifactId: ArtifactId, message: string): Promise<Conversation> {
-    return this.gameManager.stepConversation(artifactId, message);
   }
 
   public getEnergyArrivingForMove(
@@ -499,8 +465,6 @@ class GameUIManager extends EventEmitter {
           const artifact = this.getArtifactSending(from.locationId);
 
           this.gameManager.move(from.locationId, to.locationId, forces, silver, artifact?.id);
-          const tutorialManager = TutorialManager.getInstance();
-          tutorialManager.acceptInput(TutorialState.SendFleet);
         }
       }
 
@@ -637,11 +601,6 @@ class GameUIManager extends EventEmitter {
   public setSelectedPlanet(planet: Planet | undefined): void {
     this.previousSelectedPlanet = this.selectedPlanet;
 
-    if (!planet) {
-      const tutorialManager = TutorialManager.getInstance();
-      tutorialManager.acceptInput(TutorialState.Deselect);
-    }
-
     const uiEmitter = UIEmitter.getInstance();
     this.selectedPlanet = planet;
     if (!planet) {
@@ -652,11 +611,6 @@ class GameUIManager extends EventEmitter {
       else {
         // loc is not undefined
         this.selectedCoords = loc.coords;
-
-        if (coordsEqual(loc.coords, this.getHomeCoords())) {
-          const tutorialManager = TutorialManager.getInstance();
-          tutorialManager.acceptInput(TutorialState.HomePlanet);
-        }
       }
     }
     uiEmitter.emit(UIEmitterEvent.GamePlanetSelected);
@@ -1012,18 +966,6 @@ class GameUIManager extends EventEmitter {
     // TODO: do something like JSON.stringify(args) so we know formatting is correct
     this.terminal.current?.printShellLn(`df.buyHat('${planet.locationId}')`);
     this.gameManager.buyHat(planet.locationId);
-  }
-
-  public buyGPTCredits(amount: number) {
-    this.gameManager.buyGPTCredits(amount);
-  }
-
-  public getGptCreditPriceEmitter(): Monomitter<number> {
-    return this.gameManager.getGptCreditPriceEmitter();
-  }
-
-  public getGptCreditBalanceEmitter(): Monomitter<number> {
-    return this.gameManager.getGptCreditBalanceEmitter();
   }
 
   public getIsBuyingCreditsEmitter(): Monomitter<boolean> {

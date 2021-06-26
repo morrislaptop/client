@@ -74,7 +74,7 @@ import {
   decodePlayer,
   decodeArtifactPointValues,
 } from '@darkforest_eth/serde';
-import { EMPTY_LOCATION_ID, CONTRACT_PRECISION } from '@darkforest_eth/constants';
+import { EMPTY_LOCATION_ID, CONTRACT_PRECISION, EMPTY_ADDRESS } from '@darkforest_eth/constants';
 import type {
   RevealSnarkContractCallArgs,
   InitSnarkContractCallArgs,
@@ -1075,11 +1075,13 @@ class ContractsAPI extends EventEmitter {
   }
 
   public getAccount() {
-    return this.ethConnection.getAddress();
+    // return this.ethConnection.getAddress();
+    return EMPTY_ADDRESS
   }
 
   public getBalance() {
-    return this.ethConnection.getBalance(this.getAccount());
+    // return this.ethConnection.getBalance(this.getAccount());
+    return 0
   }
 
   public setDiagnosticUpdater(diagnosticUpdater?: DiagnosticUpdater) {

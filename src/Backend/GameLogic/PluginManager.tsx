@@ -1,15 +1,9 @@
-import { v4 as uuidv4 } from 'uuid';
-import NotificationManager, { NotificationType } from '../../Frontend/Game/NotificationManager';
-import { Monomitter, monomitter } from '../../Frontend/Utils/Monomitter';
-import {
-  getHmrPlugins,
-  hmrPlugins$,
-  HMRPlugin,
-  loadLocalPlugin,
-} from '../Plugins/LocalPluginReloader';
-import { PluginProcess } from '../Plugins/PluginProcess';
-import { SerializedPlugin, PluginId } from '../Plugins/SerializedPlugin';
-import GameManager from './GameManager';
+import { v4 as uuidv4 } from "uuid";
+import { Monomitter, monomitter } from "../../Frontend/Utils/Monomitter";
+import { getHmrPlugins, HMRPlugin } from "../Plugins/LocalPluginReloader";
+import { PluginProcess } from "../Plugins/PluginProcess";
+import { SerializedPlugin, PluginId } from "../Plugins/SerializedPlugin";
+import GameManager from "./GameManager";
 
 /**
  * Represents book-keeping information about a running process. We keep it
@@ -21,26 +15,18 @@ export class ProcessInfo {
   hasError = false;
 }
 
-function loadPlugin(plugin: SerializedPlugin): Promise<{ default: PluginProcess }> {
-  if (plugin.isLocal) {
-    if (plugin.localFilename) {
-      return loadLocalPlugin(plugin.localFilename);
-    } else {
-      return Promise.reject(new Error(`No filename available for local plugin: ${plugin.name}`));
-    }
-  }
-
-  if (plugin.code) {
-    // There is no current indication that importing base64'd code has any size limit
-    // But we should verify an implicit limit doesn't exist
-    const base64code = btoa(plugin.code);
-    // The `webpackIgnore` "magic comment" is almost undocumented, but it makes
-    // webpack skip over this dynamic `import` call so it won't be transformed into
-    // a weird _webpack_require_dynamic_ call
-    return import(/* webpackIgnore: true */ `data:text/javascript;base64,${base64code}`);
-  }
-
-  return Promise.reject(new Error(`No code to run for plugin: ${plugin.name}`));
+function loadPlugin(
+  plugin: SerializedPlugin
+): Promise<{ default: PluginProcess }> {
+  // There is no current indication that importing base64'd code has any size limit
+  // But we should verify an implicit limit doesn't exist
+  const base64code = btoa(plugin.code);
+  // The `webpackIgnore` "magic comment" is almost undocumented, but it makes
+  // webpack skip over this dynamic `import` call so it won't be transformed into
+  // a weird _webpack_require_dynamic_ call
+  return import(
+    /* webpackIgnore: true */ `data:text/javascript;base64,${base64code}`
+  );
 }
 
 /**
@@ -99,13 +85,13 @@ export class PluginManager {
     if (this.pluginProcesses[id]) {
       try {
         const process = this.pluginProcesses[id];
-        if (process && typeof process.destroy === 'function') {
+        if (process && typeof process.destroy === "function") {
           // TODO: destroy should also receive the element to cleanup event handlers, etc
           process.destroy();
         }
       } catch (e) {
         this.pluginProcessInfos[id].hasError = true;
-        console.error('error when destroying plugin', e);
+        console.error("error when destroying plugin", e);
       } finally {
         delete this.pluginProcesses[id];
         delete this.pluginProcessInfos[id];
@@ -122,18 +108,6 @@ export class PluginManager {
     this.pluginLibrary = await this.gameManager.loadPlugins();
 
     this.onNewLocalPlugins(getHmrPlugins());
-
-    // TODO: Provide own env variable for this feature
-    if (process.env.NODE_ENV === 'development') {
-      hmrPlugins$.subscribe((plugins) => {
-        this.onNewLocalPlugins(plugins);
-
-        NotificationManager.getInstance().notify(
-          NotificationType.Generic,
-          'Local plugins were reloaded!'
-        );
-      });
-    }
 
     this.notifyPluginLibraryUpdated();
   }
@@ -163,7 +137,11 @@ export class PluginManager {
    * 2) edits the plugin-library version of this plugin
    * 3) if a plugin was edited, save the plugin library to disk
    */
-  public overwritePlugin(newName: string, pluginCode: string, id: PluginId): void {
+  public overwritePlugin(
+    newName: string,
+    pluginCode: string,
+    id: PluginId
+  ): void {
     this.destroy(id);
 
     const plugin = this.getPluginFromLibrary(id);
@@ -188,7 +166,9 @@ export class PluginManager {
       .filter((p) => !!p) as SerializedPlugin[];
 
     if (newPluginsList.length !== this.pluginLibrary.length) {
-      throw new Error('to reorder the plugins, you must pass in precisely one id for each plugin');
+      throw new Error(
+        "to reorder the plugins, you must pass in precisely one id for each plugin"
+      );
     }
 
     this.pluginLibrary = newPluginsList;
@@ -200,14 +180,16 @@ export class PluginManager {
   /**
    * adds a new plugin into the plugin library.
    */
-  public addPluginToLibrary(name: string, code?: string, localFilename?: string): SerializedPlugin {
+  public addPluginToLibrary(
+    name: string,
+    code: string,
+    id?: string
+  ): SerializedPlugin {
     const newPlugin: SerializedPlugin = {
-      id: uuidv4() as PluginId,
+      id: id ? (id as PluginId) : (uuidv4() as PluginId),
       lastEdited: new Date().getTime(),
       name,
       code,
-      isLocal: !!localFilename,
-      localFilename,
     };
 
     this.pluginLibrary.push(newPlugin);
@@ -243,7 +225,7 @@ export class PluginManager {
         this.pluginProcesses[id] = new Plugin();
       }
     } catch (e) {
-      console.error('failed to start plugin', e);
+      console.error("failed to start plugin", e);
       this.pluginProcessInfos[id].hasError = true;
     }
 
@@ -258,7 +240,12 @@ export class PluginManager {
     const process = await this.spawn(id);
     const processInfo = this.pluginProcessInfos[id];
 
-    if (process && typeof process.render === 'function' && processInfo && !processInfo.rendered) {
+    if (
+      process &&
+      typeof process.render === "function" &&
+      processInfo &&
+      !processInfo.rendered
+    ) {
       try {
         // Allows a plugin render to be async which in turns allows
         // any method to be async since this is the entry point into it
@@ -266,7 +253,7 @@ export class PluginManager {
         processInfo.rendered = true;
       } catch (e) {
         processInfo.hasError = true;
-        console.log('failed to render plugin', e);
+        console.log("failed to render plugin", e);
       }
     }
   }
@@ -307,26 +294,30 @@ export class PluginManager {
       const processInfo = this.pluginProcessInfos[plugin.id];
       const pluginInstance = this.pluginProcesses[plugin.id];
 
-      if (pluginInstance && typeof pluginInstance.draw === 'function' && !processInfo.hasError) {
+      if (
+        pluginInstance &&
+        typeof pluginInstance.draw === "function" &&
+        !processInfo.hasError
+      ) {
         try {
           pluginInstance.draw(ctx);
         } catch (e) {
-          console.log('failed to draw plugin', e);
+          console.log("failed to draw plugin", e);
           processInfo.hasError = true;
         }
       }
     }
   }
 
-  private onNewLocalPlugins(newPlugins: HMRPlugin[]) {
-    this.pluginLibrary.forEach((p) => {
-      if (p.isLocal) {
-        this.deletePlugin(p.id);
-      }
-    });
+  private hasPlugin(plugin: HMRPlugin): boolean {
+    return this.pluginLibrary.some((p) => p.id === plugin.id);
+  }
 
+  private onNewLocalPlugins(newPlugins: HMRPlugin[]) {
     for (const plugin of newPlugins) {
-      this.addPluginToLibrary(plugin.name, undefined, plugin.filename);
+      if (!this.hasPlugin(plugin)) {
+        this.addPluginToLibrary(plugin.name, plugin.code, plugin.id);
+      }
     }
   }
 

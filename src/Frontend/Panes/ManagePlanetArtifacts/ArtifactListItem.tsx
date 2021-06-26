@@ -18,11 +18,9 @@ import { artifactName } from '../../../Backend/Procedural/ArtifactProcgen';
 export function ArtifactListItem({
   artifact,
   openArtifactDetails,
-  actions,
 }: {
   artifact: Artifact | undefined;
   openArtifactDetails: (artifactId: ArtifactId) => void;
-  actions: (artifact: Artifact) => React.ReactElement | undefined;
 }) {
   if (artifact === undefined) {
     return (
@@ -51,7 +49,6 @@ export function ArtifactListItem({
             <ArtifactBiomeText artifact={artifact} /> <ArtifactTypeText artifact={artifact} />
           </Sub>
         </Smaller>
-        {actions(artifact)}
         <br />
         <SecondRow>
           <UpgradeStatsView

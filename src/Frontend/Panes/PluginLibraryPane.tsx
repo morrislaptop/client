@@ -1,31 +1,35 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { ReactSortable } from 'react-sortablejs';
-import GameUIManager from '../../Backend/GameLogic/GameUIManager';
-import { PluginId, SerializedPlugin } from '../../Backend/Plugins/SerializedPlugin';
-import { Btn } from '../Components/Btn';
-import { MaxWidth, Spacer } from '../Components/CoreUI';
-import { RemoteModal } from '../Components/RemoteModal';
-import dfstyles from '../Styles/dfstyles';
-import { useEmitterValue } from '../Utils/EmitterHooks';
-import { OwnedPluginView } from '../Views/OwnedPluginView';
-import { ModalHook, ModalPane, ModalName } from '../Views/ModalPane';
-import { PluginEditorPane } from './PluginEditorPane';
-import { Setting, getBooleanSetting, setSetting } from '../Utils/SettingsHooks';
+import * as React from "react";
+import { useState, useEffect } from "react";
+import { ReactSortable } from "react-sortablejs";
+import GameUIManager from "../../Backend/GameLogic/GameUIManager";
+import {
+  PluginId,
+  SerializedPlugin,
+} from "../../Backend/Plugins/SerializedPlugin";
+import { Btn } from "../Components/Btn";
+import { MaxWidth, Spacer } from "../Components/CoreUI";
+import { RemoteModal } from "../Components/RemoteModal";
+import dfstyles from "../Styles/dfstyles";
+import { useEmitterValue } from "../Utils/EmitterHooks";
+import { OwnedPluginView } from "../Views/OwnedPluginView";
+import { ModalHook, ModalPane, ModalName } from "../Views/ModalPane";
+import { PluginEditorPane } from "./PluginEditorPane";
+import { Setting, getBooleanSetting, setSetting } from "../Utils/SettingsHooks";
 
 function HelpContent() {
   return (
     <div>
       <p>
-        Plugins are bits of code that can be written by anyone, and allow the writer to program the
-        game. Plugins range from cosmetic (try the rage cage plugin) to functional (imagine a
-        wage-war artifact).
+        Plugins are bits of code that can be written by anyone, and allow the
+        writer to program the game. Plugins range from cosmetic (try the rage
+        cage plugin) to functional (imagine a wage-war artifact).
       </p>
       <Spacer height={8} />
       <p>
-        Dark Forest maintains a repository to which community members can submit their own plugins.
-        You can find it <a href='https://plugins.zkga.me/'>here</a>.
+        Dark Forest maintains a repository to which community members can submit
+        their own plugins. You can find it{" "}
+        <a href="https://plugins.zkga.me/">here</a>.
       </p>
       <Spacer height={8} />
       <p>Try editing one of the default plugins to see how it works!</p>
@@ -51,7 +55,10 @@ export function PluginLibraryPane({
   modalsContainer: Element;
 }) {
   const pluginManager = gameUIManager.getPluginManager();
-  const plugins = useEmitterValue(pluginManager.plugins$, pluginManager.getLibrary());
+  const plugins = useEmitterValue(
+    pluginManager.plugins$,
+    pluginManager.getLibrary()
+  );
   const account = gameUIManager.getAccount();
   const [editorIsOpen, setEditorIsOpen] = useState(false);
   const [warningIsOpen, setWarningIsOpen] = useState(false);
@@ -60,7 +67,8 @@ export function PluginLibraryPane({
   /**
    * the id of the plugin that the user is currently editing.
    */
-  const [currentlyEditingPluginId, setEditingPluginId] = useState<PluginId | undefined>();
+  const [currentlyEditingPluginId, setEditingPluginId] =
+    useState<PluginId | undefined>();
 
   /**
    * to get a unique editor for every time we open the editor. this means that every
@@ -77,7 +85,10 @@ export function PluginLibraryPane({
    * closes the editor.
    */
   function openEditorForPlugin(pluginId?: PluginId): () => void {
-    if (!account || !getBooleanSetting(account, Setting.HasAcceptedPluginRisk)) {
+    if (
+      !account ||
+      !getBooleanSetting(account, Setting.HasAcceptedPluginRisk)
+    ) {
       setWarningIsOpen(true);
       return () => {};
     }
@@ -99,17 +110,21 @@ export function PluginLibraryPane({
    * Overwrites the plugin with the given plugin id, killing its process
    * if it has a process. If `pluginId` is undefined, saves a new plugin.
    */
-  const saveAndReloadPlugin = (newName: string, newCode: string, pluginId?: PluginId): void => {
+  const saveAndReloadPlugin = (
+    newName: string,
+    newCode: string,
+    pluginId?: PluginId
+  ): void => {
     if (pluginId && newCode) {
-      pluginManager?.overwritePlugin(newName || 'no name', newCode, pluginId);
+      pluginManager?.overwritePlugin(newName || "no name", newCode, pluginId);
     } else {
-      pluginManager?.addPluginToLibrary(newName || 'no name', newCode || '');
+      pluginManager?.addPluginToLibrary(newName || "no name", newCode || "");
     }
   };
 
   const onAcceptWarningClick = () => {
     if (clicksUntilHasPlugins === 1) {
-      account && setSetting(account, Setting.HasAcceptedPluginRisk, true + '');
+      account && setSetting(account, Setting.HasAcceptedPluginRisk, true + "");
       setWarningIsOpen(false);
     }
 
@@ -129,7 +144,7 @@ export function PluginLibraryPane({
   }
 
   function deletePluginClicked(id: PluginId) {
-    if (confirm('are you sure you want to delete this plugin?')) {
+    if (confirm("are you sure you want to delete this plugin?")) {
       pluginManager?.deletePlugin(id);
     }
   }
@@ -143,7 +158,7 @@ export function PluginLibraryPane({
    */
   function renderPluginsList() {
     if (plugins.length === 0) {
-      return 'you have no plugins!';
+      return "you have no plugins!";
     }
 
     return (
@@ -172,20 +187,21 @@ export function PluginLibraryPane({
     <>
       <RemoteModal
         container={modalsContainer}
-        title={'WARNING'}
+        title={"WARNING"}
         hook={[warningIsOpen, setWarningIsOpen]}
       >
-        <MaxWidth width='400px'>
+        <MaxWidth width="400px">
           <p>
-            Dark Forest supports plugins, which allow you to write JavaScript code that can interact
-            with the game. Plugins are powerful and can enhance your gameplay experience, but they
-            can also be dangerous!
+            Dark Forest supports plugins, which allow you to write JavaScript
+            code that can interact with the game. Plugins are powerful and can
+            enhance your gameplay experience, but they can also be dangerous!
           </p>
           <br />
           <p>
-            Be careful using plugins that were authored by somebody other than yourself! Plugins can
-            impersonate your account, and steal all your money. A malicious plugin could transfer
-            all your planets and artifacts to somebody else!
+            Be careful using plugins that were authored by somebody other than
+            yourself! Plugins can impersonate your account, and steal all your
+            money. A malicious plugin could transfer all your planets and
+            artifacts to somebody else!
           </p>
           <br />
           <Btn
@@ -199,11 +215,11 @@ export function PluginLibraryPane({
       </RemoteModal>
       <RemoteModal
         container={modalsContainer}
-        title={'Plugin Editor'}
+        title={"Plugin Editor"}
         hook={[editorIsOpen, setEditorIsOpen]}
       >
         <PluginEditorPane
-          key={currentlyEditingPluginId + '' + editorNonce}
+          key={currentlyEditingPluginId + "" + editorNonce}
           pluginId={currentlyEditingPluginId}
           setIsOpen={setEditorIsOpen}
           pluginHost={pluginManager}
@@ -213,14 +229,12 @@ export function PluginLibraryPane({
 
       <ModalPane
         hook={hook}
-        title='Plugin Library'
+        title="Plugin Library"
         name={ModalName.Plugins}
         helpContent={HelpContent}
-        width='350px'
+        width="350px"
       >
         {renderPluginsList()}
-        <Spacer height={8} />
-        <Btn onClick={addPluginClicked}>Add Plugin</Btn>
       </ModalPane>
     </>
   );

@@ -84,22 +84,6 @@ export function SettingsPane({
     });
   };
 
-  const [balance, setBalance] = useState<number>(0);
-
-  useEffect(() => {
-    if (!uiManager) return;
-    const updateBalance = () => {
-      setBalance(uiManager.getMyBalance());
-    };
-
-    updateBalance();
-    const intervalId = setInterval(updateBalance, 1000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [uiManager]);
-
   const [failure, setFailure] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [importMapByTextBoxValue, setImportMapByTextBoxValue] = useState('');
@@ -164,16 +148,6 @@ export function SettingsPane({
     }
   };
 
-  const [clicks, setClicks] = useState<number>(8);
-  const [, setPrivateVisible] = privateHook;
-  const doPrivateClick = (_e: React.MouseEvent) => {
-    setClicks((x) => x - 1);
-    if (clicks === 1) {
-      setPrivateVisible(true);
-      setClicks(5);
-    }
-  };
-
   const clipScroll = (v: number) => Math.max(Math.min(Math.round(v), SCROLL_MAX), SCROLL_MIN);
   const [scrollSpeed, setScrollSpeed] = useState<number>(DEFAULT_SCROLL);
   const onScrollChange = (e: FormEvent) => {
@@ -196,53 +170,6 @@ export function SettingsPane({
   return (
     <ModalPane hook={hook} title={'Settings'} name={ModalName.Hats}>
       <StyledSettingsPane>
-        <Section>
-          <SectionHeader>Manage account</SectionHeader>
-          Your <White>SKEY</White>, or secret key, together with your <White>home planet's</White>{' '}
-          coordinates, grant you access to your Dark Forest account on different browsers (kind of
-          like a password).
-          <Spacer height={8} />
-          <em>
-            <Red>WARNING:</Red> Never ever send this to anyone!
-          </em>
-          <Spacer height={8} />
-          <Row>
-            <Btn onClick={doPrivateClick}>Click {clicks} times to view info</Btn>
-          </Row>
-        </Section>
-
-        <Section>
-          <SectionHeader>Manage wallet</SectionHeader>
-          <Row>
-            <span>Public Key</span>
-            <span>{account}</span>
-          </Row>
-          <Row>
-            <span>Balance</span>
-            <span>{balance}</span>
-          </Row>
-          <Row>
-            <span>gas fee (gwei)</span>
-            <MultiSelectSetting
-              uiManager={uiManager}
-              setting={Setting.GasFeeGwei}
-              values={['1', '2', '3']}
-              labels={['1 gwei (default)', '2 gwei (faster)', '3 gwei (fastest)']}
-            />
-          </Row>
-          <Row>
-            <span>
-              Auto-confirm all transactions except purchases. Currently, you can only purchase GPT
-              Credits, and Hats.
-            </span>
-            <Spacer width={64} />
-            <BooleanSetting
-              uiManager={uiManager}
-              setting={Setting.AutoApproveNonPurchaseTransactions}
-            />
-          </Row>
-        </Section>
-
         <Section>
           <SectionHeader>Export and import explored maps</SectionHeader>
           <em>
@@ -293,19 +220,6 @@ export function SettingsPane({
         </Section>
 
         <Section>
-          <SectionHeader>Metrics Opt Out</SectionHeader>
-          We collect a minimal set of data and statistics such as SNARK proving times, average
-          transaction times across browsers, and xDAI transaction errors, to help us optimize
-          performance and fix bugs. This does not include personal data like email or IP address.
-          <Spacer height={8} />
-          <BooleanSetting
-            uiManager={uiManager}
-            setting={Setting.OptOutMetrics}
-            settingDescription='toggle metrics opt out'
-          />
-        </Section>
-
-        <Section>
           <SectionHeader>Performance</SectionHeader>
           Some performance settings. These will definitely be changed as we zero in on the
           performance bottlenecks in this game.
@@ -319,13 +233,6 @@ export function SettingsPane({
 
         <Section>
           <SectionHeader>Manage other settings.</SectionHeader>
-          <div>Show notifications for MOVE</div>
-          <Spacer height={8} />
-          <BooleanSetting
-            uiManager={uiManager}
-            setting={Setting.MoveNotifications}
-            settingDescription='toggle move notifications'
-          />
           <Row>
             Scroll speed
             <Range

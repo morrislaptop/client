@@ -21,17 +21,13 @@ export interface InitialGameState {
   contractConstants: ContractConstants;
   players: Map<string, Player>;
   worldRadius: number;
-  gptCreditPriceEther: number;
-  myGPTCredits: number;
   allTouchedPlanetIds: LocationId[];
   allRevealedCoords: RevealedCoords[];
   pendingMoves: QueuedArrival[];
   touchedAndLocatedPlanets: Map<LocationId, Planet>;
   artifactsOnVoyages: Artifact[];
-  myArtifacts: Artifact[];
   heldArtifacts: Artifact[][];
   loadedPlanets: LocationId[];
-  balance: number;
   revealedCoordsMap: Map<LocationId, RevealedCoords>;
   planetVoyageIdMap: Map<LocationId, VoyageId[]>;
   arrivals: Map<VoyageId, QueuedArrival>;
@@ -75,13 +71,9 @@ export class InitialGameStateDownloader {
     const planetsMetadataLoadingBar = this.makeProgressListener('Planet Metadatas');
     const artifactsOnPlanetsLoadingBar = this.makeProgressListener('Artifacts On Planets');
     const artifactsInFlightLoadingBar = this.makeProgressListener('Artifacts On Moves');
-    const yourArtifactsLoadingBar = this.makeProgressListener('Your Artifacts');
 
     const contractConstants = contractsAPI.getConstants();
     const worldRadius = contractsAPI.getWorldRadius();
-    const gptCreditPriceEther = contractsAPI.getGPTCreditPriceEther();
-    const myGPTCredits = contractsAPI.getGPTCreditBalance(contractsAPI.getAccount());
-    const balance = contractsAPI.getBalance();
 
     const players = contractsAPI.getPlayers(playersLoadingBar);
 
@@ -161,26 +153,18 @@ export class InitialGameStateDownloader {
       planetsToLoad,
       artifactsOnPlanetsLoadingBar
     );
-    const myArtifacts = contractsAPI.getPlayerArtifacts(
-      contractsAPI.getAccount(),
-      yourArtifactsLoadingBar
-    );
 
     return {
       contractConstants: await contractConstants,
       players: await players,
       worldRadius: await worldRadius,
-      gptCreditPriceEther: await gptCreditPriceEther,
-      myGPTCredits: await myGPTCredits,
       allTouchedPlanetIds,
       allRevealedCoords,
       pendingMoves,
       touchedAndLocatedPlanets,
       artifactsOnVoyages,
-      myArtifacts: await myArtifacts,
       heldArtifacts: await heldArtifacts,
       loadedPlanets: planetsToLoad,
-      balance: await balance,
       revealedCoordsMap,
       planetVoyageIdMap,
       arrivals,

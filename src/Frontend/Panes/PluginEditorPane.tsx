@@ -1,15 +1,15 @@
-import * as React from 'react';
-import Editor from 'react-simple-code-editor';
-import { useState } from 'react';
-import { PluginManager } from '../../Backend/GameLogic/PluginManager';
-import * as Prism from 'prismjs';
-import styled from 'styled-components';
-import { PluginId } from '../../Backend/Plugins/SerializedPlugin';
-import { Btn } from '../Components/Btn';
-import { Spacer } from '../Components/CoreUI';
-import { PLUGIN_TEMPLATE } from '../../Backend/Plugins/PluginTemplate';
-import { Input } from '../Components/Input';
-require('prismjs/themes/prism-dark.css');
+import * as React from "react";
+import Editor from "react-simple-code-editor";
+import { useState } from "react";
+import { PluginManager } from "../../Backend/GameLogic/PluginManager";
+import * as Prism from "prismjs";
+import styled from "styled-components";
+import { PluginId } from "../../Backend/Plugins/SerializedPlugin";
+import { Btn } from "../Components/Btn";
+import { Spacer } from "../Components/CoreUI";
+import { PLUGIN_TEMPLATE } from "../../Backend/Plugins/PluginTemplate";
+import { Input } from "../Components/Input";
+require("prismjs/themes/prism-dark.css");
 
 /**
  * Make sure the editor scrolls, and is always the same size.
@@ -41,19 +41,21 @@ export function PluginEditorPane({
   pluginHost?: PluginManager | null;
   pluginId?: PluginId;
   setIsOpen: (open: boolean) => void;
-  overwrite: (newPluginName: string, newPluginCode: string, pluginId?: PluginId) => void;
+  overwrite: (
+    newPluginName: string,
+    newPluginCode: string,
+    pluginId?: PluginId
+  ) => void;
 }) {
-  const plugin = pluginId ? pluginHost?.getPluginFromLibrary(pluginId) : undefined;
+  const plugin = pluginId
+    ? pluginHost?.getPluginFromLibrary(pluginId)
+    : undefined;
 
   const [name, setName] = useState(plugin?.name);
   const [code, setCode] = useState(plugin?.code || PLUGIN_TEMPLATE);
 
   function onSaveClick() {
-    if (plugin?.isLocal) {
-      return;
-    }
-
-    overwrite(name || 'no name', code || '', pluginId);
+    overwrite(name || "no name", code || "", pluginId);
     setIsOpen(false);
   }
 
@@ -63,19 +65,16 @@ export function PluginEditorPane({
 
   return (
     <>
-      <Input
-        placeholder='no name'
-        value={name}
-        onChange={onNameInputChange}
-        disabled={plugin?.isLocal}
-      />
+      <Input placeholder="no name" value={name} onChange={onNameInputChange} />
       <Spacer height={4} />
       <EditorContainer>
         <Editor
-          className={'df-editor'}
-          value={code || ''}
-          onValueChange={plugin?.isLocal ? () => {} : setCode}
-          highlight={(code) => Prism.highlight(code, Prism.languages.javascript, 'javascript')}
+          className={"df-editor"}
+          value={code || ""}
+          onValueChange={setCode}
+          highlight={(code) =>
+            Prism.highlight(code, Prism.languages.javascript, "javascript")
+          }
           padding={10}
           onKeyUp={(e: React.KeyboardEvent<HTMLElement>) => {
             // we stop propogation of key up events because key up is used
@@ -90,9 +89,7 @@ export function PluginEditorPane({
         />
       </EditorContainer>
       <Spacer height={4} />
-      <Btn onClick={onSaveClick} disabled={plugin?.isLocal}>
-        save
-      </Btn>
+      <Btn onClick={onSaveClick}>save</Btn>
     </>
   );
 }

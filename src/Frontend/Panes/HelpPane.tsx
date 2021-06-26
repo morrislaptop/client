@@ -1,7 +1,6 @@
 import React from 'react';
 import { ModalName, ModalPane, ModalHook } from '../Views/ModalPane';
 import styled from 'styled-components';
-import TutorialManager from '../../Backend/GameLogic/TutorialManager';
 import { White } from '../Components/Text';
 import dfstyles from '../Styles/dfstyles';
 import { MythicLabel } from '../Components/Labels/MythicLabel';
@@ -113,9 +112,6 @@ export function HelpPane({ hook }: { hook: ModalHook }) {
         </p>
 
         <p className='title'>Some Links</p>
-        <p>
-          <a onClick={() => TutorialManager.getInstance().reset()}>Reset Tutorial</a>
-        </p>
         <p>
           <a onClick={() => window.open('https://blog.zkga.me')}>Official Info and Announcements</a>
         </p>

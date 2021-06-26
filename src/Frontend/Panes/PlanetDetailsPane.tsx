@@ -1,23 +1,32 @@
-import React from 'react';
-import styled from 'styled-components';
-import { ProcgenUtils } from '../../Backend/Procedural/ProcgenUtils';
-import { isLocatable } from '../../_types/global/GlobalTypes';
-import { Btn } from '../Components/Btn';
-import { CenterBackgroundSubtext, Spacer, Underline } from '../Components/CoreUI';
-import { Coords, Sub } from '../Components/Text';
-import { TextPreview } from '../Components/TextPreview';
-import dfstyles from '../Styles/dfstyles';
-import { useUIManager, useSelectedPlanet, useAccount } from '../Utils/AppHooks';
-import { ModalHook, ModalName, ModalPane, RECOMMENDED_WIDTH } from '../Views/ModalPane';
-import { ReadMore } from '../Components/ReadMore';
-import { TOGGLE_PLANET_DETAILS_PANE } from '../Utils/ShortcutConstants';
+import React from "react";
+import styled from "styled-components";
+import { ProcgenUtils } from "../../Backend/Procedural/ProcgenUtils";
+import { isLocatable } from "../../_types/global/GlobalTypes";
+import { Btn } from "../Components/Btn";
+import {
+  CenterBackgroundSubtext,
+  Spacer,
+  Underline,
+} from "../Components/CoreUI";
+import { Coords, Sub } from "../Components/Text";
+import { TextPreview } from "../Components/TextPreview";
+import dfstyles from "../Styles/dfstyles";
+import { useUIManager, useSelectedPlanet, useAccount } from "../Utils/AppHooks";
+import {
+  ModalHook,
+  ModalName,
+  ModalPane,
+  RECOMMENDED_WIDTH,
+} from "../Views/ModalPane";
+import { ReadMore } from "../Components/ReadMore";
+import { TOGGLE_PLANET_DETAILS_PANE } from "../Utils/ShortcutConstants";
 import {
   LevelRankText,
   PlanetBiomeTypeLabelAnim,
   PlanetOwnerLabel,
-} from '../Components/Labels/PlanetLabels';
-import { Planet } from '@darkforest_eth/types';
-import { Wrapper } from '../../Backend/Utils/Wrapper';
+} from "../Components/Labels/PlanetLabels";
+import { Planet } from "@darkforest_eth/types";
+import { Wrapper } from "../../Backend/Utils/Wrapper";
 
 const DetailsRow = styled.div`
   display: flex;
@@ -66,11 +75,12 @@ const Wrap = styled.div`
 `;
 
 const ShowWithPlanet = styled(Wrap)<{ planet: Planet | undefined }>`
-  display: ${({ planet }) => (planet ? 'block' : 'none')};
+  display: ${({ planet }) => (planet ? "block" : "none")};
 `;
 
 const ShowWithoutPlanet = styled(Wrap)<{ planet: Planet | undefined }>`
-  display: ${({ planet }) => (planet ? 'none' : 'block')};
+  width: 100%;
+  display: ${({ planet }) => (planet ? "none" : "block")};
 `;
 
 const StyledPlanetDetailsPane = styled(ShowWithPlanet)``;
@@ -82,8 +92,8 @@ function HelpContent() {
   return (
     <div>
       <p>
-        This pane contains a proceduraly generated description of the selected planet, along with
-        some basic planet stats.
+        This pane contains a proceduraly generated description of the selected
+        planet, along with some basic planet stats.
       </p>
       <Spacer height={8} />
       <p>
@@ -94,10 +104,14 @@ function HelpContent() {
   );
 }
 
-function NoPlanet({ selectedWrapper }: { selectedWrapper: Wrapper<Planet | undefined> }) {
+function NoPlanet({
+  selectedWrapper,
+}: {
+  selectedWrapper: Wrapper<Planet | undefined>;
+}) {
   return (
     <ShowWithoutPlanet planet={selectedWrapper.value}>
-      <CenterBackgroundSubtext width='100%' height='75px'>
+      <CenterBackgroundSubtext width="100%" height="75px">
         Select a Planet
       </CenterBackgroundSubtext>
     </ShowWithoutPlanet>
@@ -106,27 +120,25 @@ function NoPlanet({ selectedWrapper }: { selectedWrapper: Wrapper<Planet | undef
 
 function WithPlanet({
   selectedWrapper,
-  hatHook,
 }: {
   selectedWrapper: Wrapper<Planet | undefined>;
-  hatHook: ModalHook;
 }) {
   const s = selectedWrapper;
   const uiManager = useUIManager();
-  const account = useAccount(uiManager);
 
   return (
     <StyledPlanetDetailsPane planet={selectedWrapper.value}>
       <PlanetName>{ProcgenUtils.getPlanetName(s.value)}</PlanetName>
       <PlanetNameSubtitle>
-        <LevelRankText planet={s.value} /> <PlanetBiomeTypeLabelAnim planet={s.value} />
+        <LevelRankText planet={s.value} />{" "}
+        <PlanetBiomeTypeLabelAnim planet={s.value} />
       </PlanetNameSubtitle>
 
       {/* <PlanetScape wrapper={s} /> */}
       <Spacer height={8} />
 
       <div>
-        <ReadMore height={'5em'}>
+        <ReadMore height={"5em"}>
           <Sub>
             {ProcgenUtils.getPlanetTagline(s.value)}.
             <Spacer height={8} />
@@ -136,7 +148,7 @@ function WithPlanet({
       </div>
 
       <LeftHalf>
-        <DetailsRowSingle className='margin-top' style={{ marginTop: '1em' }}>
+        <DetailsRowSingle className="margin-top" style={{ marginTop: "1em" }}>
           <Sub>Owner</Sub>
           <span>
             <PlanetOwnerLabel planet={s.value} showYours color />
@@ -152,12 +164,7 @@ function WithPlanet({
       <RightHalf>
         <DetailsRowSingle>
           <Sub>Hat</Sub>
-          <span>
-            {s.value && ProcgenUtils.getHatSizeName(s.value)}{' '}
-            {s && s.value && s.value.owner === account && (
-              <Btn onClick={() => hatHook[1](true)}>{s.value.hatLevel > 0 ? 'Upgrade' : 'Buy'}</Btn>
-            )}
-          </span>
+          <span>{s.value && ProcgenUtils.getHatSizeName(s.value)} </span>
         </DetailsRowSingle>
         {s.value && s.value.silverGrowth > 0 && (
           <DetailsRowSingle>
@@ -178,11 +185,11 @@ function WithPlanet({
   );
 }
 
-export function PlanetDetailsPane({ hook, hatHook }: { hook: ModalHook; hatHook: ModalHook }) {
+export function PlanetDetailsPane({ hook }: { hook: ModalHook }) {
   const uiManager = useUIManager();
   const selected = useSelectedPlanet(uiManager);
 
-  const windowName = 'Planet Details';
+  const windowName = "Planet Details";
 
   return (
     <ModalPane
@@ -192,7 +199,7 @@ export function PlanetDetailsPane({ hook, hatHook }: { hook: ModalHook; hatHook:
       helpContent={HelpContent}
       width={RECOMMENDED_WIDTH}
     >
-      <WithPlanet selectedWrapper={selected} hatHook={hatHook} />
+      <WithPlanet selectedWrapper={selected} />
       <NoPlanet selectedWrapper={selected} />
     </ModalPane>
   );

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { WorldCoords } from '@darkforest_eth/types';
-import TutorialManager, { TutorialState } from '../../Backend/GameLogic/TutorialManager';
 import { SpiralPattern } from '../../Backend/Miner/MiningPatterns';
 import { IconButton } from '../Components/IconButton';
 import { TargetIcon, PauseIcon, PlayIcon } from '../Components/Icons';
@@ -135,14 +134,6 @@ export function ExplorePane() {
   const uiEmitter = UIEmitter.getInstance();
 
   const [mining, setMining] = useState<boolean>(uiManager.isMining());
-  useEffect(() => {
-    if (mining) uiManager?.startExplore();
-    else {
-      uiManager?.stopExplore();
-      const tutorialManager = TutorialManager.getInstance();
-      tutorialManager.acceptInput(TutorialState.MinerPause);
-    }
-  }, [mining, uiManager]);
 
   const [pattern, setPattern] = useState<SpiralPattern | undefined>(undefined);
   useEffect(() => {
@@ -161,9 +152,6 @@ export function ExplorePane() {
       const newpattern = new SpiralPattern(worldCoords, MIN_CHUNK_SIZE);
       uiManager?.setMiningPattern(newpattern);
       setPattern(newpattern);
-
-      const tutorialManager = TutorialManager.getInstance();
-      tutorialManager.acceptInput(TutorialState.MinerMove);
     };
 
     uiEmitter.on(UIEmitterEvent.WorldMouseDown, doMouseDown);
