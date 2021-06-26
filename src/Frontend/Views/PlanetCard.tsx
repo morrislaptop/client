@@ -1,4 +1,9 @@
-import { Planet, PlanetType, UpgradeBranchName } from "@darkforest_eth/types";
+import {
+  Planet,
+  PlanetType,
+  UpgradeBranchName,
+  SpaceType,
+} from "@darkforest_eth/types";
 import React from "react";
 import { useMemo } from "react";
 import { ProcgenUtils } from "../../Backend/Procedural/ProcgenUtils";
@@ -49,6 +54,16 @@ import {
 } from "./PlanetCardComponents";
 import { getPlanetMaxRank } from "../../Backend/Utils/Utils";
 
+function planetCanUpgrade(planet: Planet | undefined): boolean {
+  if (!planet) return false;
+  const totalRank = planet.upgradeState.reduce((a, b) => a + b);
+  if (planet.spaceType === SpaceType.NEBULA && totalRank >= 3) return false;
+  if (planet.spaceType === SpaceType.SPACE && totalRank >= 4) return false;
+  if (planet.spaceType === SpaceType.DEEP_SPACE && totalRank >= 5) return false;
+  if (planet.spaceType === SpaceType.DEAD_SPACE && totalRank >= 5) return false;
+  return planet.planetLevel !== 0 && planet.planetType === PlanetType.PLANET;
+}
+
 const DestroyedLabel = () => (
   <>
     <Red>DESTROYED</Red>{" "}
@@ -72,15 +87,35 @@ export function PlanetCard({
 
   const destroyed = p.value?.destroyed;
 
-  const maxRank = getPlanetMaxRank(planet);
-  const maxBranchRank = Math.min(4, maxRank);
-  const defenseUpgradeState =
-    (planet && planet.upgradeState[UpgradeBranchName.Defense]) || 0;
-  const rangeUpgradeState =
-    (planet && planet.upgradeState[UpgradeBranchName.Range]) || 0;
-  const speedUpgradeState =
-    (planet && planet.upgradeState[UpgradeBranchName.Speed]) || 0;
-
+  let canUpgrade = planetCanUpgrade(planet);
+  let upgrades;
+  if (canUpgrade) {
+    const maxRank = getPlanetMaxRank(planet);
+    const maxBranchRank = Math.min(4, maxRank);
+    const defenseUpgradeState =
+      (planet && planet.upgradeState[UpgradeBranchName.Defense]) || 0;
+    const rangeUpgradeState =
+      (planet && planet.upgradeState[UpgradeBranchName.Range]) || 0;
+    const speedUpgradeState =
+      (planet && planet.upgradeState[UpgradeBranchName.Speed]) || 0;
+    upgrades = (
+      <StatRow>
+        <Small planet={planet}>Upgrades:</Small>
+        <Small planet={planet}>
+          {defenseUpgradeState} of {maxBranchRank}
+          <DefenseIcon />
+        </Small>
+        <Small planet={planet}>
+          {speedUpgradeState} of {maxBranchRank}
+          <SpeedIcon />
+        </Small>
+        <Small planet={planet}>
+          {rangeUpgradeState} of {maxBranchRank}
+          <RangeIcon />
+        </Small>
+      </StatRow>
+    );
+  }
   return (
     <StyledPlanetCard>
       <TitleBar>
@@ -100,7 +135,11 @@ export function PlanetCard({
             <PlanetBiomeTypeLabelAnim planet={planet} />
           </p>
           <p>
-            <LevelRankTextEm planet={planet} delim={" / "} />
+            <LevelRankTextEm
+              planet={planet}
+              delim={" / "}
+              canUpgrade={canUpgrade}
+            />
           </p>
         </PlanetTag>
         <IconsWrapper>
@@ -156,21 +195,7 @@ export function PlanetCard({
             <RangeText planet={planet} />
           </Small>
         </StatRow>
-        <StatRow>
-          <Small planet={planet}>Upgrades:</Small>
-          <Small planet={planet}>
-            {defenseUpgradeState} of {maxBranchRank}
-            <DefenseIcon />
-          </Small>
-          <Small planet={planet}>
-            {speedUpgradeState} of {maxBranchRank}
-            <SpeedIcon />
-          </Small>
-          <Small planet={planet}>
-            {rangeUpgradeState} of {maxBranchRank}
-            <RangeIcon />
-          </Small>
-        </StatRow>
+        {upgrades}
       </StatSection>
       {active && (
         <ArtifactSection>

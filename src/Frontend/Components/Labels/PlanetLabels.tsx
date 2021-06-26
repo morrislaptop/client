@@ -120,18 +120,26 @@ export const LevelRankText = ({
 export const LevelRankTextEm = ({
   planet,
   delim,
+  canUpgrade,
 }: {
   planet: Planet | undefined;
   delim?: string;
+  canUpgrade: boolean;
 }) => {
   if (planet) {
     const maxRank = getPlanetMaxRank(planet);
     return (
       <Sub>
         Level <White>{planet.planetLevel}</White>
-        {delim || ", "}
-        Rank <White>{getPlanetRank(planet)}</White> (of {maxRank} <Sub>max</Sub>
-        )
+        {canUpgrade ? (
+          <>
+            {delim || ", "}
+            Rank <White>{getPlanetRank(planet)}</White> (of {maxRank}{" "}
+            <Sub>max</Sub>)
+          </>
+        ) : (
+          <></>
+        )}
       </Sub>
     );
   } else {
