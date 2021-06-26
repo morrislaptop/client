@@ -295,22 +295,10 @@ class Viewport {
 
   zoomCoords(coords: WorldCoords | undefined): void {
     if (!coords) return;
+    this.centerCoords(coords);
     // in world coords
-    const rad = this.gameUIManager.getRadiusOfPlanetLevel(0);
+    const rad = this.gameUIManager.getRadiusOfPlanetLevel(2);
     this.setWorldHeight(4 * rad);
-    this.centerCoordsAnimated(coords);
-  }
-
-  centerCoordsAnimated(coords: WorldCoords): void {
-    this.animationManager.replaceAnimation(
-      ViewportAnimation.between(
-        Date.now(),
-        this.centerWorldCoords,
-        coords,
-        this.heightInWorldUnits,
-        this.heightInWorldUnits
-      )
-    );
   }
 
   centerCoords(coords: WorldCoords): void {
