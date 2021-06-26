@@ -1,16 +1,22 @@
-import _ from 'lodash';
-import React, { useState, useEffect } from 'react';
-import { Link as ReactRouterLink } from 'react-router-dom';
-import styled from 'styled-components';
-import { SubmittedTx, Planet, ArtifactId, Artifact, WorldCoords } from '@darkforest_eth/types';
-import { artifactName } from '../../Backend/Procedural/ArtifactProcgen';
-import { ProcgenUtils } from '../../Backend/Procedural/ProcgenUtils';
-import { Chunk } from '../../_types/global/GlobalTypes';
-import Viewport from '../Game/Viewport';
-import dfstyles from '../Styles/dfstyles';
-import { useUIManager } from '../Utils/AppHooks';
-import { BLOCK_EXPLORER_URL } from '../Utils/constants';
-import UIEmitter, { UIEmitterEvent } from '../Utils/UIEmitter';
+import _ from "lodash";
+import React, { useState, useEffect } from "react";
+import { Link as ReactRouterLink } from "react-router-dom";
+import styled from "styled-components";
+import {
+  SubmittedTx,
+  Planet,
+  ArtifactId,
+  Artifact,
+  WorldCoords,
+} from "@darkforest_eth/types";
+import { artifactName } from "../../Backend/Procedural/ArtifactProcgen";
+import { ProcgenUtils } from "../../Backend/Procedural/ProcgenUtils";
+import { Chunk } from "../../_types/global/GlobalTypes";
+import Viewport from "../Game/Viewport";
+import dfstyles from "../Styles/dfstyles";
+import { useUIManager } from "../Utils/AppHooks";
+import { BLOCK_EXPLORER_URL } from "../Utils/constants";
+import UIEmitter, { UIEmitterEvent } from "../Utils/UIEmitter";
 
 interface TextProps {
   children: React.ReactNode;
@@ -21,18 +27,18 @@ interface TextProps {
 const fontSizes: {
   [size: string]: string;
 } = {
-  title: '4rem',
-  '4xl': '2rem',
-  '3xl': '1.875rem',
-  '2xl': '1.5rem',
-  xl: '1.25rem',
-  lg: '1.125rem',
-  base: '1rem',
-  sm: '0.875rem',
-  xs: '0.75rem',
+  title: "4rem",
+  "4xl": "2rem",
+  "3xl": "1.875rem",
+  "2xl": "1.5rem",
+  xl: "1.25rem",
+  lg: "1.125rem",
+  base: "1rem",
+  sm: "0.875rem",
+  xs: "0.75rem",
 };
 
-export function Text({ children, size = 'base', style = {} }: TextProps) {
+export function Text({ children, size = "base", style = {} }: TextProps) {
   return (
     <div
       style={{
@@ -46,7 +52,7 @@ export function Text({ children, size = 'base', style = {} }: TextProps) {
 }
 
 export function Title({ children }: { children: React.ReactNode }) {
-  return <Text size='title'>{children}</Text>;
+  return <Text size="title">{children}</Text>;
 }
 
 export function Header({
@@ -57,7 +63,7 @@ export function Header({
   style?: React.CSSProperties;
 }) {
   return (
-    <Text size='2xl' style={{ fontWeight: 'bold', ...style }}>
+    <Text size="2xl" style={{ fontWeight: "bold", ...style }}>
       {children}
     </Text>
   );
@@ -71,26 +77,32 @@ interface LinkProps extends TextProps {
   to?: string;
 }
 
-export function Link({ href, to, children, size = 'base', style = {} }: LinkProps) {
+export function Link({
+  href,
+  to,
+  children,
+  size = "base",
+  style = {},
+}: LinkProps) {
   const props = {
     href,
     to,
     style: {
       fontSize: fontSizes[size],
-      textDecoration: 'underline',
+      textDecoration: "underline",
       ...style,
     },
   };
   if (href) {
     return (
-      <a {...props} target='_blank'>
+      <a {...props} target="_blank">
         {children}
       </a>
     );
   } else {
     const propsWithTo = {
       ...props,
-      to: to || '/',
+      to: to || "/",
     };
     return <ReactRouterLink {...propsWithTo}>{children}</ReactRouterLink>;
   }
@@ -120,7 +132,7 @@ export function BlinkCursor() {
     return () => clearInterval(id);
   }, []);
 
-  return <span>{visible ? '|' : ''} </span>;
+  return <span>{visible ? "|" : ""} </span>;
 }
 
 export const Green = styled.span`
@@ -167,7 +179,7 @@ export function Space({ length }: { length: number }) {
   return (
     <>
       {_.range(0, length).map((el, i) => (
-        <span key={i}>{'\u00A0'}</span>
+        <span key={i}>{"\u00A0"}</span>
       ))}
     </>
   );
@@ -211,7 +223,9 @@ export function CenterPlanetLink({
 }) {
   return (
     <a>
-      <u onClick={() => Viewport.getInstance().zoomPlanet(planet)}>{children}</u>
+      <u onClick={() => Viewport.getInstance().centerPlanet(planet)}>
+        {children}
+      </u>
     </a>
   );
 }
@@ -225,7 +239,8 @@ export const StyledLink = styled.span`
 
 export function ArtifactNameLink({ id }: { id: ArtifactId }) {
   const uiManager = useUIManager();
-  const artifact: Artifact | undefined = uiManager && uiManager.getArtifactWithId(id);
+  const artifact: Artifact | undefined =
+    uiManager && uiManager.getArtifactWithId(id);
 
   const click = () => {
     UIEmitter.getInstance().emit(UIEmitterEvent.ShowArtifact, artifact);
@@ -235,23 +250,35 @@ export function ArtifactNameLink({ id }: { id: ArtifactId }) {
 }
 
 export function PlanetNameLink({ planet }: { planet: Planet }) {
-  return <CenterPlanetLink planet={planet}>{ProcgenUtils.getPlanetName(planet)}</CenterPlanetLink>;
+  return (
+    <CenterPlanetLink planet={planet}>
+      {ProcgenUtils.getPlanetName(planet)}
+    </CenterPlanetLink>
+  );
 }
 
-export function CenterChunkLink({ chunk, children }: { chunk: Chunk; children: React.ReactNode }) {
+export function CenterChunkLink({
+  chunk,
+  children,
+}: {
+  chunk: Chunk;
+  children: React.ReactNode;
+}) {
   return (
     <a>
-      <u onClick={() => Viewport.getInstance().centerChunk(chunk)}>{children}</u>
+      <u onClick={() => Viewport.getInstance().centerChunk(chunk)}>
+        {children}
+      </u>
     </a>
   );
 }
 
 export function FAQ04Link({ children }: { children: React.ReactNode }) {
-  return <a href={'https://blog.zkga.me/df-04-faq'}>{children} </a>;
+  return <a href={"https://blog.zkga.me/df-04-faq"}>{children} </a>;
 }
 
 export const LongDash = () => (
-  <span style={{ transform: 'scale(1.5, 1)', display: 'inline-block' }}>-</span>
+  <span style={{ transform: "scale(1.5, 1)", display: "inline-block" }}>-</span>
 );
 
 export const Coords = ({ coords: { x, y } }: { coords: WorldCoords }) => (

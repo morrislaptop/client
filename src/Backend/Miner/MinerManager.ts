@@ -1,53 +1,25 @@
-import { Chunk, Rectangle, MinerWorkerMessage, HashConfig } from '../../_types/global/GlobalTypes';
-import Worker from 'worker-loader!./miner.worker';
-import { EventEmitter } from 'events';
-import _ from 'lodash';
-import { MiningPattern } from './MiningPatterns';
-import { perlin, PerlinConfig } from '@darkforest_eth/hashing';
-import { ChunkStore } from '../../_types/darkforest/api/ChunkStoreTypes';
-import { getChunkKey } from './ChunkUtils';
-import { getSetting, Setting, settingChanged } from '../../Frontend/Utils/SettingsHooks';
-import { EthAddress } from '@darkforest_eth/types';
-import { Subscription } from '../../Frontend/Utils/Monomitter';
+import {
+  Chunk,
+  Rectangle,
+  MinerWorkerMessage,
+  HashConfig,
+} from "../../_types/global/GlobalTypes";
+import Worker from "worker-loader!./miner.worker";
+import { EventEmitter } from "events";
+import _ from "lodash";
+import { MiningPattern } from "./MiningPatterns";
+import { perlin, PerlinConfig } from "@darkforest_eth/hashing";
+import { ChunkStore } from "../../_types/darkforest/api/ChunkStoreTypes";
+import {
+  getSetting,
+  Setting,
+  settingChanged,
+} from "../../Frontend/Utils/SettingsHooks";
+import { EthAddress } from "@darkforest_eth/types";
+import { Subscription } from "../../Frontend/Utils/Monomitter";
 
 export enum MinerManagerEvent {
-  DiscoveredNewChunk = 'DiscoveredNewChunk',
-}
-
-export class HomePlanetMinerChunkStore implements ChunkStore {
-  private initPerlinMin: number;
-  private initPerlinMax: number;
-  private minedChunkKeys: Set<string>;
-  private perlinOptions: PerlinConfig;
-
-  constructor(initPerlinMin: number, initPerlinMax: number, hashConfig: HashConfig) {
-    this.initPerlinMin = initPerlinMin;
-    this.initPerlinMax = initPerlinMax;
-    this.minedChunkKeys = new Set<string>();
-    this.perlinOptions = {
-      key: hashConfig.spaceTypeKey,
-      scale: hashConfig.perlinLengthScale,
-      mirrorX: hashConfig.perlinMirrorX,
-      mirrorY: hashConfig.perlinMirrorY,
-      floor: false,
-    };
-  }
-
-  addChunk(exploredChunk: Chunk) {
-    this.minedChunkKeys.add(getChunkKey(exploredChunk.chunkFootprint));
-  }
-
-  hasMinedChunk(chunkFootprint: Rectangle) {
-    // return true if this chunk mined, or if perlin value >= threshold
-    if (this.minedChunkKeys.has(getChunkKey(chunkFootprint))) return true;
-    const center = {
-      x: chunkFootprint.bottomLeft.x + chunkFootprint.sideLength / 2,
-      y: chunkFootprint.bottomLeft.y + chunkFootprint.sideLength / 2,
-    };
-    const chunkPerlin = perlin(center, this.perlinOptions);
-    if (chunkPerlin >= this.initPerlinMax || chunkPerlin < this.initPerlinMin) return true;
-    return false;
-  }
+  DiscoveredNewChunk = "DiscoveredNewChunk",
 }
 
 class MinerManager extends EventEmitter {
@@ -105,7 +77,9 @@ class MinerManager extends EventEmitter {
       this.cores = parseInt(getSetting(account, Setting.MiningCores), 10);
     }
 
-    this.settingsSubscription = settingChanged.subscribe(this.onSettingChanged.bind(this));
+    this.settingsSubscription = settingChanged.subscribe(
+      this.onSettingChanged.bind(this)
+    );
   }
 
   onSettingChanged(setting: Setting) {
@@ -163,8 +137,13 @@ class MinerManager extends EventEmitter {
     this.workers[index].onmessage = (e: MessageEvent) => {
       // worker explored a slice of a chunk
       const [exploredChunk, jobId] = JSON.parse(e.data) as [Chunk, number];
-      const chunkKey = this.chunkLocationToKey(exploredChunk.chunkFootprint, jobId);
-      this.exploringChunk[chunkKey].planetLocations.push(...exploredChunk.planetLocations);
+      const chunkKey = this.chunkLocationToKey(
+        exploredChunk.chunkFootprint,
+        jobId
+      );
+      this.exploringChunk[chunkKey].planetLocations.push(
+        ...exploredChunk.planetLocations
+      );
 
       this.minersComplete[chunkKey] += 1;
       if (this.minersComplete[chunkKey] === this.workers.length) {
@@ -173,11 +152,18 @@ class MinerManager extends EventEmitter {
     };
   }
 
-  private async onDiscovered(exploredChunk: Chunk, jobId: number): Promise<void> {
+  private async onDiscovered(
+    exploredChunk: Chunk,
+    jobId: number
+  ): Promise<void> {
     const discoveredLoc = exploredChunk.chunkFootprint;
     const chunkKey = this.chunkLocationToKey(discoveredLoc, jobId);
     const miningTimeMillis = Date.now() - this.exploringChunkStart[chunkKey];
-    this.emit(MinerManagerEvent.DiscoveredNewChunk, exploredChunk, miningTimeMillis);
+    this.emit(
+      MinerManagerEvent.DiscoveredNewChunk,
+      exploredChunk,
+      miningTimeMillis
+    );
     delete this.exploringChunk[chunkKey];
     delete this.minersComplete[chunkKey];
     delete this.exploringChunkStart[chunkKey];
@@ -188,24 +174,26 @@ class MinerManager extends EventEmitter {
   }
 
   private exploreNext(fromChunk: Rectangle, jobId: number) {
-    this.nextValidExploreTarget(fromChunk, jobId).then((nextChunk: Rectangle | undefined) => {
-      if (!!nextChunk) {
-        const nextChunkKey = this.chunkLocationToKey(nextChunk, jobId);
-        const center = {
-          x: nextChunk.bottomLeft.x + nextChunk.sideLength / 2,
-          y: nextChunk.bottomLeft.y + nextChunk.sideLength / 2,
-        };
-        const centerPerlin = perlin(center, this.perlinOptions);
-        this.exploringChunk[nextChunkKey] = {
-          chunkFootprint: nextChunk,
-          planetLocations: [],
-          perlin: centerPerlin,
-        };
-        this.exploringChunkStart[nextChunkKey] = Date.now();
-        this.minersComplete[nextChunkKey] = 0;
-        this.sendMessageToWorkers(nextChunk, jobId);
+    this.nextValidExploreTarget(fromChunk, jobId).then(
+      (nextChunk: Rectangle | undefined) => {
+        if (!!nextChunk) {
+          const nextChunkKey = this.chunkLocationToKey(nextChunk, jobId);
+          const center = {
+            x: nextChunk.bottomLeft.x + nextChunk.sideLength / 2,
+            y: nextChunk.bottomLeft.y + nextChunk.sideLength / 2,
+          };
+          const centerPerlin = perlin(center, this.perlinOptions);
+          this.exploringChunk[nextChunkKey] = {
+            chunkFootprint: nextChunk,
+            planetLocations: [],
+            perlin: centerPerlin,
+          };
+          this.exploringChunkStart[nextChunkKey] = Date.now();
+          this.minersComplete[nextChunkKey] = 0;
+          this.sendMessageToWorkers(nextChunk, jobId);
+        }
       }
-    });
+    );
   }
 
   private setCores(nCores: number): void {
@@ -283,7 +271,10 @@ class MinerManager extends EventEmitter {
     }
     return new Promise((resolve) => {
       setTimeout(async () => {
-        const nextNextChunk = await this.nextValidExploreTarget(candidateChunk, jobId);
+        const nextNextChunk = await this.nextValidExploreTarget(
+          candidateChunk,
+          jobId
+        );
         resolve(nextNextChunk);
       }, 0);
     });
@@ -298,12 +289,17 @@ class MinerManager extends EventEmitter {
     const squareDist = xMinAbs ** 2 + yMinAbs ** 2;
     // should be inbounds, and unexplored
     return (
-      squareDist < this.worldRadius ** 2 && !this.minedChunksStore.hasMinedChunk(chunkLocation)
+      squareDist < this.worldRadius ** 2 &&
+      !this.minedChunksStore.hasMinedChunk(chunkLocation)
     );
   }
 
   private sendMessageToWorkers(chunkToExplore: Rectangle, jobId: number): void {
-    for (let workerIndex = 0; workerIndex < this.workers.length; workerIndex += 1) {
+    for (
+      let workerIndex = 0;
+      workerIndex < this.workers.length;
+      workerIndex += 1
+    ) {
       const msg: MinerWorkerMessage = {
         chunkFootprint: chunkToExplore,
         workerIndex,
@@ -324,10 +320,14 @@ class MinerManager extends EventEmitter {
     return `${x},${y},${sideLength},${jobId}`;
   }
 
-  private chunkKeyToLocation(chunkKey: string): [Rectangle, number] | undefined {
+  private chunkKeyToLocation(
+    chunkKey: string
+  ): [Rectangle, number] | undefined {
     // returns chunk footprint and job id
     try {
-      const [x, y, sideLength, jobId] = chunkKey.split(',').map((v) => parseInt(v));
+      const [x, y, sideLength, jobId] = chunkKey
+        .split(",")
+        .map((v) => parseInt(v));
       return [
         {
           bottomLeft: { x, y },

@@ -185,33 +185,6 @@ class PersistentChunkStore implements ChunkStore {
     await this.bulkSetKeyInCollection(toSave, ObjectStore.BOARD);
   }
 
-  /**
-   * we keep a list rather than a single location, since client/contract can
-   * often go out of sync on initialization - if client thinks that init
-   * failed but is wrong, it will prompt user to initialize with new home coords,
-   * which bricks the user's account.
-   */
-  public async getHomeLocations(): Promise<WorldLocation[]> {
-    const homeLocations = await this.getKey('homeLocations');
-    let parsed: WorldLocation[] = [];
-    if (homeLocations) {
-      parsed = JSON.parse(homeLocations) as WorldLocation[];
-    }
-
-    return parsed;
-  }
-
-  public async addHomeLocation(location: WorldLocation): Promise<void> {
-    let locationList = await this.getHomeLocations();
-    if (locationList) {
-      locationList.push(location);
-    } else {
-      locationList = [location];
-    }
-    locationList = Array.from(new Set(locationList));
-    await this.setKey('homeLocations', stringify(locationList));
-  }
-
   public async confirmHomeLocation(location: WorldLocation): Promise<void> {
     await this.setKey('homeLocations', stringify([location]));
   }

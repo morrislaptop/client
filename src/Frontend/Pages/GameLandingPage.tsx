@@ -1,6 +1,5 @@
 import _ from "lodash";
 import React, { useRef, useState, useCallback, useEffect } from "react";
-import { useHistory } from "react-router-dom";
 import GameManager from "../../Backend/GameLogic/GameManager";
 import GameUIManager from "../../Backend/GameLogic/GameUIManager";
 import EthConnection from "../../Backend/Network/EthConnection";
@@ -8,7 +7,6 @@ import { neverResolves } from "../../Backend/Utils/Utils";
 import {
   Wrapper,
   GameWindowWrapper,
-  TerminalToggler,
   TerminalWrapper,
 } from "../Components/GameLandingPageComponents";
 import { TopLevelDivProvider, UIManagerProvider } from "../Utils/AppHooks";

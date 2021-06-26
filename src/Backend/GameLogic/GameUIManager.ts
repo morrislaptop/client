@@ -972,21 +972,6 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getIsBuyingCreditsEmitter();
   }
 
-  // non-nullable
-  public getHomeCoords(): WorldCoords {
-    return this.gameManager.getHomeCoords() || { x: 0, y: 0 };
-  }
-
-  public getHomeHash(): LocationId | undefined {
-    return this.gameManager.getHomeHash();
-  }
-
-  public getHomePlanet(): Planet | undefined {
-    const homeHash = this.getHomeHash();
-    if (!homeHash) return undefined;
-    return this.getPlanetWithId(homeHash);
-  }
-
   public getRadiusOfPlanetLevel(planetRarity: PlanetLevel): number {
     return this.radiusMap[planetRarity];
   }
