@@ -1,7 +1,7 @@
-import { LocationId, PlanetLevel, WorldLocation } from '@darkforest_eth/types';
-import { QuadTree, Box, Point } from 'js-quadtree';
-import { QuadTreeConfig } from 'js-quadtree/dist/types';
-import { Radii } from './ViewportEntities';
+import { LocationId, PlanetLevel, WorldLocation } from "@darkforest_eth/types";
+import { QuadTree, Box, Point } from "js-quadtree";
+import { QuadTreeConfig } from "js-quadtree/dist/types";
+import { Radii } from "./ViewportEntities";
 
 /**
  * For every point in each of the planet quadtrees, we store a pointer to the planet.
@@ -22,8 +22,13 @@ export class LayeredMap {
   public constructor(worldRadius: number) {
     // multiply by 3 in case the world expands while you're playing the game. three should be
     // enough.
-    worldRadius *= 3;
-    const worldSize = new Box(-worldRadius, -worldRadius, worldRadius * 2, worldRadius * 2);
+    worldRadius *= 4;
+    const worldSize = new Box(
+      -worldRadius,
+      -worldRadius,
+      worldRadius * 2,
+      worldRadius * 2
+    );
 
     this.perLevelPlanetQuadtrees = new Map();
     this.insertedLocations = new Set();
@@ -47,7 +52,9 @@ export class LayeredMap {
     }
     const quadTree = this.perLevelPlanetQuadtrees.get(planetLevel);
     const newPointData: PlanetPointData = { locationId: location.hash };
-    quadTree?.insert(new Point(location.coords.x, location.coords.y, newPointData));
+    quadTree?.insert(
+      new Point(location.coords.x, location.coords.y, newPointData)
+    );
     this.insertedLocations.add(location.hash);
   }
 

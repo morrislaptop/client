@@ -8,6 +8,7 @@ import dfstyles from "../Styles/dfstyles";
 import { Btn } from "../Components/Btn";
 import { Planet } from "@darkforest_eth/types";
 import { isLocatable } from "../../_types/global/GlobalTypes";
+import { EMPTY_ADDRESS } from "@darkforest_eth/constants";
 
 const StyledSelectedPlanetPane = styled.div`
   width: 22em;
@@ -46,7 +47,8 @@ export function PlanetContextPane({ hook }: { hook: ModalHook }) {
     if (
       planet.planetLevel === 0 &&
       validPerlin(planet) &&
-      isLocatable(planet)
+      isLocatable(planet) &&
+      planet.owner === EMPTY_ADDRESS
     ) {
       let { x, y } = planet.location.coords;
       let url = `https://zkga.me/game1?searchCenter=${x},${y}`;
