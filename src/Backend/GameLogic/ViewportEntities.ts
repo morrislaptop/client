@@ -1,9 +1,17 @@
-import { LocatablePlanet, LocationId, PlanetLevel, WorldCoords } from '@darkforest_eth/types';
-import Viewport from '../../Frontend/Game/Viewport';
-import { Chunk, isLocatable } from '../../_types/global/GlobalTypes';
-import { planetLevelToAnimationSpeed, sinusoidalAnimation } from '../Utils/Animation';
-import GameManager from './GameManager';
-import GameUIManager from './GameUIManager';
+import {
+  LocatablePlanet,
+  LocationId,
+  PlanetLevel,
+  WorldCoords,
+} from "@darkforest_eth/types";
+import Viewport from "../../Frontend/Game/Viewport";
+import { Chunk, isLocatable } from "../../_types/global/GlobalTypes";
+import {
+  planetLevelToAnimationSpeed,
+  sinusoidalAnimation,
+} from "../Utils/Animation";
+import GameManager from "./GameManager";
+import GameUIManager from "./GameUIManager";
 
 export interface PlanetRenderInfo {
   planet: LocatablePlanet;
@@ -26,6 +34,7 @@ export class ViewportEntities {
   private cachedExploredChunks: Set<Chunk> = new Set();
   private cachedPlanets: Map<LocationId, PlanetRenderInfo> = new Map();
   private cachedPlanetsAsList: PlanetRenderInfo[] = [];
+  private radiusPxMin = 1;
 
   public constructor(gameManager: GameManager, gameUIManager: GameUIManager) {
     this.gameManager = gameManager;
@@ -61,7 +70,9 @@ export class ViewportEntities {
     this.uiManager.updateDiagnostics((d) => {
       d.visibleChunks = this.cachedExploredChunks.size;
       d.visiblePlanets = this.cachedPlanets.size;
-      d.totalPlanets = this.gameManager.getGameObjects().getAllPlanetsMap().size;
+      d.totalPlanets = this.gameManager
+        .getGameObjects()
+        .getAllPlanetsMap().size;
     });
   }
 
@@ -157,13 +168,16 @@ export class ViewportEntities {
    * If a smaller and a larger planet are both within respective radii of coords, the smaller
    * planet is returned.
    */
-  public getNearestVisiblePlanet(coords: WorldCoords): LocatablePlanet | undefined {
+  public getNearestVisiblePlanet(
+    coords: WorldCoords
+  ): LocatablePlanet | undefined {
     const radii = this.getPlanetRadii(Viewport.getInstance());
     let bestPlanet: LocatablePlanet | undefined;
 
     for (const planetInfo of this.cachedPlanetsAsList) {
       const planet = planetInfo.planet;
-      const distThreshold = radii.get(planet.planetLevel)?.radiusWorld as number;
+      const distThreshold = radii.get(planet.planetLevel)
+        ?.radiusWorld as number;
 
       if (
         Math.abs(coords.x - planet.location.coords.x) <= distThreshold &&
@@ -186,7 +200,9 @@ export class ViewportEntities {
     const result = new Map();
 
     for (let i = PlanetLevel.MIN; i <= PlanetLevel.MAX; i++) {
-      const radiusWorld = this.uiManager.getRadiusOfPlanetLevel(i as PlanetLevel);
+      const radiusWorld = this.uiManager.getRadiusOfPlanetLevel(
+        i as PlanetLevel
+      );
       const radiusPixels = viewport.worldToCanvasDist(radiusWorld);
 
       result.set(i, { radiusWorld, radiusPixels });
@@ -206,7 +222,7 @@ export class ViewportEntities {
       const radiusW = this.uiManager.getRadiusOfPlanetLevel(i as PlanetLevel);
       const radiusPx = viewport.worldToCanvasDist(radiusW);
 
-      if (radiusPx >= 1) {
+      if (radiusPx >= this.radiusPxMin) {
         result.push(i);
       }
     }
