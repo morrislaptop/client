@@ -45,7 +45,7 @@ function App() {
 
   return html`
     <div>
-      <div><a href="#" onClick=${() => this.forceUpdate()}>🔄</a></div>
+      <div><a href="#" onClick=${() => this.forceUpdate()}>🔄</a> ${df.getUnconfirmedMoves().length}</div>
       <${PlanetsWithEnergy} />
       <br />
       <hr />
