@@ -12,6 +12,7 @@ import { withdrawSilver } from '../strategies/WithdrawSilver'
 
 import { capturePlanets } from '../strategies/Crawl'
 import { availableSilver, buttonGridStyle, energy, getMyPlanets, hasPendingMove, isAsteroid, planetName, PlanetTypes, PrimeMinutes, SelectedPlanetProp } from '../utils'
+import { config } from 'plugins/config'
 
 const pauseable = require('pauseable')
 
@@ -21,21 +22,21 @@ declare const ui: GameUIManager
 function onDistributeClick(selectedPlanet: Planet|null = null) {
   distributeSilver({
     fromId: selectedPlanet?.locationId,
-    fromMinLevel: selectedPlanet?.planetLevel || PlanetLevel.FIVE,
-    fromMaxLevel: selectedPlanet?.planetLevel || PlanetLevel.NINE,
+    fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_ASTEROID,
+    fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_ASTEROID,
     fromPlanetType: selectedPlanet?.planetType || PlanetTypes.ASTEROID,
-    toMinLevel: PlanetLevel.FIVE,
+    toMinLevel: config.MIN_LEVEL_PLANET,
     toPlanetType: PlanetTypes.PLANET,
   })
 
-  // distributeSilver({
-  //   fromId: selectedPlanet?.locationId,
-  //   fromMinLevel: selectedPlanet?.planetLevel || 4,
-  //   fromMaxLevel: selectedPlanet?.planetLevel || 9,
-  //   fromPlanetType: selectedPlanet?.planetType || PlanetTypes.ASTEROID,
-  //   toMinLevel: 3,
-  //   toPlanetType: PlanetTypes.RIP,
-  // })
+  distributeSilver({
+    fromId: selectedPlanet?.locationId,
+    fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_ASTEROID,
+    fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_ASTEROID,
+    fromPlanetType: selectedPlanet?.planetType || PlanetTypes.ASTEROID,
+    toMinLevel: PlanetLevel.THREE,
+    toPlanetType: PlanetTypes.RIP,
+  })
 }
 
 function onWithdrawClick(selectedPlanet: Planet|null = null) {
@@ -54,7 +55,7 @@ export class FullSilver extends Component
       onDistributeClick()
       onWithdrawClick()
     })
-    this.interval.pause()
+    // this.interval.pause()
   }
 
   render()
@@ -63,7 +64,7 @@ export class FullSilver extends Component
     const alignments: Array<'r' | 'c' | 'l'> = ['l', 'r', 'r'];
 
     const rows = getMyPlanets()
-      .filter(p => p.planetLevel >= 5)
+      .filter(p => p.planetLevel >= config.MIN_LEVEL_ASTEROID)
       .filter(p => p.planetType === PlanetTypes.ASTEROID)
       .filter(p => availableSilver(p) == p.silverCap)
       .sort((a, b) => b.silverCap - a.silverCap)

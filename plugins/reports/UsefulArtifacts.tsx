@@ -130,7 +130,7 @@ export class UsefulArtifacts extends Component
       onDistributeClick()
       onActivateClick()
     })
-    this.interval.pause()
+    // this.interval.pause()
   }
 
   render()
