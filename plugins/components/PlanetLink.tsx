@@ -12,8 +12,7 @@ export function PlanetLink({ planet, children }: { planet: Planet; children: Rea
   return (
     <LinkContainer
       onClick={() => {
-        // uiManager?.setSelectedPlanet(planet);
-        ui.centerPlanet(planet)
+        ui?.setSelectedPlanet(planet);
         uiEmitter.emit(UIEmitterEvent.CenterPlanet, planet);
       }}
     >
