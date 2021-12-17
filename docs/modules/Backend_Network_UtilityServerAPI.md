@@ -6,12 +6,9 @@
 
 - [EmailResponse](../enums/Backend_Network_UtilityServerAPI.EmailResponse.md)
 
-### Variables
-
-- [WEBSERVER_URL](Backend_Network_UtilityServerAPI.md#webserver_url)
-
 ### Functions
 
+- [callRegisterUntilWhitelisted](Backend_Network_UtilityServerAPI.md#callregisteruntilwhitelisted)
 - [disconnectTwitter](Backend_Network_UtilityServerAPI.md#disconnecttwitter)
 - [getAllTwitters](Backend_Network_UtilityServerAPI.md#getalltwitters)
 - [requestDevFaucet](Backend_Network_UtilityServerAPI.md#requestdevfaucet)
@@ -22,13 +19,31 @@
 - [tryGetAllTwitters](Backend_Network_UtilityServerAPI.md#trygetalltwitters)
 - [verifyTwitterHandle](Backend_Network_UtilityServerAPI.md#verifytwitterhandle)
 
-## Variables
-
-### WEBSERVER_URL
-
-• `Const` **WEBSERVER_URL**: `string`
-
 ## Functions
+
+### callRegisterUntilWhitelisted
+
+▸ **callRegisterUntilWhitelisted**(`key`, `address`, `terminal`): `Promise`<`string` \| `undefined`\>
+
+Attempts to register the given player into the game.
+
+- if the key is invalid, returns `undefined`
+- if there is an error submitting the whitelist key, indicated by a null response, or if the
+  response is not successful, tries again, until it succeeds.
+
+#### Parameters
+
+| Name       | Type                                                                                                            |
+| :--------- | :-------------------------------------------------------------------------------------------------------------- |
+| `key`      | `string`                                                                                                        |
+| `address`  | `EthAddress`                                                                                                    |
+| `terminal` | `MutableRefObject`<`undefined` \| [`TerminalHandle`](../interfaces/Frontend_Views_Terminal.TerminalHandle.md)\> |
+
+#### Returns
+
+`Promise`<`string` \| `undefined`\>
+
+---
 
 ### disconnectTwitter
 
@@ -48,11 +63,11 @@
 
 ### getAllTwitters
 
-▸ `Const` **getAllTwitters**(): `Promise`<[`AddressTwitterMap`](_types_darkforest_api_UtilityServerAPITypes.md#addresstwittermap)\>
+▸ `Const` **getAllTwitters**(): `Promise`<[`AddressTwitterMap`](types_darkforest_api_UtilityServerAPITypes.md#addresstwittermap)\>
 
 #### Returns
 
-`Promise`<[`AddressTwitterMap`](_types_darkforest_api_UtilityServerAPITypes.md#addresstwittermap)\>
+`Promise`<[`AddressTwitterMap`](types_darkforest_api_UtilityServerAPITypes.md#addresstwittermap)\>
 
 ---
 
@@ -90,14 +105,13 @@
 
 ### submitPlayerEmail
 
-▸ `Const` **submitPlayerEmail**(`email`, `ethAddress`): `Promise`<[`EmailResponse`](../enums/Backend_Network_UtilityServerAPI.EmailResponse.md)\>
+▸ `Const` **submitPlayerEmail**(`request?`): `Promise`<[`EmailResponse`](../enums/Backend_Network_UtilityServerAPI.EmailResponse.md)\>
 
 #### Parameters
 
-| Name         | Type         |
-| :----------- | :----------- |
-| `email`      | `string`     |
-| `ethAddress` | `EthAddress` |
+| Name       | Type                       |
+| :--------- | :------------------------- |
+| `request?` | `SignedMessage`<`Object`\> |
 
 #### Returns
 
@@ -123,7 +137,10 @@
 
 ### submitWhitelistKey
 
-▸ `Const` **submitWhitelistKey**(`key`, `address`): `Promise`<`null` \| `string`\>
+▸ `Const` **submitWhitelistKey**(`key`, `address`): `Promise`<`null` \| `RegisterResponse`\>
+
+Submits a whitelist key to register the given player to the game. Returns null if there was an
+error.
 
 #### Parameters
 
@@ -134,20 +151,20 @@
 
 #### Returns
 
-`Promise`<`null` \| `string`\>
+`Promise`<`null` \| `RegisterResponse`\>
 
 ---
 
 ### tryGetAllTwitters
 
-▸ `Const` **tryGetAllTwitters**(): `Promise`<[`AddressTwitterMap`](_types_darkforest_api_UtilityServerAPITypes.md#addresstwittermap)\>
+▸ `Const` **tryGetAllTwitters**(): `Promise`<[`AddressTwitterMap`](types_darkforest_api_UtilityServerAPITypes.md#addresstwittermap)\>
 
 Swallows all errors. Either loads the address to twitter map from the webserver in 5 seconds, or
 returan empty map.
 
 #### Returns
 
-`Promise`<[`AddressTwitterMap`](_types_darkforest_api_UtilityServerAPITypes.md#addresstwittermap)\>
+`Promise`<[`AddressTwitterMap`](types_darkforest_api_UtilityServerAPITypes.md#addresstwittermap)\>
 
 ---
 

@@ -10,7 +10,7 @@ import {
   TowardsCenterPatternV2,
 } from '../../Backend/Miner/MiningPatterns';
 import { EmSpacer, SelectFrom, ShortcutButton } from '../Components/CoreUI';
-import { PauseIcon, PlayIcon, TargetIcon } from '../Components/Icons';
+import { Icon, IconType } from '../Components/Icons';
 import { Coords, Sub } from '../Components/Text';
 import WindowManager, { CursorState, TooltipName, WindowManagerEvent } from '../Game/WindowManager';
 import dfstyles from '../Styles/dfstyles';
@@ -59,12 +59,12 @@ const Pattern = {
 };
 
 const miningSelectValues = [
-  MiningPatternType.TowardsCenterV2.toString(),
-  MiningPatternType.TowardsCenter.toString(),
   MiningPatternType.Spiral.toString(),
   MiningPatternType.SwissCheese.toString(),
+  MiningPatternType.TowardsCenter.toString(),
+  MiningPatternType.TowardsCenterV2.toString(),
 ];
-const miningSelectLabels = ['TowardsCenterV2', 'TowardsCenter', 'Spiral', 'SwissCheese'];
+const miningSelectLabels = ['Spiral', 'SwissCheese', 'TowardsCenter', 'TowardsCenterV2'];
 
 function HashesPerSec() {
   const uiManager = useUIManager();
@@ -104,7 +104,7 @@ export function ExplorePane() {
   const uiManager = useUIManager();
   const windowManager = WindowManager.getInstance();
   const uiEmitter = UIEmitter.getInstance();
-  const [pattern, setPattern] = useState<string>(MiningPatternType.TowardsCenterV2.toString());
+  const [pattern, setPattern] = useState<string>(MiningPatternType.Spiral.toString());
   const [mining] = useBooleanSetting(uiManager, Setting.IsMining);
   const [targetting, setTargetting] = useState(false);
   const [coords, setCoords] = useState<WorldCoords>(uiManager.getHomeCoords());
@@ -156,16 +156,16 @@ export function ExplorePane() {
   return (
     <StyledExplorePane>
       {/* button which allows player to preposition the center of their miner */}
-      <TooltipTrigger needsCtrl display={'inline-block'} name={TooltipName.MiningTarget}>
+      <TooltipTrigger style={{ display: 'inline-block' }} name={TooltipName.MiningTarget}>
         <ShortcutButton onClick={doTarget} shortcutKey={TOGGLE_TARGETTING}>
           {targetting ? 'Moving...' : 'Move'}
           <EmSpacer width={1} />
-          <TargetIcon />
+          <Icon type={IconType.Target} />
         </ShortcutButton>
       </TooltipTrigger>
       <EmSpacer width={0.5} />
       {/* button which toggles whether or not the game is mining. this persists between refreshes */}
-      <TooltipTrigger needsCtrl display={'inline-block'} name={TooltipName.MiningPause}>
+      <TooltipTrigger style={{ display: 'inline-block' }} name={TooltipName.MiningPause}>
         <ShortcutButton
           style={{ width: '110px' }}
           onClick={uiManager.toggleExplore.bind(uiManager)}
@@ -173,7 +173,7 @@ export function ExplorePane() {
           shortcutText={'space'}
         >
           {mining ? 'Pause' : 'Explore!'} <EmSpacer width={1} />{' '}
-          {mining ? <PauseIcon /> : <PlayIcon />}
+          {mining ? <Icon type={IconType.Pause} /> : <Icon type={IconType.Play} />}
         </ShortcutButton>
       </TooltipTrigger>
 

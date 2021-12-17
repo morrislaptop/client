@@ -2,15 +2,13 @@ import { CONTRACT_PRECISION, EMPTY_LOCATION_ID } from '@darkforest_eth/constants
 import {
   CORE_CONTRACT_ADDRESS,
   GETTERS_CONTRACT_ADDRESS,
-  GPT_CREDIT_CONTRACT_ADDRESS,
-  SCORING_CONTRACT_ADDRESS,
+  TOKENS_CONTRACT_ADDRESS,
   WHITELIST_CONTRACT_ADDRESS,
 } from '@darkforest_eth/contracts';
 import type {
   DarkForestCore,
   DarkForestGetters,
-  DarkForestGPTCredit,
-  DarkForestScoringRound3,
+  DarkForestTokens,
   Whitelist,
 } from '@darkforest_eth/contracts/typechain';
 import {
@@ -28,7 +26,6 @@ import {
   decodeArrival,
   decodeArtifact,
   decodeArtifactPointValues,
-  decodeClaimedCoords,
   decodePlanet,
   decodePlanetDefaults,
   decodePlayer,
@@ -48,7 +45,6 @@ import {
   Artifact,
   ArtifactId,
   AutoGasSetting,
-  ClaimedCoords,
   ContractMethodName,
   DiagnosticUpdater,
   EthAddress,
@@ -58,9 +54,7 @@ import {
   QueuedArrival,
   RevealedCoords,
   SubmittedActivateArtifact,
-  SubmittedBuyGPTCredits,
   SubmittedBuyHat,
-  SubmittedClaim,
   SubmittedDeactivateArtifact,
   SubmittedDepositArtifact,
   SubmittedFindArtifact,
@@ -74,7 +68,6 @@ import {
   SubmittedWithdrawArtifact,
   SubmittedWithdrawSilver,
   UnconfirmedActivateArtifact,
-  UnconfirmedClaim,
   UnconfirmedDeactivateArtifact,
   UnconfirmedDepositArtifact,
   UnconfirmedInit,
@@ -85,14 +78,13 @@ import {
   WorldLocation,
 } from '@darkforest_eth/types';
 import bigInt from 'big-integer';
-import { BigNumber as EthersBN, ContractFunction, ethers, Event, providers, utils } from 'ethers';
+import { BigNumber as EthersBN, ContractFunction, Event, providers } from 'ethers';
 import { EventEmitter } from 'events';
 import _ from 'lodash';
 import NotificationManager from '../../Frontend/Game/NotificationManager';
 import { openConfirmationWindowForTransaction } from '../../Frontend/Game/Popups';
 import { getSetting, Setting } from '../../Frontend/Utils/SettingsHooks';
 import {
-  ClaimArgs,
   ContractConstants,
   ContractEvent,
   ContractsAPIEvent,
@@ -108,8 +100,7 @@ import {
 import {
   loadCoreContract,
   loadGettersContract,
-  loadGptCreditContract,
-  loadScoringContract,
+  loadTokensContract,
   loadWhitelistContract,
 } from '../Network/Blockchain';
 import { eventLogger, EventType } from '../Network/EventLogger';
@@ -146,8 +137,8 @@ export class ContractsAPI extends EventEmitter {
     return this.ethConnection.getContract<DarkForestCore>(CORE_CONTRACT_ADDRESS);
   }
 
-  get scoreContract() {
-    return this.ethConnection.getContract<DarkForestScoringRound3>(SCORING_CONTRACT_ADDRESS);
+  get tokensContract() {
+    return this.ethConnection.getContract<DarkForestTokens>(TOKENS_CONTRACT_ADDRESS);
   }
 
   get gettersContract() {
@@ -156,10 +147,6 @@ export class ContractsAPI extends EventEmitter {
 
   get whitelistContract() {
     return this.ethConnection.getContract<Whitelist>(WHITELIST_CONTRACT_ADDRESS);
-  }
-
-  get gptCreditContract() {
-    return this.ethConnection.getContract<DarkForestGPTCredit>(GPT_CREDIT_CONTRACT_ADDRESS);
   }
 
   public constructor(ethConnection: EthConnection) {
@@ -227,7 +214,7 @@ export class ContractsAPI extends EventEmitter {
   }
 
   public async setupEventListeners(): Promise<void> {
-    const { coreContract, scoreContract } = this;
+    const { coreContract } = this;
 
     const filter = {
       address: coreContract.address,
@@ -239,7 +226,7 @@ export class ContractsAPI extends EventEmitter {
           coreContract.filters.ArtifactDeposited(null, null, null).topics,
           coreContract.filters.ArtifactFound(null, null, null).topics,
           coreContract.filters.ArtifactWithdrawn(null, null, null).topics,
-          coreContract.filters.LocationRevealed(null, null).topics,
+          coreContract.filters.LocationRevealed(null, null, null, null).topics,
           coreContract.filters.PlanetHatBought(null, null, null).topics,
           coreContract.filters.PlanetProspected(null, null).topics,
           coreContract.filters.PlanetSilverWithdrawn(null, null, null).topics,
@@ -368,23 +355,10 @@ export class ContractsAPI extends EventEmitter {
     };
 
     this.ethConnection.subscribeToContractEvents(coreContract, eventHandlers, filter);
-
-    scoreContract.on(
-      ContractEvent.LocationClaimed,
-      async (revealerAddr: string, _previousClaimer: string, location: EthersBN, _: Event) => {
-        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
-        this.emit(
-          ContractsAPIEvent.PlanetClaimed,
-          locationIdFromEthersBN(location),
-          address(revealerAddr.toLowerCase())
-        );
-        this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
-      }
-    );
   }
 
   public removeEventListeners(): void {
-    const { coreContract, scoreContract } = this;
+    const { coreContract } = this;
 
     coreContract.removeAllListeners(ContractEvent.PlayerInitialized);
     coreContract.removeAllListeners(ContractEvent.ArrivalQueued);
@@ -398,7 +372,6 @@ export class ContractsAPI extends EventEmitter {
     coreContract.removeAllListeners(ContractEvent.ArtifactDeactivated);
     coreContract.removeAllListeners(ContractEvent.LocationRevealed);
     coreContract.removeAllListeners(ContractEvent.PlanetSilverWithdrawn);
-    scoreContract.removeAllListeners(ContractEvent.LocationClaimed);
   }
 
   public getContractAddress(): EthAddress {
@@ -446,29 +419,6 @@ export class ContractsAPI extends EventEmitter {
     };
 
     return this.waitFor(unminedRevealTx, tx.confirmed);
-  }
-
-  async claim(
-    args: ClaimArgs,
-    action: UnconfirmedClaim
-  ): Promise<void | providers.TransactionReceipt> {
-    if (!this.txExecutor) {
-      throw new Error('no signer, cannot execute tx');
-    }
-
-    const tx = this.txExecutor.queueTransaction(
-      action.actionId,
-      this.scoreContract,
-      ContractMethodName.CLAIM_LOCATION,
-      args
-    );
-    const unminedClaimTx: SubmittedClaim = {
-      ...action,
-      txHash: (await tx.submitted).hash,
-      sentAtTimestamp: Math.floor(Date.now() / 1000),
-    };
-
-    return this.waitFor(unminedClaimTx, tx.confirmed);
   }
 
   async initializePlayer(
@@ -815,72 +765,6 @@ export class ContractsAPI extends EventEmitter {
     return this.waitFor(unminedWithdrawSilverTx, tx.confirmed);
   }
 
-  async buyGPTCredits(amount: number, actionId: string) {
-    if (!this.txExecutor) {
-      throw new Error('no signer, cannot execute tx');
-    }
-    const costPerCreditStr = (
-      await this.makeCall<EthersBN>(this.gptCreditContract.creditPrice)
-    ).toString();
-    const overrides: providers.TransactionRequest = {
-      value: bigInt(costPerCreditStr).multiply(amount).toString(),
-    };
-
-    const tx = this.txExecutor.queueTransaction(
-      actionId,
-      this.gptCreditContract,
-      ContractMethodName.BUY_GPT_CREDITS,
-      [amount],
-      overrides
-    );
-
-    const unminedBuyGPTCreditsTx: SubmittedBuyGPTCredits = {
-      actionId,
-      methodName: ContractMethodName.BUY_GPT_CREDITS,
-      txHash: (await tx.submitted).hash,
-      sentAtTimestamp: Math.floor(Date.now() / 1000),
-      amount,
-    };
-
-    return this.waitFor(unminedBuyGPTCreditsTx, tx.confirmed);
-  }
-
-  async getGPTCreditPriceEther(): Promise<number> {
-    // price in ether
-    const costPerCreditWeiStr = (
-      await this.makeCall<EthersBN>(this.gptCreditContract.creditPrice)
-    ).toString();
-    const costPerCredit = ethers.utils.formatEther(costPerCreditWeiStr);
-    return parseFloat(costPerCredit);
-  }
-
-  public async getGPTCreditBalance(address: EthAddress | undefined): Promise<number> {
-    if (address === undefined) return 0;
-
-    const gptCreditsBalance = await this.makeCall<EthersBN>(this.gptCreditContract.credits, [
-      address,
-    ]);
-    return gptCreditsBalance.toNumber();
-  }
-
-  /**
-   * If this player has a claimed planet, their score is the distance between the claimed planet and
-   * the center. If this player does not have a claimed planet, then the score is undefined.
-   */
-  async getScoreV3(address: EthAddress | undefined): Promise<number | undefined> {
-    if (address === undefined) return undefined;
-
-    const score = await this.makeCall<EthersBN>(this.scoreContract.getScore, [address]);
-
-    if (
-      score.eq(EthersBN.from('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'))
-    ) {
-      return undefined;
-    }
-
-    return score.toNumber();
-  }
-
   async getConstants(): Promise<ContractConstants> {
     const {
       DISABLE_ZK_CHECKS,
@@ -907,10 +791,6 @@ export class ContractsAPI extends EventEmitter {
       LOCATION_REVEAL_COOLDOWN,
     } = await this.makeCall(this.coreContract.gameConstants);
 
-    const CLAIM_PLANET_COOLDOWN = await (
-      await this.makeCall(this.scoreContract.gameConstants)
-    ).CLAIM_PLANET_COOLDOWN_SECONDS;
-
     const TOKEN_MINT_END_SECONDS = (
       await this.makeCall(this.coreContract.TOKEN_MINT_END_TIMESTAMP)
     ).toNumber();
@@ -935,7 +815,7 @@ export class ContractsAPI extends EventEmitter {
       await this.makeCall<EthersBN[]>(this.coreContract.getCumulativeRarities)
     ).map((x: EthersBN) => x.toNumber());
 
-    return {
+    const constants: ContractConstants = {
       DISABLE_ZK_CHECKS,
 
       PLANETHASH_KEY: PLANETHASH_KEY.toNumber(),
@@ -944,7 +824,7 @@ export class ContractsAPI extends EventEmitter {
       PERLIN_LENGTH_SCALE: PERLIN_LENGTH_SCALE.toNumber(),
       PERLIN_MIRROR_X,
       PERLIN_MIRROR_Y,
-
+      CLAIM_PLANET_COOLDOWN: 0,
       TOKEN_MINT_END_SECONDS,
       MAX_NATURAL_PLANET_LEVEL: MAX_NATURAL_PLANET_LEVEL.toNumber(),
       TIME_FACTOR_HUNDREDTHS: TIME_FACTOR_HUNDREDTHS.toNumber(),
@@ -962,7 +842,6 @@ export class ContractsAPI extends EventEmitter {
       PHOTOID_ACTIVATION_DELAY: PHOTOID_ACTIVATION_DELAY.toNumber(),
       SPAWN_RIM_AREA: SPAWN_RIM_AREA.toNumber(),
       LOCATION_REVEAL_COOLDOWN: LOCATION_REVEAL_COOLDOWN.toNumber(),
-      CLAIM_PLANET_COOLDOWN: CLAIM_PLANET_COOLDOWN.toNumber(),
 
       defaultPopulationCap: planetDefaults.populationCap,
       defaultPopulationGrowth: planetDefaults.populationGrowth,
@@ -976,6 +855,8 @@ export class ContractsAPI extends EventEmitter {
       planetCumulativeRarities,
       upgrades,
     };
+
+    return constants;
   }
 
   public async getPlayers(
@@ -992,23 +873,9 @@ export class ContractsAPI extends EventEmitter {
         (await this.makeCall(this.gettersContract.bulkGetPlayers, [start, end])).map(decodePlayer),
       onProgress
     );
-    const lastClaimTimestamps = await aggregateBulkGetter(
-      nPlayers,
-      5,
-      (start: number, end: number) =>
-        this.contractCaller.makeCall(this.scoreContract.bulkGetLastClaimTimestamp, [start, end])
-    );
-    const playerLastClaimTimestampMap = lastClaimTimestamps.reduce((acc, pair): Map<
-      string,
-      EthersBN
-    > => {
-      acc.set(pair.player, pair.lastClaimTimestamp);
-      return acc;
-    }, new Map<string, EthersBN>());
 
     const playerMap: Map<EthAddress, Player> = new Map();
     for (const player of players) {
-      player.lastClaimTimestamp = playerLastClaimTimestampMap.get(player.address)?.toNumber() || 0;
       playerMap.set(player.address, player);
     }
     return playerMap;
@@ -1016,15 +883,9 @@ export class ContractsAPI extends EventEmitter {
 
   public async getPlayerById(playerId: EthAddress): Promise<Player | undefined> {
     const rawPlayer = await this.makeCall(this.coreContract.players, [playerId]);
-    const lastClaimedTimestamp = await this.makeCall(this.scoreContract.getLastClaimTimestamp, [
-      playerId,
-    ]);
-    const scoreFromBlockchain = await this.getScoreV3(playerId);
     if (!rawPlayer.isInitialized) return undefined;
-
     const player = decodePlayer(rawPlayer);
-    player.lastClaimTimestamp = lastClaimedTimestamp.toNumber();
-    player.score = scoreFromBlockchain;
+
     return player;
   }
 
@@ -1039,13 +900,6 @@ export class ContractsAPI extends EventEmitter {
       await this.makeCall<EthersBN>(this.coreContract.TOKEN_MINT_END_TIMESTAMP)
     ).toNumber();
     return timestamp;
-  }
-
-  public async getContractBalance(): Promise<number> {
-    const rawBalance = await this.makeCall<EthersBN>(this.coreContract.getBalance);
-    const myBalance = utils.formatEther(rawBalance);
-    const numBalance = parseFloat(myBalance);
-    return numBalance;
   }
 
   public async getArrival(arrivalId: number): Promise<QueuedArrival | undefined> {
@@ -1145,51 +999,6 @@ export class ContractsAPI extends EventEmitter {
     );
 
     return rawRevealedCoords.map(decodeRevealedCoords);
-  }
-
-  public async getClaimedCoordsByIdIfExists(
-    planetId: LocationId
-  ): Promise<ClaimedCoords | undefined> {
-    const decStrId = locationIdToDecStr(planetId);
-    const rawClaimedCoords = await this.makeCall(this.scoreContract.getClaimedCoords, [decStrId]);
-    const ret = decodeClaimedCoords(rawClaimedCoords);
-    if (ret.hash === EMPTY_LOCATION_ID) {
-      return undefined;
-    }
-    return ret;
-  }
-
-  public async getClaimedPlanetsCoords(
-    startingAt: number,
-    onProgressIds?: (fractionCompleted: number) => void,
-    onProgressCoords?: (fractionCompleted: number) => void
-  ): Promise<ClaimedCoords[]> {
-    const nRevealedPlanets: number = (
-      await this.makeCall<EthersBN>(this.scoreContract.getNClaimedPlanets)
-    ).toNumber();
-
-    const rawRevealedPlanetIds = await aggregateBulkGetter<EthersBN>(
-      nRevealedPlanets - startingAt,
-      500,
-      async (start, end) =>
-        await this.makeCall(this.scoreContract.bulkGetClaimedPlanetIds, [
-          start + startingAt,
-          end + startingAt,
-        ]),
-      onProgressIds
-    );
-
-    const rawClaimedCoords = await aggregateBulkGetter(
-      rawRevealedPlanetIds.length,
-      500,
-      async (start, end) =>
-        await this.makeCall(this.scoreContract.bulkGetClaimedCoordsByIds, [
-          rawRevealedPlanetIds.slice(start, end),
-        ]),
-      onProgressCoords
-    );
-
-    return rawClaimedCoords.map(decodeClaimedCoords);
   }
 
   public async bulkGetPlanets(
@@ -1310,16 +1119,6 @@ export class ContractsAPI extends EventEmitter {
     return this.ethConnection.getAddress();
   }
 
-  public async getBalance(): Promise<EthersBN> {
-    const address = this.getAccount();
-
-    if (!address) {
-      return EthersBN.from(0);
-    }
-
-    return this.ethConnection.loadBalance(address);
-  }
-
   public setDiagnosticUpdater(diagnosticUpdater?: DiagnosticUpdater) {
     this.contractCaller.setDiagnosticUpdater(diagnosticUpdater);
     this.txExecutor?.setDiagnosticUpdater(diagnosticUpdater);
@@ -1330,10 +1129,9 @@ export class ContractsAPI extends EventEmitter {
 export async function makeContractsAPI(ethConnection: EthConnection): Promise<ContractsAPI> {
   // Could turn this into an array and iterate, but I like the explicitness
   await ethConnection.loadContract(CORE_CONTRACT_ADDRESS, loadCoreContract);
-  await ethConnection.loadContract(SCORING_CONTRACT_ADDRESS, loadScoringContract);
   await ethConnection.loadContract(GETTERS_CONTRACT_ADDRESS, loadGettersContract);
   await ethConnection.loadContract(WHITELIST_CONTRACT_ADDRESS, loadWhitelistContract);
-  await ethConnection.loadContract(GPT_CREDIT_CONTRACT_ADDRESS, loadGptCreditContract);
+  await ethConnection.loadContract(TOKENS_CONTRACT_ADDRESS, loadTokensContract);
 
   return new ContractsAPI(ethConnection);
 }

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Hook } from '../../_types/global/GlobalTypes';
 import { Btn } from '../Components/Btn';
-import { SettingsIcon } from '../Components/Icons';
+import { Icon, IconType } from '../Components/Icons';
 import { Green, Red, White } from '../Components/Text';
 import dfstyles from '../Styles/dfstyles';
 import { useAccount, useUIManager } from '../Utils/AppHooks';
@@ -12,21 +12,13 @@ const StyledOnboardingContent = styled.div`
   width: 36em;
   height: 32em;
   position: relative;
-  padding: 16px;
+  padding: 8px;
+  color: ${dfstyles.colors.text};
 
   .btn {
     position: absolute;
     right: 0.5em;
     bottom: 0.5em;
-  }
-
-  a {
-    color: ${dfstyles.colors.text};
-    text-decoration: underline;
-  }
-
-  p {
-    color: ${dfstyles.colors.subtext};
   }
 
   .indent {
@@ -84,7 +76,7 @@ function OnboardMoney({ advance }: { advance: () => void }) {
       <p>
         To ensure the safety of your balance, <White>we require you to enable popups</White> so that
         all transactions may be confirmed by you. Note that you can disable popups for small
-        transactions in settings. <SettingsIcon />
+        transactions in settings. <Icon type={IconType.Settings} />
       </p>
       <p>
         <White>Make sure you understand all of the above before proceeding.</White>

@@ -1,16 +1,45 @@
 import { Upgrade } from '@darkforest_eth/types';
 import React from 'react';
 import styled from 'styled-components';
-import { CenterRow, HoverableTooltip, Spacer } from '../../Components/CoreUI';
-import { Hoverable, TOOLTIP_SLOW } from '../../Components/Hoverable';
-import {
-  DefenseIcon,
-  EnergyGrowthIcon,
-  EnergyIcon,
-  RangeIcon,
-  SpeedIcon,
-} from '../../Components/Icons';
+import { CenterRow, Spacer } from '../../Components/CoreUI';
+import { Icon, IconType } from '../../Components/Icons';
+import { TooltipName } from '../../Game/WindowManager';
 import dfstyles from '../../Styles/dfstyles';
+import { TooltipTrigger } from '../Tooltip';
+
+type IconConfig = {
+  iconType: IconType;
+  key: keyof Upgrade;
+  tooltip: TooltipName;
+};
+
+const icons: readonly IconConfig[] = [
+  {
+    iconType: IconType.Defense,
+    key: 'defMultiplier',
+    tooltip: TooltipName.DefenseMultiplier,
+  },
+  {
+    iconType: IconType.Energy,
+    key: 'energyCapMultiplier',
+    tooltip: TooltipName.EnergyCapMultiplier,
+  },
+  {
+    iconType: IconType.EnergyGrowth,
+    key: 'energyGroMultiplier',
+    tooltip: TooltipName.EnergyGrowthMultiplier,
+  },
+  {
+    iconType: IconType.Range,
+    key: 'rangeMultiplier',
+    tooltip: TooltipName.RangeMultiplier,
+  },
+  {
+    iconType: IconType.Speed,
+    key: 'speedMultiplier',
+    tooltip: TooltipName.SpeedMultiplier,
+  },
+] as const;
 
 export function SortBy({
   sortBy,
@@ -19,69 +48,34 @@ export function SortBy({
   sortBy: keyof Upgrade | undefined;
   setSortBy: (k: keyof Upgrade | undefined) => void;
 }) {
-  /* eslint-disable react/display-name */
-  const icons: Array<{
-    icon: (color: string) => React.ReactElement;
-    key: keyof Upgrade;
-    tooltip: string;
-  }> = [
-    {
-      icon: (color: string) => <DefenseIcon color={color} />,
-      key: 'defMultiplier',
-      tooltip: 'defense multiplier',
-    },
-    {
-      icon: (color: string) => <EnergyIcon color={color} />,
-      key: 'energyCapMultiplier',
-      tooltip: 'energy cap multiplier',
-    },
-    {
-      icon: (color: string) => <EnergyGrowthIcon color={color} />,
-      key: 'energyGroMultiplier',
-      tooltip: 'energy growth multiplier',
-    },
-    {
-      icon: (color: string) => <RangeIcon color={color} />,
-      key: 'rangeMultiplier',
-      tooltip: 'range multiplier',
-    },
-    {
-      icon: (color: string) => <SpeedIcon color={color} />,
-      key: 'speedMultiplier',
-      tooltip: 'speed multiplier',
-    },
-  ];
-  /* eslint-enable react/display-name */
-
   return (
     <CenterRow>
       Sort By:
       <Spacer width={8} />
-      {icons.map((i) => (
-        <Hoverable
-          key={i.key}
-          quick
-          hoverDelay={TOOLTIP_SLOW}
-          hoverContents={() => <HoverableTooltip>{i.tooltip}</HoverableTooltip>}
-        >
+      {icons.map(({ key, tooltip, iconType }) => (
+        <TooltipTrigger key={key} name={tooltip}>
           <SortByIconContainer
             onClick={() => {
-              if (i.key === sortBy) {
+              if (key === sortBy) {
                 setSortBy(undefined);
               } else {
-                setSortBy(i.key);
+                setSortBy(key);
               }
             }}
+            iconColor={key === sortBy ? dfstyles.colors.dfgreen : dfstyles.colors.subtext}
           >
-            {i.icon(i.key === sortBy ? dfstyles.colors.dfgreen : dfstyles.colors.subtext)}
+            <Icon type={iconType} />
           </SortByIconContainer>
-        </Hoverable>
+        </TooltipTrigger>
       ))}
     </CenterRow>
   );
 }
 
-const SortByIconContainer = styled.div`
+const SortByIconContainer = styled.div<{ iconColor: string }>`
   line-height: 0;
   padding-right: 8px;
+
+  /* Set the Icon color if specified on the outer component */
+  --df-icon-color: ${({ iconColor }) => iconColor};
 `;

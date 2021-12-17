@@ -7,7 +7,6 @@ import {
   Artifact,
   ArtifactId,
   Biome,
-  Conversation,
   Diagnostics,
   EthAddress,
   LocatablePlanet,
@@ -30,6 +29,7 @@ import autoBind from 'auto-bind';
 import { BigNumber } from 'ethers';
 import EventEmitter from 'events';
 import deferred from 'p-defer';
+import React from 'react';
 import NotificationManager from '../../Frontend/Game/NotificationManager';
 import Viewport from '../../Frontend/Game/Viewport';
 import WindowManager, { CursorState } from '../../Frontend/Game/WindowManager';
@@ -70,6 +70,13 @@ class GameUIManager extends EventEmitter {
   private readonly gameManager: GameManager;
 
   private terminal: React.MutableRefObject<TerminalHandle | undefined>;
+
+  /**
+   * In order to render React on top of the game, we need to insert React nodes into an overlay
+   * container. We keep a reference to this container, so that our React components can optionally
+   * choose to render themselves into this overlay container using React Portals.
+   */
+  private overlayContainer: React.MutableRefObject<HTMLDivElement | null>;
   private previousSelectedPlanet: Planet | undefined;
   private selectedPlanet: LocatablePlanet | undefined;
   private selectedCoords: WorldCoords | undefined;
@@ -163,6 +170,22 @@ class GameUIManager extends EventEmitter {
     this.viewportEntities = new ViewportEntities(this.gameManager, this);
 
     autoBind(this);
+  }
+
+  /**
+   * Sets the overlay container. See {@link GameUIManger.overlayContainer} for more information
+   * about what the overlay container is.
+   */
+  public setOverlayContainer(randomContainer: React.MutableRefObject<HTMLDivElement | null>) {
+    this.overlayContainer = randomContainer;
+  }
+
+  /**
+   * Gets the overlay container. See {@link GameUIManger.overlayContainer} for more information
+   * about what the overlay container is.
+   */
+  public getOverlayContainer(): React.MutableRefObject<HTMLDivElement | null> {
+    return this.overlayContainer;
   }
 
   public static async create(
@@ -389,24 +412,8 @@ class GameUIManager extends EventEmitter {
     this.gameManager.revealLocation(locationId);
   }
 
-  public claimLocation(locationId: LocationId) {
-    this.gameManager.claimLocation(locationId);
-  }
-
   public getNextBroadcastAvailableTimestamp() {
     return this.gameManager.getNextBroadcastAvailableTimestamp();
-  }
-
-  public getConversation(artifactId: ArtifactId): Promise<Conversation | undefined> {
-    return this.gameManager.getConversation(artifactId);
-  }
-
-  public startConversation(artifactId: ArtifactId): Promise<Conversation> {
-    return this.gameManager.startConversation(artifactId);
-  }
-
-  public stepConversation(artifactId: ArtifactId, message: string): Promise<Conversation> {
-    return this.gameManager.stepConversation(artifactId, message);
   }
 
   public getEnergyArrivingForMove(
@@ -985,9 +992,6 @@ class GameUIManager extends EventEmitter {
   public isCurrentlyRevealing(): boolean {
     return this.gameManager.getNextRevealCountdownInfo().currentlyRevealing;
   }
-  public isCurrentlyClaiming(): boolean {
-    return this.gameManager.getNextClaimCountdownInfo().currentlyClaiming;
-  }
 
   public getUnconfirmedWormholeActivations(): UnconfirmedActivateArtifact[] {
     return this.gameManager.getUnconfirmedWormholeActivations();
@@ -1059,22 +1063,6 @@ class GameUIManager extends EventEmitter {
     // TODO: do something like JSON.stringify(args) so we know formatting is correct
     this.terminal.current?.printShellLn(`df.buyHat('${planet.locationId}')`);
     this.gameManager.buyHat(planet.locationId);
-  }
-
-  public buyGPTCredits(amount: number) {
-    this.gameManager.buyGPTCredits(amount);
-  }
-
-  public getGptCreditPriceEmitter(): Monomitter<number> {
-    return this.gameManager.getGptCreditPriceEmitter();
-  }
-
-  public getGptCreditBalanceEmitter(): Monomitter<number> {
-    return this.gameManager.getGptCreditBalanceEmitter();
-  }
-
-  public getIsBuyingCreditsEmitter(): Monomitter<boolean> {
-    return this.gameManager.getIsBuyingCreditsEmitter();
   }
 
   // non-nullable

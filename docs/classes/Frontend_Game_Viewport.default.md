@@ -10,7 +10,6 @@
 
 ### Properties
 
-- [animationManager](Frontend_Game_Viewport.default.md#animationmanager)
 - [canvas](Frontend_Game_Viewport.default.md#canvas)
 - [centerWorldCoords](Frontend_Game_Viewport.default.md#centerworldcoords)
 - [diagnosticUpdater](Frontend_Game_Viewport.default.md#diagnosticupdater)
@@ -105,12 +104,6 @@
 
 ## Properties
 
-### animationManager
-
-• `Private` **animationManager**: [`AnimationManager`](Frontend_Game_ViewportAnimation.AnimationManager.md)
-
----
-
 ### canvas
 
 • **canvas**: `HTMLCanvasElement`
@@ -191,7 +184,7 @@
 
 ### mousedownCoords
 
-• **mousedownCoords**: `undefined` \| [`CanvasCoords`](../interfaces/Backend_Utils_Coordinates.CanvasCoords.md)
+• **mousedownCoords**: `undefined` \| [`CanvasCoords`](../interfaces/Backend_Utils_Coordinates.CanvasCoords.md) = `undefined`
 
 ---
 
@@ -203,7 +196,7 @@
 
 ### velocity
 
-• **velocity**: `undefined` \| `WorldCoords`
+• **velocity**: `undefined` \| `WorldCoords` = `undefined`
 
 ---
 
@@ -321,9 +314,9 @@
 
 #### Parameters
 
-| Name    | Type                                          |
-| :------ | :-------------------------------------------- |
-| `chunk` | [`Chunk`](_types_global_GlobalTypes.Chunk.md) |
+| Name    | Type                                         |
+| :------ | :------------------------------------------- |
+| `chunk` | [`Chunk`](types_global_GlobalTypes.Chunk.md) |
 
 #### Returns
 
@@ -464,9 +457,9 @@
 
 #### Parameters
 
-| Name    | Type                                          |
-| :------ | :-------------------------------------------- |
-| `chunk` | [`Chunk`](_types_global_GlobalTypes.Chunk.md) |
+| Name    | Type                                         |
+| :------ | :------------------------------------------- |
+| `chunk` | [`Chunk`](types_global_GlobalTypes.Chunk.md) |
 
 #### Returns
 

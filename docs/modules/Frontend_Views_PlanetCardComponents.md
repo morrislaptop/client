@@ -5,7 +5,6 @@
 ### Variables
 
 - [DestroyedMarker](Frontend_Views_PlanetCardComponents.md#destroyedmarker)
-- [SpreadApart](Frontend_Views_PlanetCardComponents.md#spreadapart)
 - [TitleBar](Frontend_Views_PlanetCardComponents.md#titlebar)
 
 ### Functions
@@ -18,24 +17,15 @@
 
 ### DestroyedMarker
 
-• `Const` **DestroyedMarker**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **DestroyedMarker**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 Displayed in [PlanetContextPane](Frontend_Panes_PlanetContextPane.md#planetcontextpane) when a planet is {@code destroyed}.
 
 ---
 
-### SpreadApart
-
-• `Const` **SpreadApart**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
-
-Expands to fit the width of container. Is itself a flex box that spreads out its children
-horizontally.
-
----
-
 ### TitleBar
 
-• `Const` **TitleBar**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **TitleBar**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ## Functions
 
@@ -49,7 +39,7 @@ horizontally.
 | :--------------------------- | :---------------------- |
 | `__namedParameters`          | `Object`                |
 | `__namedParameters.artifact` | `Artifact`              |
-| `__namedParameters.planet`   | `Planet` \| `undefined` |
+| `__namedParameters.planet`   | `undefined` \| `Planet` |
 
 #### Returns
 

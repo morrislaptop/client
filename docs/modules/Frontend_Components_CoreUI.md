@@ -21,7 +21,6 @@
 - [FullWidth](Frontend_Components_CoreUI.md#fullwidth)
 - [HeaderText](Frontend_Components_CoreUI.md#headertext)
 - [Hidden](Frontend_Components_CoreUI.md#hidden)
-- [HoverableTooltip](Frontend_Components_CoreUI.md#hoverabletooltip)
 - [InlineBlock](Frontend_Components_CoreUI.md#inlineblock)
 - [KeyboardBtn](Frontend_Components_CoreUI.md#keyboardbtn)
 - [MaxWidth](Frontend_Components_CoreUI.md#maxwidth)
@@ -34,6 +33,8 @@
 - [Select](Frontend_Components_CoreUI.md#select)
 - [Separator](Frontend_Components_CoreUI.md#separator)
 - [Spacer](Frontend_Components_CoreUI.md#spacer)
+- [Spread](Frontend_Components_CoreUI.md#spread)
+- [SpreadApart](Frontend_Components_CoreUI.md#spreadapart)
 - [TextButton](Frontend_Components_CoreUI.md#textbutton)
 - [Truncate](Frontend_Components_CoreUI.md#truncate)
 - [Underline](Frontend_Components_CoreUI.md#underline)
@@ -50,7 +51,7 @@
 
 ### AlignCenterHorizontally
 
-• `Const` **AlignCenterHorizontally**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **AlignCenterHorizontally**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 Fills parent width, aligns children horizontally in the center.
 
@@ -58,25 +59,25 @@ Fills parent width, aligns children horizontally in the center.
 
 ### AlignCenterVertically
 
-• `Const` **AlignCenterVertically**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **AlignCenterVertically**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### BorderlessPane
 
-• `Const` **BorderlessPane**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **BorderlessPane**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### Bottom
 
-• `Const` **Bottom**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **Bottom**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### CenterBackgroundSubtext
 
-• `Const` **CenterBackgroundSubtext**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **CenterBackgroundSubtext**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 A box which centers some darkened text. Useful for displaying
 _somthing_ instead of empty space, if there isn't something to
@@ -86,25 +87,25 @@ be displayed. Think of it as a placeholder.
 
 ### CenterRow
 
-• `Const` **CenterRow**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **CenterRow**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### CenteredText
 
-• `Const` **CenteredText**: `StyledComponent`<`"span"`, `any`, `Object`, `never`\>
+• **CenteredText**: `StyledComponent`<`"span"`, `any`, `Object`, `never`\>
 
 ---
 
 ### Display
 
-• `Const` **Display**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **Display**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### DontShrink
 
-• `Const` **DontShrink**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **DontShrink**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 Don't shrink in a flexbox.
 
@@ -112,7 +113,7 @@ Don't shrink in a flexbox.
 
 ### EmSpacer
 
-• `Const` **EmSpacer**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **EmSpacer**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 Inline block rectangle, measured in ems, default 1em by 1em.
 
@@ -120,13 +121,13 @@ Inline block rectangle, measured in ems, default 1em by 1em.
 
 ### Emphasized
 
-• `Const` **Emphasized**: `StyledComponent`<`"span"`, `any`, `Object`, `never`\>
+• **Emphasized**: `StyledComponent`<`"span"`, `any`, `Object`, `never`\>
 
 ---
 
 ### Expand
 
-• `Const` **Expand**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **Expand**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 Expands to fill space in a flexbox.
 
@@ -134,73 +135,67 @@ Expands to fill space in a flexbox.
 
 ### FloatRight
 
-• `Const` **FloatRight**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **FloatRight**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### FullHeight
 
-• `Const` **FullHeight**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **FullHeight**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### FullWidth
 
-• `Const` **FullWidth**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **FullWidth**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### HeaderText
 
-• `Const` **HeaderText**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **HeaderText**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### Hidden
 
-• `Const` **Hidden**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
-
----
-
-### HoverableTooltip
-
-• `Const` **HoverableTooltip**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **Hidden**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### InlineBlock
 
-• `Const` **InlineBlock**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **InlineBlock**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### KeyboardBtn
 
-• `Const` **KeyboardBtn**: `StyledComponent`<`"kbd"`, `any`, `Object`, `never`\>
+• **KeyboardBtn**: `StyledComponent`<`"kbd"`, `any`, `Object`, `never`\>
 
 ---
 
 ### MaxWidth
 
-• `Const` **MaxWidth**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **MaxWidth**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### Padded
 
-• `Const` **Padded**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **Padded**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### PaddedRecommendedModalWidth
 
-• `Const` **PaddedRecommendedModalWidth**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **PaddedRecommendedModalWidth**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### PluginElements
 
-• `Const` **PluginElements**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **PluginElements**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 The container element into which a plugin renders its html elements.
 Contains styles for child elements so that plugins can use UI
@@ -212,55 +207,73 @@ way to do this.
 
 ### RecommendedModalWidth
 
-• `Const` **RecommendedModalWidth**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **RecommendedModalWidth**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### Section
 
-• `Const` **Section**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **Section**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### SectionHeader
 
-• `Const` **SectionHeader**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **SectionHeader**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### Select
 
-• `Const` **Select**: `StyledComponent`<`"select"`, `any`, `Object`, `never`\>
+• **Select**: `StyledComponent`<`"select"`, `any`, `Object`, `never`\>
 
 ---
 
 ### Separator
 
-• `Const` **Separator**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **Separator**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### Spacer
 
-• `Const` **Spacer**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **Spacer**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+
+---
+
+### Spread
+
+• **Spread**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+
+Expands to fit the width of container. Is itself a flex box that spreads out its children
+horizontally.
+
+---
+
+### SpreadApart
+
+• **SpreadApart**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+
+Expands to fit the width of container. Is itself a flex box that spreads out its children
+horizontally.
 
 ---
 
 ### TextButton
 
-• `Const` **TextButton**: `StyledComponent`<`"span"`, `any`, `Object`, `never`\>
+• **TextButton**: `StyledComponent`<`"span"`, `any`, `Object`, `never`\>
 
 ---
 
 ### Truncate
 
-• `Const` **Truncate**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
+• **Truncate**: `StyledComponent`<`"div"`, `any`, `Object`, `never`\>
 
 ---
 
 ### Underline
 
-• `Const` **Underline**: `StyledComponent`<`"span"`, `any`, `Object`, `never`\>
+• **Underline**: `StyledComponent`<`"span"`, `any`, `Object`, `never`\>
 
 ## Functions
 
@@ -272,9 +285,9 @@ This is the link that all core ui in Dark Forest should use. Please!
 
 #### Parameters
 
-| Name    | Type                                                                                                                                                      |
-| :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `props` | { `children`: `React.ReactNode` ; `color?`: `string` ; `openInThisTab?`: `boolean` ; `to?`: `string` } & `React.HtmlHTMLAttributes`<`HTMLAnchorElement`\> |
+| Name    | Type                                                                                                                                          |
+| :------ | :-------------------------------------------------------------------------------------------------------------------------------------------- |
+| `props` | { `children`: `ReactNode` ; `color?`: `string` ; `openInThisTab?`: `boolean` ; `to?`: `string` } & `HtmlHTMLAttributes`<`HTMLAnchorElement`\> |
 
 #### Returns
 
@@ -291,15 +304,15 @@ given string values.
 
 #### Parameters
 
-| Name                         | Type                  |
-| :--------------------------- | :-------------------- |
-| `__namedParameters`          | `Object`              |
-| `__namedParameters.labels`   | `string`[]            |
-| `__namedParameters.style?`   | `React.CSSProperties` |
-| `__namedParameters.value`    | `string`              |
-| `__namedParameters.values`   | `string`[]            |
-| `__namedParameters.wide?`    | `boolean`             |
-| `__namedParameters.setValue` |                       |
+| Name                         | Type                          |
+| :--------------------------- | :---------------------------- |
+| `__namedParameters`          | `Object`                      |
+| `__namedParameters.labels`   | `string`[]                    |
+| `__namedParameters.style?`   | `CSSProperties`               |
+| `__namedParameters.value`    | `string`                      |
+| `__namedParameters.values`   | `string`[]                    |
+| `__namedParameters.wide?`    | `boolean`                     |
+| `__namedParameters.setValue` | (`value`: `string`) => `void` |
 
 #### Returns
 
@@ -317,9 +330,9 @@ provided, this is just a normal button.
 
 #### Parameters
 
-| Name    | Type                                                                                                                                         |
-| :------ | :------------------------------------------------------------------------------------------------------------------------------------------- |
-| `props` | { `children`: `React.ReactNode` ; `shortcutKey?`: `string` ; `shortcutText?`: `string` } & [`BtnProps`](Frontend_Components_Btn.md#btnprops) |
+| Name    | Type                                                                                                                                                                                                                                                                                                                                                             |
+| :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `props` | { `children`: `ReactNode` ; `shortcutDisabled?`: `boolean` ; `shortcutKey?`: `string` ; `shortcutText?`: `string` } & { `borderColor?`: `string` ; `color?`: `string` ; `disabled?`: `boolean` ; `forceActive?`: `boolean` ; `noBorder?`: `boolean` ; `small?`: `boolean` ; `textColor?`: `string` ; `wide?`: `boolean` } & `HTMLAttributes`<`HTMLSpanElement`\> |
 
 #### Returns
 
@@ -333,11 +346,12 @@ provided, this is just a normal button.
 
 #### Parameters
 
-| Name                             | Type     |
-| :------------------------------- | :------- |
-| `__namedParameters`              | `Object` |
-| `__namedParameters.shortcutKey?` | `string` |
-| `__namedParameters.text?`        | `string` |
+| Name                             | Type      |
+| :------------------------------- | :-------- |
+| `__namedParameters`              | `Object`  |
+| `__namedParameters.disabled?`    | `boolean` |
+| `__namedParameters.shortcutKey?` | `string`  |
+| `__namedParameters.text?`        | `string`  |
 
 #### Returns
 

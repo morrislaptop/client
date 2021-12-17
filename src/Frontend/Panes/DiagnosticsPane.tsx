@@ -1,13 +1,17 @@
 import { Diagnostics } from '@darkforest_eth/types';
 import React, { useEffect, useState } from 'react';
 import { Wrapper } from '../../Backend/Utils/Wrapper';
-import { EmSpacer, PaddedRecommendedModalWidth, Separator } from '../Components/CoreUI';
+import {
+  EmSpacer,
+  PaddedRecommendedModalWidth,
+  Separator,
+  SpreadApart,
+} from '../Components/CoreUI';
 import { DisplayGasPrices } from '../Components/DisplayGasPrices';
 import { TextPreview } from '../Components/TextPreview';
 import { useUIManager } from '../Utils/AppHooks';
 import { BooleanSetting, Setting } from '../Utils/SettingsHooks';
 import { ModalHook, ModalPane } from '../Views/ModalPane';
-import { SpreadApart } from '../Views/PlanetCardComponents';
 import { TabbedView } from '../Views/TabbedView';
 
 export function DiagnosticsPane({ hook }: { hook: ModalHook }) {
@@ -101,9 +105,9 @@ function RenderingTab({ diagnostics }: { diagnostics: Wrapper<Diagnostics> }) {
       <SpreadApart>
         <span>viewport</span>
         <span>
-          <span>{diagnostics.value.width.toLocaleString()}</span>
+          <span>{diagnostics.value.width?.toLocaleString()}</span>
           <span> x </span>
-          <span>{diagnostics.value.height.toLocaleString()}</span>
+          <span>{diagnostics.value.height?.toLocaleString()}</span>
         </span>
       </SpreadApart>
       <Separator />

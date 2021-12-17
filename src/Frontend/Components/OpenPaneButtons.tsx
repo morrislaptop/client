@@ -1,7 +1,6 @@
 import { LocationId } from '@darkforest_eth/types';
 import React, { useCallback } from 'react';
 import { BroadcastPane, BroadcastPaneHelpContent } from '../Panes/BroadcastPane';
-import { ClaimPlanetPane } from '../Panes/ClaimPlanetPane';
 import { HatPane } from '../Panes/HatPane';
 import {
   ManagePlanetArtifactsHelpContent,
@@ -11,7 +10,6 @@ import { UpgradeDetailsPane, UpgradeDetailsPaneHelpContent } from '../Panes/Upgr
 import { useOnUp } from '../Utils/KeyEmitters';
 import {
   TOGGLE_BROADCAST_PANE,
-  TOGGLE_CLAIM_PLANET_PANE,
   TOGGLE_HAT_PANE,
   TOGGLE_PLANET_ARTIFACTS_PANE,
   TOGGLE_UPGRADES_PANE,
@@ -25,55 +23,50 @@ export function OpenPaneButton({
   element,
   helpContent,
   shortcutKey,
+  shortcutDisabled,
 }: {
   modal: ModalHandle;
   title: string;
   element: () => React.ReactElement;
   helpContent?: React.ReactElement;
   shortcutKey?: string;
+  shortcutDisabled?: boolean;
 }) {
   const open = useCallback(() => {
-    modal.push({
-      title,
-      element,
-      helpContent,
-    });
-  }, [title, element, helpContent, modal]);
+    if (!shortcutDisabled) {
+      modal.push({
+        title,
+        element,
+        helpContent,
+      });
+    }
+  }, [title, element, helpContent, modal, shortcutDisabled]);
 
   useOnUp(shortcutKey, open);
 
   return (
     <AlignCenterHorizontally style={{ width: '100%' }} key={shortcutKey}>
-      <ShortcutButton style={{ flexGrow: 1 }} wide onClick={open} shortcutKey={shortcutKey}>
+      <ShortcutButton
+        style={{ flexGrow: 1 }}
+        wide
+        onClick={open}
+        shortcutKey={shortcutKey}
+        shortcutDisabled={shortcutDisabled}
+      >
         <CenteredText>{title}</CenteredText>
       </ShortcutButton>
     </AlignCenterHorizontally>
   );
 }
 
-export function OpenClaimPlanetPane({
-  modal,
-  planetId,
-}: {
-  modal: ModalHandle;
-  planetId: LocationId | undefined;
-}) {
-  return (
-    <OpenPaneButton
-      modal={modal}
-      title='Claim'
-      shortcutKey={TOGGLE_CLAIM_PLANET_PANE}
-      element={() => <ClaimPlanetPane modal={modal} initialPlanetId={planetId} />}
-    />
-  );
-}
-
 export function OpenHatPaneButton({
   modal,
   planetId,
+  shortcutDisabled,
 }: {
   modal: ModalHandle;
   planetId: LocationId | undefined;
+  shortcutDisabled?: boolean;
 }) {
   return (
     <OpenPaneButton
@@ -81,6 +74,7 @@ export function OpenHatPaneButton({
       title='Hat'
       shortcutKey={TOGGLE_HAT_PANE}
       element={() => <HatPane modal={modal} initialPlanetId={planetId} />}
+      shortcutDisabled={shortcutDisabled}
     />
   );
 }
@@ -88,9 +82,11 @@ export function OpenHatPaneButton({
 export function OpenBroadcastPaneButton({
   modal,
   planetId,
+  shortcutDisabled,
 }: {
   modal: ModalHandle;
   planetId: LocationId | undefined;
+  shortcutDisabled?: boolean;
 }) {
   return (
     <OpenPaneButton
@@ -99,6 +95,7 @@ export function OpenBroadcastPaneButton({
       shortcutKey={TOGGLE_BROADCAST_PANE}
       element={() => <BroadcastPane modal={modal} initialPlanetId={planetId} />}
       helpContent={BroadcastPaneHelpContent()}
+      shortcutDisabled={shortcutDisabled}
     />
   );
 }
@@ -106,9 +103,11 @@ export function OpenBroadcastPaneButton({
 export function OpenUpgradeDetailsPaneButton({
   modal,
   planetId,
+  shortcutDisabled,
 }: {
   modal: ModalHandle;
   planetId: LocationId | undefined;
+  shortcutDisabled?: boolean;
 }) {
   return (
     <OpenPaneButton
@@ -117,15 +116,18 @@ export function OpenUpgradeDetailsPaneButton({
       shortcutKey={TOGGLE_UPGRADES_PANE}
       element={() => <UpgradeDetailsPane modal={modal} initialPlanetId={planetId} />}
       helpContent={UpgradeDetailsPaneHelpContent()}
+      shortcutDisabled={shortcutDisabled}
     />
   );
 }
 export function OpenManagePlanetArtifactsButton({
   modal,
   planetId,
+  shortcutDisabled,
 }: {
   modal: ModalHandle;
   planetId: LocationId | undefined;
+  shortcutDisabled?: boolean;
 }) {
   return (
     <OpenPaneButton
@@ -134,6 +136,7 @@ export function OpenManagePlanetArtifactsButton({
       shortcutKey={TOGGLE_PLANET_ARTIFACTS_PANE}
       element={() => <ManagePlanetArtifactsPane modal={modal} initialPlanetId={planetId} />}
       helpContent={ManagePlanetArtifactsHelpContent()}
+      shortcutDisabled={shortcutDisabled}
     />
   );
 }

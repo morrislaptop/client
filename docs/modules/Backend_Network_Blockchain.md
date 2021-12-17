@@ -7,8 +7,7 @@
 - [getEthConnection](Backend_Network_Blockchain.md#getethconnection)
 - [loadCoreContract](Backend_Network_Blockchain.md#loadcorecontract)
 - [loadGettersContract](Backend_Network_Blockchain.md#loadgetterscontract)
-- [loadGptCreditContract](Backend_Network_Blockchain.md#loadgptcreditcontract)
-- [loadScoringContract](Backend_Network_Blockchain.md#loadscoringcontract)
+- [loadTokensContract](Backend_Network_Blockchain.md#loadtokenscontract)
 - [loadWhitelistContract](Backend_Network_Blockchain.md#loadwhitelistcontract)
 
 ## Functions
@@ -33,11 +32,11 @@ Loads the Core game contract, which is responsible for updating the state of the
 
 #### Parameters
 
-| Name       | Type                        |
-| :--------- | :-------------------------- |
-| `address`  | `string`                    |
-| `provider` | `providers.JsonRpcProvider` |
-| `signer?`  | `Wallet`                    |
+| Name       | Type              |
+| :--------- | :---------------- |
+| `address`  | `string`          |
+| `provider` | `JsonRpcProvider` |
+| `signer?`  | `Wallet`          |
 
 #### Returns
 
@@ -56,11 +55,11 @@ from the blockchain in bulk.
 
 #### Parameters
 
-| Name       | Type                        |
-| :--------- | :-------------------------- |
-| `address`  | `string`                    |
-| `provider` | `providers.JsonRpcProvider` |
-| `signer?`  | `Wallet`                    |
+| Name       | Type              |
+| :--------- | :---------------- |
+| `address`  | `string`          |
+| `provider` | `JsonRpcProvider` |
+| `signer?`  | `Wallet`          |
 
 #### Returns
 
@@ -68,47 +67,25 @@ from the blockchain in bulk.
 
 ---
 
-### loadGptCreditContract
+### loadTokensContract
 
-▸ **loadGptCreditContract**(`address`, `provider`, `signer?`): `Promise`<`DarkForestGPTCredit`\>
+▸ **loadTokensContract**(`address`, `provider`, `signer?`): `Promise`<`DarkForestTokens`\>
 
-Loads ths GPT Credit contract, which players can pay to talk to artifacts.
+Loads the Tokens contract, which contains utility view functions which handles artifacts.
 
-**`see`** https://github.com/darkforest-eth/eth/blob/master/contracts/DarkForestGPTCredit.sol
-
-#### Parameters
-
-| Name       | Type                        |
-| :--------- | :-------------------------- |
-| `address`  | `string`                    |
-| `provider` | `providers.JsonRpcProvider` |
-| `signer?`  | `Wallet`                    |
-
-#### Returns
-
-`Promise`<`DarkForestGPTCredit`\>
-
----
-
-### loadScoringContract
-
-▸ **loadScoringContract**(`address`, `provider`, `signer?`): `Promise`<`DarkForestScoringRound3`\>
-
-Loads the Round 3 Scoring contract which tracks claimed planets and player claim cooldowns.
-
-**`see`** https://github.com/darkforest-eth/eth/blob/master/contracts/DarkForestRound3Scoring.sol
+**`see`** https://github.com/darkforest-eth/eth/blob/master/contracts/DarkForestTokens.sol
 
 #### Parameters
 
-| Name       | Type                        |
-| :--------- | :-------------------------- |
-| `address`  | `string`                    |
-| `provider` | `providers.JsonRpcProvider` |
-| `signer?`  | `Wallet`                    |
+| Name       | Type              |
+| :--------- | :---------------- |
+| `address`  | `string`          |
+| `provider` | `JsonRpcProvider` |
+| `signer?`  | `Wallet`          |
 
 #### Returns
 
-`Promise`<`DarkForestScoringRound3`\>
+`Promise`<`DarkForestTokens`\>
 
 ---
 
@@ -122,11 +99,11 @@ Loads the Whitelist contract, which keeps track of which players are allowed to 
 
 #### Parameters
 
-| Name       | Type                        |
-| :--------- | :-------------------------- |
-| `address`  | `string`                    |
-| `provider` | `providers.JsonRpcProvider` |
-| `signer?`  | `Wallet`                    |
+| Name       | Type              |
+| :--------- | :---------------- |
+| `address`  | `string`          |
+| `provider` | `JsonRpcProvider` |
+| `signer?`  | `Wallet`          |
 
 #### Returns
 
