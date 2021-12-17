@@ -941,6 +941,14 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
+"@darkforest_eth/constants@6.7.0-arena-andys-game.0":
+  version "6.7.0-arena-andys-game.0"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/constants/-/constants-6.7.0-arena-andys-game.0.tgz#5a0b339ca8dfb4f22638323a23656c3ea99d3930"
+  integrity sha512-Iv+szRkOPnK28WLs1Q6z8DngP6Oe3ZWxDHfIgJqrNiE/e/16MjjT6007VOh2QDyju7yxtHr1kktLvA23xN4NtA==
+  dependencies:
+    "@darkforest_eth/types" "6.7.0-arena-andys-game.0"
+    big-integer "^1.6.48"
+
 "@darkforest_eth/constants@6.7.0-staging-dec-3.0":
   version "6.7.0-staging-dec-3.0"
   resolved "https://registry.yarnpkg.com/@darkforest_eth/constants/-/constants-6.7.0-staging-dec-3.0.tgz#d09a5b814bced5327a06917f5179178390d96cef"
@@ -948,6 +956,11 @@
   dependencies:
     "@darkforest_eth/types" "6.7.0-staging-dec-3.0"
     big-integer "^1.6.48"
+
+"@darkforest_eth/contracts@6.7.0-arena-andys-game.0":
+  version "6.7.0-arena-andys-game.0"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/contracts/-/contracts-6.7.0-arena-andys-game.0.tgz#2c7b4a10150e65b22fb8231d229df3cd7e7a6b89"
+  integrity sha512-Hk1CpW3CD5KpKwJCjCsnyojN854JapWL+h/h3PqbI2ypQcykguEy8uc9M5uosa5aoR2eZifCtYpm7fhbSR9n8A==
 
 "@darkforest_eth/contracts@6.7.0-staging-dec-3.0":
   version "6.7.0-staging-dec-3.0"
@@ -964,6 +977,14 @@
   resolved "https://registry.yarnpkg.com/@darkforest_eth/hashing/-/hashing-6.7.0-staging-dec-3.0.tgz#8f400f769c9a31ab1d777ad2a4c262f7fe0aac32"
   integrity sha512-vQHMxTDyDKpkCCX0bnkPgu4RcT+hidlfHHvfGRN4ZG1p8RMNCtzrkHaq5vRhYRpr6M+dZUXwNqfNc7DUIiZWaQ==
   dependencies:
+    big-integer "^1.6.48"
+
+"@darkforest_eth/hexgen@6.7.0-arena-andys-game.0":
+  version "6.7.0-arena-andys-game.0"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/hexgen/-/hexgen-6.7.0-arena-andys-game.0.tgz#f1ac9af7c3c1232cd08396c4681f201652d73f7b"
+  integrity sha512-hiXR2FHMjV+Hx7mKbjLxb2jzsl3+vCORFqel86y9iK2s9LqPA4ZkLRMrJzjFaeDsgWjjWoi+4f7nWA9aAtVTSg==
+  dependencies:
+    "@darkforest_eth/types" "6.7.0-arena-andys-game.0"
     big-integer "^1.6.48"
 
 "@darkforest_eth/hexgen@6.7.0-staging-dec-3.0":
@@ -993,6 +1014,18 @@
     p-timeout "^4.0.0"
     uuid "^8.3.2"
 
+"@darkforest_eth/serde@6.7.0-arena-andys-game.0":
+  version "6.7.0-arena-andys-game.0"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/serde/-/serde-6.7.0-arena-andys-game.0.tgz#84dec7684d74d8071d6f3d394d65a7580de81547"
+  integrity sha512-2dllhNTg6QZYeB3irp8a7se4n7R7iJxsAefT9WeoE8BtihmT6Qg1GragawefOTuAbHyZE6cjtPuby4hY2VU8Yw==
+  dependencies:
+    "@darkforest_eth/constants" "6.7.0-arena-andys-game.0"
+    "@darkforest_eth/contracts" "6.7.0-arena-andys-game.0"
+    "@darkforest_eth/hexgen" "6.7.0-arena-andys-game.0"
+    "@darkforest_eth/types" "6.7.0-arena-andys-game.0"
+    big-integer "^1.6.48"
+    ethers "^5.5.1"
+
 "@darkforest_eth/serde@6.7.0-staging-dec-3.0":
   version "6.7.0-staging-dec-3.0"
   resolved "https://registry.yarnpkg.com/@darkforest_eth/serde/-/serde-6.7.0-staging-dec-3.0.tgz#5e754597f4b70952a487c12989daa4bb81e3ab56"
@@ -1009,6 +1042,15 @@
   version "6.7.0-staging-dec-3.0"
   resolved "https://registry.yarnpkg.com/@darkforest_eth/snarks/-/snarks-6.7.0-staging-dec-3.0.tgz#af587c4d8a93b3795acd1672d743ac27bbe77778"
   integrity sha512-E84XEbCjxWL0fo/ysOwXKDdWXho4nR+tPLork7mMxdHjT+41IVliQvZF6xaF8lmZSY158SsMAyeG5pnJaKK2hQ==
+
+"@darkforest_eth/types@6.7.0-arena-andys-game.0":
+  version "6.7.0-arena-andys-game.0"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/types/-/types-6.7.0-arena-andys-game.0.tgz#c91b1642ce28581a2d232f9e71618a30efe47476"
+  integrity sha512-Z6/9V50sDnwNBsuKiiKK1DKf+NenHRATl/AsaT5u1wfLFHFu/zYbgV1+apoFHLBp5+CUPNhrDdKAvzYyZ1rHKw==
+  dependencies:
+    big-integer "^1.6.48"
+    ethers "^5.5.1"
+    ts-toolbelt "^9.6.0"
 
 "@darkforest_eth/types@6.7.0-staging-dec-3.0":
   version "6.7.0-staging-dec-3.0"

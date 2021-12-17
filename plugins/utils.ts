@@ -90,7 +90,7 @@ export function isAsteroid(p: Planet) {
 }
 
 export function hasPendingMove(p: Planet) {
-  return p.unconfirmedDepartures.length > 0
+  return p.transactions.length > 0
 }
 
 export function energy(p: Planet) {
@@ -214,10 +214,12 @@ export function distToCenter(coords: WorldCoords) {
 }
 
 export function getPendingEnergy(p: Planet) {
+  return 0 // @todo
   return p.unconfirmedDepartures.reduce((total, m) => total + m.forces, 0)
 }
 
 export function getPendingSilver(p: Planet) {
+  return 0; // @todo
   return p.unconfirmedDepartures.reduce((total, m) => total + m.silver, 0)
 }
 
