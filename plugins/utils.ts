@@ -1,4 +1,5 @@
 import { Artifact, ArtifactId, ArtifactRarity, ArtifactType, LocatablePlanet, Planet, PlanetType, QueuedArrival, SpaceType, UnconfirmedMove, UpgradeBranchName, WorldCoords } from "@darkforest_eth/types"
+import { isUnconfirmedMove, isUnconfirmedMoveTx } from "@darkforest_eth/serde"
 import { addHours, fromUnixTime, isAfter } from "date-fns"
 import { isLocatable } from "src/_types/global/GlobalTypes"
 
@@ -213,14 +214,19 @@ export function distToCenter(coords: WorldCoords) {
   return Math.floor(df.getDistCoords(coords, center))
 }
 
+export function getUnconfirmedMoves(p: Planet): UnconfirmedMove[] {
+  const txns = p.transactions?.getTransactions(isUnconfirmedMoveTx)
+  const moves = txns?.map(t => t.intent)
+
+  return moves as UnconfirmedMove[]
+}
+
 export function getPendingEnergy(p: Planet) {
-  return 0 // @todo
-  return p.unconfirmedDepartures.reduce((total, m) => total + m.forces, 0)
+  return getUnconfirmedMoves(p).reduce((total, m) => total + m.forces, 0)
 }
 
 export function getPendingSilver(p: Planet) {
-  return 0; // @todo
-  return p.unconfirmedDepartures.reduce((total, m) => total + m.silver, 0)
+  return getUnconfirmedMoves(p).reduce((total, m) => total + m.silver, 0)
 }
 
 export function planetWillHaveMinEnergyAfterMove(move: Move, minEnergy: number) {

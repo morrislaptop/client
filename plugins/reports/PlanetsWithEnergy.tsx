@@ -16,8 +16,8 @@ const pauseable = require('pauseable')
 declare const df: GameManager
 declare const ui: GameUIManager
 
-function onCrawlClick(selectedPlanet: Planet|null = null) {
-  console.log('Crawling')
+function onCrawlThenDistributeClick(selectedPlanet: Planet|null = null) {
+  console.log('Crawling and Distributing')
 
   capturePlanets({
     fromId: selectedPlanet?.locationId,
@@ -62,10 +62,6 @@ function onCrawlClick(selectedPlanet: Planet|null = null) {
     toTargetEnergy: 15,
     sortFunction: lowestEnergy,
   })
-}
-
-function onDistributeClick(selectedPlanet: Planet|null = null) {
-  console.log('Distribute')
 
   distributeEnergy({
     fromId: selectedPlanet?.locationId,
@@ -82,10 +78,7 @@ export class PlanetsWithEnergy extends Component
     super()
     // takes 80 minutes for a l4 r5 planet to go from 37.5% to 50%
     // let's do this twice then the closest 10 planets should be sending energy
-    this.interval = pauseable.setInterval(PrimeMinutes.NINETEEN, () => {
-      onCrawlClick()
-      onDistributeClick()
-    })
+    this.interval = pauseable.setInterval(PrimeMinutes.NINETEEN, onCrawlThenDistributeClick)
     // this.interval.pause()
   }
 
@@ -113,11 +106,8 @@ export class PlanetsWithEnergy extends Component
     <Header>Planets with &gt; 75% Energy</Header>
     <ManageInterval interval={this.interval} />
     <div style={buttonGridStyle}>
-      <button onClick={() => onCrawlClick(ui.getSelectedPlanet())}>
-        Crawl
-      </button>
-      <button onClick={() => onDistributeClick(ui.getSelectedPlanet())}>
-        Distribute
+      <button onClick={() => onCrawlThenDistributeClick(ui.getSelectedPlanet())}>
+        Crawl then Distribute
       </button>
     </div>
     <Table
