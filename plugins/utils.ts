@@ -187,7 +187,7 @@ export function planetName(p: Planet) {
 }
 
 export function getIncomingMoves(p: Planet) {
-  const pendingMoves = df.getUnconfirmedMoves()
+  const pendingMoves = df.getUnconfirmedMoves().map(t => t.intent)
   const journeys = df.getAllVoyages().filter(p => p.arrivalTime > Date.now() / 1000)
 
   const incoming: QueuedArrival[] = journeys.filter(j => j.toPlanet === p.locationId)
