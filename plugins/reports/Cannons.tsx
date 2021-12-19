@@ -8,6 +8,7 @@ import { Table } from '../Components/Table';
 
 import { ArtifactRarities, ArtifactTypes, canBeActivated, getAllArtifacts, getPlanetRank, getPlanetTypeAcronym, hasPendingMove, isActivated, isAsteroid, isFindable, isProspectable, isReachable, isUnowned, planetName, PlanetTypes, SelectedPlanetProp } from '../utils'
 import { addHours, formatDistanceToNow, fromUnixTime, isAfter } from 'date-fns'
+import { isUnconfirmedActivateArtifactTx, isUnconfirmedMoveTx } from '@darkforest_eth/serde'
 
 declare const df: GameManager
 declare const ui: GameUIManager
@@ -19,8 +20,8 @@ export function Cannons(props: SelectedPlanetProp)
 
   const rows = getAllArtifacts()
     .filter(a => a && a.artifactType == ArtifactTypes.PhotoidCannon)
-    .filter(a => a && ! a.unconfirmedMove)
-    .filter(a => a && ! a.unconfirmedActivateArtifact)
+    .filter(a => a && ! a.transactions?.hasTransaction(isUnconfirmedMoveTx))
+    .filter(a => a && ! a.transactions?.hasTransaction(isUnconfirmedActivateArtifactTx))
     .filter(a => a && a.rarity > ArtifactRarities.Common)
     .sort((a, b) => {
       const pa = df.getPlanetWithId(a.onPlanetId)

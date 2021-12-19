@@ -41,27 +41,27 @@ function onCrawlThenDistributeClick(selectedPlanet: Planet|null = null) {
     sortFunction: bestStats,
   })
 
-  capturePlanets({
-    fromId: selectedPlanet?.locationId,
-    fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_PLANET,
-    fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_PLANET,
-    fromMinEnergyLeftPercent: 37.5,
-    toMinLevel: PlanetLevel.TWO,
-    toPlanetTypes: [PlanetTypes.FOUNDRY],
-    toTargetEnergy: 96,
-    sortFunction: highestLevel,
-  })
+  // capturePlanets({
+  //   fromId: selectedPlanet?.locationId,
+  //   fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_PLANET,
+  //   fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_PLANET,
+  //   fromMinEnergyLeftPercent: 37.5,
+  //   toMinLevel: PlanetLevel.TWO,
+  //   toPlanetTypes: [PlanetTypes.FOUNDRY],
+  //   toTargetEnergy: 96,
+  //   sortFunction: highestLevel,
+  // })
 
-  capturePlanets({
-    fromId: selectedPlanet?.locationId,
-    fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_PLANET,
-    fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_PLANET,
-    fromMinEnergyLeftPercent: 37.5,
-    toPlanetTypes: [PlanetTypes.RIP],
-    toMinLevel: PlanetLevel.THREE,
-    toTargetEnergy: 15,
-    sortFunction: lowestEnergy,
-  })
+  // capturePlanets({
+  //   fromId: selectedPlanet?.locationId,
+  //   fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_PLANET,
+  //   fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_PLANET,
+  //   fromMinEnergyLeftPercent: 37.5,
+  //   toPlanetTypes: [PlanetTypes.RIP],
+  //   toMinLevel: PlanetLevel.THREE,
+  //   toTargetEnergy: 15,
+  //   sortFunction: lowestEnergy,
+  // })
 
   distributeEnergy({
     fromId: selectedPlanet?.locationId,
@@ -78,7 +78,7 @@ export class PlanetsWithEnergy extends Component
     super()
     // takes 80 minutes for a l4 r5 planet to go from 37.5% to 50%
     // let's do this twice then the closest 10 planets should be sending energy
-    this.interval = pauseable.setInterval(PrimeMinutes.NINETEEN, onCrawlThenDistributeClick)
+    this.interval = pauseable.setInterval(PrimeMinutes.NINETEEN * config.TIME_FACTOR, onCrawlThenDistributeClick)
     // this.interval.pause()
   }
 

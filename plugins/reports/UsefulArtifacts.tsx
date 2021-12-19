@@ -5,7 +5,7 @@ import GameUIManager from '../../declarations/src/Backend/GameLogic/GameUIManage
 import { PlanetLink } from '../components/PlanetLink'
 import { Header, Sub, Title } from '../components/Text'
 import { Table } from '../Components/Table';
-
+import { config } from 'plugins/config'
 import { harvestArtifacts } from '../strategies/HarvestArtifacts'
 import { distributeArtifacts } from '../strategies/DistributeArtifacts'
 // import { withdrawArtifacts } from '../strategies/WithdrawArtifacts'
@@ -13,6 +13,7 @@ import { activateArtifacts } from '../strategies/ActivateArtifacts'
 import { ManageInterval } from '../Components/ManageInterval'
 
 import { ArtifactRarities, artifactStatTypes, artifactTacticalTypes, artifactType, ArtifactTypes, buttonGridStyle, canBeActivated, getAllArtifacts, getPlanetTypeAcronym, isActivated, planetName, PlanetTypes, PrimeMinutes } from '../utils'
+import { isUnconfirmedActivateArtifactTx, isUnconfirmedMoveTx } from '@darkforest_eth/serde'
 
 const pauseable = require('pauseable')
 
@@ -125,7 +126,7 @@ export class UsefulArtifacts extends Component
 
   constructor() {
     super()
-    this.interval = pauseable.setInterval(PrimeMinutes.THIRTEEN, () => {
+    this.interval = pauseable.setInterval(PrimeMinutes.THIRTEEN * config.TIME_FACTOR, () => {
       onHarvestClick()
       onDistributeClick()
       onActivateClick()
@@ -147,8 +148,8 @@ export class UsefulArtifacts extends Component
 
     const rows = getAllArtifacts()
       .filter(a => a && ! isActivated(a))
-      .filter(a => a && ! a.unconfirmedMove)
-      .filter(a => a && ! a.unconfirmedActivateArtifact)
+      .filter(a => a && ! a.transactions?.hasTransaction(isUnconfirmedMoveTx))
+      .filter(a => a && ! a.transactions?.hasTransaction(isUnconfirmedActivateArtifactTx))
       .filter(a => a && a.rarity >= ArtifactRarities.Rare)
       .filter(a => (
         [ArtifactTypes.Wormhole,ArtifactTypes.BloomFilter].includes(a.artifactType))

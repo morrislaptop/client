@@ -6,7 +6,7 @@ import { PlanetLink } from '../components/PlanetLink'
 import { Header, Sub, Title } from '../components/Text'
 import { Table } from '../Components/Table';
 import { ManageInterval } from '../Components/ManageInterval'
-
+import { config } from 'plugins/config'
 import { blocksLeft, buttonGridStyle, enoughEnergyToProspect, getMyPlanets, hasBeenFound, isFindable, isFoundry, isProspectable, planetName, PrimeMinutes, prospectExpired } from '../utils'
 import { prospectAndFind } from 'plugins/strategies/ProspectAndFind'
 
@@ -28,7 +28,7 @@ function onProspectAndFindClick() {
 
   constructor() {
     super()
-    this.interval = pauseable.setInterval(PrimeMinutes.TWO, onProspectAndFindClick)
+    this.interval = pauseable.setInterval(PrimeMinutes.TWO * config.TIME_FACTOR, onProspectAndFindClick)
     // this.interval.pause()
   }
 

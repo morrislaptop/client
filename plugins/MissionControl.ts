@@ -43,9 +43,13 @@ const html = htm.bind(h)
 function App() {
   console.log('Running Status Report')
 
+  const unconfirmedTransactions = 0
+    + df.getUnconfirmedMoves().length
+    + df.getUnconfirmedUpgrades().length
+
   return html`
     <div>
-      <div><a href="#" onClick=${() => this.forceUpdate()}>🔄</a> ${df.getUnconfirmedMoves().length}</div>
+      <div><a href="#" onClick=${() => this.forceUpdate()}>🔄</a> ${unconfirmedTransactions}</div>
       <${PlanetsWithEnergy} />
       <br />
       <hr />

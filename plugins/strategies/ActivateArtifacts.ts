@@ -3,6 +3,7 @@ import GameUIManager from '../../declarations/src/Backend/GameLogic/GameUIManage
 import { ArtifactType, LocationId, Planet, PlanetLevel, PlanetType } from '@darkforest_eth/types'
 import { artifactStatTypes, ArtifactTypes, canBeActivated, getClosestPlanet, getMyPlanets, isActivated, planetName } from '../utils'
 import { mineAndBigger } from './DistributeEnergy'
+import { isUnconfirmedActivateArtifactTx } from '@darkforest_eth/serde'
 
 declare const df: GameManager
 declare const ui: GameUIManager
@@ -23,7 +24,7 @@ export function activateArtifacts(config: config)
 {
   const from = getMyPlanets()
     .filter(p => config.planetTypes.includes(p.planetType))
-    .filter(p => ! p.unconfirmedActivateArtifact)
+    .filter(p => ! p.transactions?.hasTransaction(isUnconfirmedActivateArtifactTx))
     .filter(p => p.heldArtifactIds.length > 0)
     .filter(p => p.planetLevel >= config.minLevel)
     .filter(p => ! hasActiveArtifact(p))

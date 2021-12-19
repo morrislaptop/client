@@ -1,7 +1,7 @@
 import GameManager from '../../declarations/src/Backend/GameLogic/GameManager'
 import GameUIManager from '../../declarations/src/Backend/GameLogic/GameUIManager'
 import { LocationId, Planet, PlanetLevel, PlanetType } from '@darkforest_eth/types';
-import { availableSilver, getIncomingMoves, getMinimumEnergyNeeded, getMyPlanets, getMyPlanetsInRange, getPlanetMaxRank, getPlanetRank, getSilverRequiredForNextUpgrade, Move, planetCanAcceptMove, planetName, PlanetTypes, planetWillHaveMinEnergyAfterMove } from '../utils';
+import { availableSilver, isFoundry, getIncomingMoves, getMinimumEnergyNeeded, getMyPlanets, getMyPlanetsInRange, getPlanetMaxRank, getPlanetRank, getSilverRequiredForNextUpgrade, Move, planetCanAcceptMove, planetName, PlanetTypes, planetWillHaveMinEnergyAfterMove } from '../utils';
 
 declare const df: GameManager
 declare const ui: GameUIManager
@@ -84,7 +84,7 @@ export function distributeSilver(config: config)
     const silver = Math.floor(maxSilverToSend(move.from, move.to))
 
     if (
-      planetWillHaveMinEnergyAfterMove(move, 15)
+      (isFoundry(move.from) || planetWillHaveMinEnergyAfterMove(move, 15))
       && silver > 0
       && planetCanAcceptMove(move.to)
       && df.getUnconfirmedMoves().length < 50

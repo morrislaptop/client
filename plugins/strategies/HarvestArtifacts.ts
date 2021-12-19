@@ -2,6 +2,7 @@ import GameManager from '../../declarations/src/Backend/GameLogic/GameManager'
 import GameUIManager from '../../declarations/src/Backend/GameLogic/GameUIManager'
 import { artifactNameFromArtifact, ArtifactRarity, ArtifactType, LocationId, Planet, PlanetLevel, PlanetType } from '@darkforest_eth/types';
 import { artifactType, findArtifact, getMinimumEnergyNeeded, getMyPlanets, getMyPlanetsInRange, isActivated, MAX_ARTIFACT_COUNT, Move, planetCanAcceptMove, planetName, PlanetTypes, planetWillHaveMinEnergyAfterMove } from '../utils';
+import { isUnconfirmedMoveTx } from '@darkforest_eth/serde';
 
 declare const df: GameManager
 declare const ui: GameUIManager
@@ -58,7 +59,7 @@ export function harvestArtifacts(config: config)
   const moves = movesToMake.map(move => {
     if (
       planetWillHaveMinEnergyAfterMove(move, 1)
-      && ! move.artifact!.unconfirmedMove
+      && ! move.artifact!.transactions?.hasTransaction(isUnconfirmedMoveTx)
       && planetCanAcceptMove(move.to, maxArtifacts)
       && df.getUnconfirmedMoves().length < 50
     ) {

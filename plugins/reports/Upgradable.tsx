@@ -7,7 +7,9 @@ import { Header, Sub, Title } from '../components/Text'
 import { Table } from '../Components/Table';
 import { ManageInterval } from '../Components/ManageInterval'
 import { upgrade } from '../strategies/Upgrade'
+import { config } from 'plugins/config'
 import { buttonGridStyle, canPlanetUpgrade, getMyPlanets, getPlanetRank, planetName, PrimeMinutes } from '../utils'
+import { isUnconfirmedUpgradeTx } from '@darkforest_eth/serde'
 
 const pauseable = require('pauseable')
 
@@ -26,7 +28,7 @@ export class Upgradable extends Component
 
   constructor() {
     super()
-    this.interval = pauseable.setInterval(PrimeMinutes.THREE, onUpgradeClick)
+    this.interval = pauseable.setInterval(PrimeMinutes.THREE * config.TIME_FACTOR, onUpgradeClick)
     // this.interval.pause()
   }
 
@@ -37,7 +39,7 @@ export class Upgradable extends Component
 
    const rows = getMyPlanets()
      .filter(canPlanetUpgrade)
-    //  .filter(p => p.unconfirmedUpgrades.length === 0)
+     .filter(p => ! p.transactions?.hasTransaction(isUnconfirmedUpgradeTx))
      .sort((a, b) => b.planetLevel - a.planetLevel)
 
    const columns = [

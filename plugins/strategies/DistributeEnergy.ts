@@ -44,8 +44,9 @@ export function distributeEnergy(config: config)
       const foundryWantingEnergy = isMine(p) && isFoundry(p) && !hasBeenProspected(p) && !enoughEnergyToProspect(p);
       const mineBiggerPlanet = mineAndBigger(from, p);
       const unownedAndWant = isUnowned(p) && p.planetLevel >= from.planetLevel && p.planetType !== PlanetTypes.QUASAR;
+      const fullOfEnergy = p.energy > p.energyCap
 
-      return mineBiggerPlanet || unownedAndWant || foundryWantingEnergy;
+      return !fullOfEnergy && (mineBiggerPlanet || unownedAndWant || foundryWantingEnergy);
     })
 
     if (! to) return null

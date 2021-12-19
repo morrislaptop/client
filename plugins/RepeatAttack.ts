@@ -7,7 +7,7 @@
 // - Mitigate a large enemy planet's energy growth during a siege
 
 
-import { Manager } from "https://plugins.zkga.me/utils/RepeatAttackCore.js";
+import { Manager } from "./RepeatAttackCore.js";
 import figures from 'https://cdn.skypack.dev/figures';
 import { html, render, useState, useLayoutEffect } from
   "https://unpkg.com/htm/preact/standalone.module.js";

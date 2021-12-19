@@ -51,7 +51,7 @@ export class FullSilver extends Component
 
   constructor() {
     super()
-    this.interval = pauseable.setInterval(PrimeMinutes.FIVE, () => {
+    this.interval = pauseable.setInterval(PrimeMinutes.FIVE * config.TIME_FACTOR, () => {
       onDistributeClick()
       onWithdrawClick()
     })
