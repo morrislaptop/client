@@ -51,7 +51,7 @@ export function distributeSilver(config: config)
         console.log(`Silver required for ${planetName(p)}: ${getSilverRequiredForNextUpgrade(p)})`)
         const hasSilverForUpgrade = getSilverRequiredForNextUpgrade(p) - availableSilver(p) <  from.silver
         const fullSilver = from.silver === from.silverCap
-        return hasSilverForUpgrade || fullSilver
+        return p.planetType == PlanetTypes.RIP || hasSilverForUpgrade || fullSilver
       })
       // .filter(p => p.planetLevel >= from.planetLevel - 1) // L4 to L3 etc..
       .filter(p => p.silverCap !== p.silver)
@@ -90,7 +90,7 @@ export function distributeSilver(config: config)
       && df.getUnconfirmedMoves().length < 50
     ) {
       console.log(`SENDING ${move.silver} silver to ${planetName(move.to)} (ui.centerLocationId('${move.to.locationId}')) FROM ${planetName(move.from)} (ui.centerLocationId('${move.from.locationId}')) WITH ${move.energy}`)
-      return df.move(move.from.locationId, move.to.locationId, move.energy, silver);
+      // return df.move(move.from.locationId, move.to.locationId, move.energy, silver);
     }
   })
 
