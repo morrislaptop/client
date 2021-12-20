@@ -64,8 +64,9 @@ function onDistributeClick(selectedPlanet: Planet|null = null) {
       types: [ArtifactTypes.BloomFilter],
       rarities: [level],
       nearPlanetType: PlanetTypes.QUASAR,
-      nearMinLevel: level * 2 - 1, // Rare to 3+, Epic to 5+ etc..
+      nearMinLevel: level * 2, // Rare to 3+, Epic to 5+ etc..
       nearMaxLevel: level * 2,
+      ifEmpty: false,
     })
   }
 
@@ -77,6 +78,7 @@ function onDistributeClick(selectedPlanet: Planet|null = null) {
     nearPlanetType: PlanetTypes.PLANET,
     nearMinLevel: PlanetLevel.FIVE,
     nearMaxLevel: PlanetLevel.FIVE,
+    ifEmpty: true,
   })
 
   // Wormholes from rips to l6+ planets
@@ -87,6 +89,7 @@ function onDistributeClick(selectedPlanet: Planet|null = null) {
     nearPlanetType: PlanetTypes.PLANET,
     nearMinLevel: PlanetLevel.SIX,
     nearMaxLevel: PlanetLevel.NINE,
+    ifEmpty: true,
   })
 }
 

@@ -182,6 +182,18 @@ export function isMine(planet: Planet) {
   return planet.owner === df.getAccount()
 }
 
+export function isEnemy(planet: Planet) {
+  const enemies = [
+    '0xdeadee24ff359b01b1b64312e3dfc42b8cca8780'
+  ]
+
+  return enemies.includes(planet.owner)
+}
+
+export function isUnownedOrEnemy(planet: Planet) {
+  return isUnowned(planet) || isEnemy(planet)
+}
+
 export function planetName(p: Planet) {
   return df.getProcgenUtils().getPlanetName(p)
 }

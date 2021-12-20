@@ -102,6 +102,11 @@ export function getRips(all: LocatablePlanet[]) {
     .filter(p => p.planetType === PlanetTypes.RIP)
 }
 
+export function lotsOfSilver(all: LocatablePlanet[]) {
+  return all
+    .filter(p => p.silver >= 100_000)
+}
+
 export function getFoundries(all: LocatablePlanet[]) {
   return all.filter(canHaveArtifact).filter(p => p.planetLevel >= 4)
 }
@@ -158,24 +163,26 @@ class HighlightWinners implements DFPlugin {
 
     const mine = Array.from(df.getMyPlanets())
 
-    this.closest63 = all.slice(0, 63)
-    this.winnerPlanets = getWinnerPlanets(all)
-    this.rips = getRips(all)
-    this.foundries = getFoundries(all)
-    this.cannons = l5PlanetesWithNoWormhole(mine)
-    this.doubleRange = planetsWithDoubleRange(all)
-    this.readyToFire = readyToFire(mine)
+    // this.closest63 = all.slice(0, 63)
+    // this.winnerPlanets = getWinnerPlanets(all)
+    // this.rips = getRips(all)
+    // this.foundries = getFoundries(all)
+    // this.cannons = l5PlanetesWithNoWormhole(mine)
+    // this.doubleRange = planetsWithDoubleRange(all)
+    // this.readyToFire = readyToFire(mine)
+    this.lotsOfSilver = lotsOfSilver(all)
   }
 
   draw(ctx) {
     ctx.save();
-    this.rips.map(p => circlePlanet(ctx, p, 'red'))
-    this.cannons.map(p => circlePlanet(ctx, p, 'blue'))
-    this.foundries.map(p => circlePlanet(ctx, p, 'yellow'))
-    // this.winnerPlanets.map(p => circlePlanet(ctx, p, 'green'))
-    this.doubleRange.map(p => circlePlanet(ctx, p, 'pink'))
-    this.readyToFire.map(p => circlePlanet(ctx, p, 'orange', 5))
-    this.closest63.map(p => circlePlanet(ctx, p, 'green', 1))
+    // this.rips.map(p => circlePlanet(ctx, p, 'red'))
+    // this.cannons.map(p => circlePlanet(ctx, p, 'blue'))
+    // this.foundries.map(p => circlePlanet(ctx, p, 'yellow'))
+    // // this.winnerPlanets.map(p => circlePlanet(ctx, p, 'green'))
+    // this.doubleRange.map(p => circlePlanet(ctx, p, 'pink'))
+    // this.readyToFire.map(p => circlePlanet(ctx, p, 'orange', 5))
+    // this.closest63.map(p => circlePlanet(ctx, p, 'green', 1))
+    this.lotsOfSilver.map(p => circlePlanet(ctx, p, 'green', 1))
     ctx.restore();
   }
 

@@ -1,7 +1,7 @@
 import GameManager from '../../declarations/src/Backend/GameLogic/GameManager'
 import GameUIManager from '../../declarations/src/Backend/GameLogic/GameUIManager'
 import { LocationId, Planet, PlanetLevel, PlanetType } from '@darkforest_eth/types';
-import { ArtifactTypes, availableSilver, energy, enoughEnergyToProspect, getClosestPlanet, getIncomingMoves, getMinimumEnergyNeeded, getMyPlanets, getMyPlanetsInRange, getPlanetMaxRank, getPlanetRank, getSilverRequiredForNextUpgrade, hasBeenProspected, hasCannon, isAsteroid, isFoundry, isFoundry, isMine, isUnowned, Move, planetCanAcceptMove, planetName, PlanetTypes, planetWillHaveMinEnergyAfterMove } from '../utils';
+import { ArtifactTypes, availableSilver, energy, enoughEnergyToProspect, getClosestPlanet, getIncomingMoves, getMinimumEnergyNeeded, getMyPlanets, getMyPlanetsInRange, getPlanetMaxRank, getPlanetRank, getSilverRequiredForNextUpgrade, hasBeenProspected, hasCannon, isAsteroid, isEnemy, isFoundry, isFoundry, isMine, isUnowned, Move, planetCanAcceptMove, planetName, PlanetTypes, planetWillHaveMinEnergyAfterMove } from '../utils';
 
 declare const df: GameManager
 declare const ui: GameUIManager
@@ -42,11 +42,11 @@ export function distributeEnergy(config: config)
 
     const to = getClosestPlanet(from, p => {
       const foundryWantingEnergy = isMine(p) && isFoundry(p) && !hasBeenProspected(p) && !enoughEnergyToProspect(p);
-      const mineBiggerPlanet = mineAndBigger(from, p);
+      const mineBiggerPlanetNeedsEnergy = mineAndBigger(from, p) && p.energy >= p.energyCap;
       const unownedAndWant = isUnowned(p) && p.planetLevel >= from.planetLevel && p.planetType !== PlanetTypes.QUASAR;
-      const fullOfEnergy = p.energy > p.energyCap
+      const enemyAndWant = isEnemy(p) && p.planetLevel >= from.planetLevel && p.planetType !== PlanetTypes.QUASAR;
 
-      return !fullOfEnergy && (mineBiggerPlanet || unownedAndWant || foundryWantingEnergy);
+      return mineBiggerPlanetNeedsEnergy || unownedAndWant || foundryWantingEnergy || enemyAndWant;
     })
 
     if (! to) return null

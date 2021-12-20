@@ -141,6 +141,7 @@ const filter2xSpeed = filter2xStat(StatIdx.Speed, 2);  // speed rank upgrades ar
 const filter2xRange = filter2xStat(StatIdx.Range, 1);  // range rank upgrades are on planet.upgradeState[1]
 const filterRip = (plugin, planet) => distanceAndLevelInRange(plugin, planet) && planet.planetType === PlanetType.TRADING_POST;
 const filterQuasar = (plugin, planet) => distanceAndLevelInRange(plugin, planet) && planet.planetType === PlanetType.SILVER_BANK;
+const filterAsteroid = (plugin, planet) => distanceAndLevelInRange(plugin, planet) && planet.planetType === PlanetType.SILVER_MINE;
 const filterArtifact = (plugin, planet) => {
   // Filter out planets of wrong size
   if (!distanceAndLevelInRange(plugin, planet)) return false;
@@ -383,6 +384,7 @@ class Plugin {
       planetsWithArtifact: {label: "Artifacts", filter: filterArtifact, array: [TOGGLE_OFF], periodMs: periodMsHighlightArtifact, cols: colsHighlightArtifact},
       planetsWithRip: {label: "Spacetime Rips", filter: filterRip, array: [TOGGLE_OFF], periodMs: periodMsHighlightRip, cols: colsHighlightRip},
       planetsWithQuasar: {label: "Quasars", filter: filterQuasar, array: [TOGGLE_OFF], periodMs: periodMsHighlightRip, cols: colsHighlightRip},
+      planetsWithAsteroid: {label: "Asteroids", filter: filterAsteroid, array: [TOGGLE_OFF], periodMs: periodMsHighlightRip, cols: colsHighlightRip},
       planetsWith2xDefense: {label: "Defense", filter: filter2xDefense, array: [TOGGLE_OFF], periodMs: periodMsHighlight2xDefense, cols: colsHighlight2xDefense},
       planetsWith2xEnergyCap: {label: "Energy Cap", filter: filter2xEnergyCap, array: [TOGGLE_OFF], periodMs: periodMsHighlight2xEnergyCap, cols: colsHighlight2xEnergyCap},
       planetsWith2xSpeed: {label: "Speed", filter: filter2xSpeed, array: [TOGGLE_OFF], periodMs: periodMsHighlight2xSpeed, cols: colsHighlight2xSpeed},

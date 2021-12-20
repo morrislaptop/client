@@ -13,6 +13,7 @@ interface config {
   nearMinLevel: PlanetLevel,
   nearMaxLevel: PlanetLevel,
   nearPlanetType: PlanetType,
+  ifEmpty: boolean,
 }
 /**
  * @todo
@@ -26,6 +27,8 @@ interface config {
  */
 export function distributeArtifacts(config: config)
 {
+  const maxArtifacts = config.ifEmpty ? 0 : 5
+
   // Rips to send from or withdraw
   getMyPlanets()
     .filter(r => r.planetType === PlanetTypes.RIP)
@@ -38,7 +41,7 @@ export function distributeArtifacts(config: config)
           && p.planetType === config.nearPlanetType
           && p.planetLevel >= config.nearMinLevel
           && p.planetLevel <= config.nearMaxLevel
-          && planetCanAcceptMove(p, 0)
+          && planetCanAcceptMove(p, maxArtifacts)
       ))
 
       const artifact = findArtifact(rip, config.rarities, config.types)
@@ -60,13 +63,16 @@ export function distributeArtifacts(config: config)
       }
     })
 
+    // i'll decide where to drop artifacts from now on...
+    return
+
     // Planets which want an artifact - drop nearby
     getMyPlanets()
       .filter(p => p.planetType === config.nearPlanetType)
       .filter(p => p.planetLevel >= config.nearMinLevel)
       .filter(p => p.planetLevel <= config.nearMaxLevel)
       .filter(p => ! config.fromId || p.locationId === config.fromId)
-      .filter(p => planetCanAcceptMove(p, 0))
+      .filter(p => planetCanAcceptMove(p, maxArtifacts))
       .sort(closestToCenter)
       .forEach(planet => {
         const artifact = findArtifactFromInventory(config.rarities, config.types)

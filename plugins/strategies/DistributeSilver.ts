@@ -37,7 +37,7 @@ export function distributeSilver(config: config)
     .filter(p => p.planetLevel >= config.fromMinLevel)
     .filter(p => p.planetLevel <= config.fromMaxLevel)
     .filter(p => p.planetType === config.fromPlanetType)
-    .filter(p => p.silver > 0)
+    .filter(p => p.silver > 1_500) // min rip is L3 with 7.5K and accept 5 moves = 1.5K
     .filter(p => ! config.fromId || p.locationId === config.fromId)
 
   console.log('Sending silver from', from)
