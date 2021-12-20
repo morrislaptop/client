@@ -84,7 +84,7 @@ export function distributeSilver(config: config)
     const silver = Math.floor(maxSilverToSend(move.from, move.to))
 
     if (
-      (isFoundry(move.from) || planetWillHaveMinEnergyAfterMove(move, 15))
+      (isFoundry(move.from) || planetWillHaveMinEnergyAfterMove(move, 37.5))
       && silver > 0
       && planetCanAcceptMove(move.to)
       && df.getUnconfirmedMoves().length < 50
