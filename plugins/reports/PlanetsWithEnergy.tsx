@@ -36,7 +36,7 @@ function onCrawlThenDistributeClick(selectedPlanet: Planet|null = null) {
     fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_PLANET,
     fromMinEnergyLeftPercent: 37.5,
     toPlanetTypes: [PlanetTypes.PLANET, PlanetTypes.ASTEROID, PlanetTypes.RIP],
-    toMinLevel: PlanetLevel.FIVE,
+    toMinLevel: config.MIN_LEVEL_PLANET,
     toTargetEnergy: 15,
     sortFunction: bestStats,
   })
