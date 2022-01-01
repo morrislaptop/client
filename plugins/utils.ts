@@ -91,7 +91,8 @@ export function isAsteroid(p: Planet) {
 }
 
 export function hasPendingMove(p: Planet) {
-  return p.transactions.length > 0
+  return p.unconfirmedDepartures.length > 0
+  // return p.transactions.length > 0
 }
 
 export function energy(p: Planet) {
@@ -133,7 +134,8 @@ export function getAllArtifacts()
 export function findArtifact(p: Planet, rarities: ArtifactRarity[], types: ArtifactType[]) {
   return df.getArtifactsWithIds(p.heldArtifactIds).find(a => {
     return a
-    && ! a.transactions?.hasTransaction(isUnconfirmedMoveTx)
+    && ! a.unconfirmedMove
+    // && ! a.transactions?.hasTransaction(isUnconfirmedMoveTx)
     && rarities.includes(a.rarity)
     && types.includes(a.artifactType)
     && !isActivated(a)
@@ -143,7 +145,8 @@ export function findArtifact(p: Planet, rarities: ArtifactRarity[], types: Artif
 export function findArtifactFromInventory(rarities: ArtifactRarity[], types: ArtifactType[]) {
   return df.getMyArtifacts().find(a => (
     ! a.onPlanetId
-    && ! a.transactions?.hasTransaction(isUnconfirmedDepositArtifactTx)
+    && ! a.unconfirmedDepositArtifact
+    // && ! a.transactions?.hasTransaction(isUnconfirmedDepositArtifactTx)
     && types.includes(a.artifactType)
     && rarities.includes(a.rarity)
   ))
@@ -234,11 +237,13 @@ export function getUnconfirmedMoves(p: Planet): UnconfirmedMove[] {
 }
 
 export function getPendingEnergy(p: Planet) {
-  return getUnconfirmedMoves(p).reduce((total, m) => total + m.forces, 0)
+  return p.unconfirmedDepartures.reduce((total, m) => total + m.forces, 0)
+  // return getUnconfirmedMoves(p).reduce((total, m) => total + m.forces, 0)
 }
 
 export function getPendingSilver(p: Planet) {
-  return getUnconfirmedMoves(p).reduce((total, m) => total + m.silver, 0)
+  return p.unconfirmedDepartures.reduce((total, m) => total + m.silver, 0)
+  // return getUnconfirmedMoves(p).reduce((total, m) => total + m.silver, 0)
 }
 
 export function planetWillHaveMinEnergyAfterMove(move: Move, minEnergy: number) {
@@ -348,11 +353,13 @@ export function enoughEnergyToProspect(p: Planet) {
 }
 
 export function hasBeenProspected(p: Planet) {
-  return p.prospectedBlockNumber || p.transactions?.hasTransaction(isUnconfirmedProspectPlanetTx)
+  return p.prospectedBlockNumber || p.unconfirmedProspectPlanet
+  // return p.prospectedBlockNumber || p.transactions?.hasTransaction(isUnconfirmedProspectPlanetTx)
 }
 
 export function hasBeenFound(p: Planet) {
-  return p.hasTriedFindingArtifact || p.transactions?.hasTransaction(isUnconfirmedFindArtifactTx)
+  return p.hasTriedFindingArtifact || p.unconfirmedFindArtifact
+  // return p.hasTriedFindingArtifact || p.transactions?.hasTransaction(isUnconfirmedFindArtifactTx)
 }
 
 export function isProspectable(planet: Planet) {

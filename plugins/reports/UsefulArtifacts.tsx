@@ -151,8 +151,10 @@ export class UsefulArtifacts extends Component
 
     const rows = getAllArtifacts()
       .filter(a => a && ! isActivated(a))
-      .filter(a => a && ! a.transactions?.hasTransaction(isUnconfirmedMoveTx))
-      .filter(a => a && ! a.transactions?.hasTransaction(isUnconfirmedActivateArtifactTx))
+      .filter(a => a && ! a.unconfirmedMove)
+      .filter(a => a && ! a.unconfirmedActivateArtifact)
+      // .filter(a => a && ! a.transactions?.hasTransaction(isUnconfirmedMoveTx))
+      // .filter(a => a && ! a.transactions?.hasTransaction(isUnconfirmedActivateArtifactTx))
       .filter(a => a && a.rarity >= ArtifactRarities.Rare)
       .filter(a => (
         [ArtifactTypes.Wormhole,ArtifactTypes.BloomFilter].includes(a.artifactType))

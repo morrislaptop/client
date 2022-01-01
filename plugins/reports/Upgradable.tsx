@@ -39,7 +39,8 @@ export class Upgradable extends Component
 
    const rows = getMyPlanets()
      .filter(canPlanetUpgrade)
-     .filter(p => ! p.transactions?.hasTransaction(isUnconfirmedUpgradeTx))
+     .filter(p => p.unconfirmedUpgrades.length === 0)
+    //  .filter(p => ! p.transactions?.hasTransaction(isUnconfirmedUpgradeTx))
      .sort((a, b) => b.planetLevel - a.planetLevel)
 
    const columns = [

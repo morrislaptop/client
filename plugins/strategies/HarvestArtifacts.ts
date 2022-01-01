@@ -59,7 +59,8 @@ export function harvestArtifacts(config: config)
   const moves = movesToMake.map(move => {
     if (
       planetWillHaveMinEnergyAfterMove(move, 1)
-      && ! move.artifact!.transactions?.hasTransaction(isUnconfirmedMoveTx)
+      && ! move.artifact!.unconfirmedMove
+      // && ! move.artifact!.transactions?.hasTransaction(isUnconfirmedMoveTx)
       && planetCanAcceptMove(move.to, maxArtifacts)
       && df.getUnconfirmedMoves().length < 50
     ) {

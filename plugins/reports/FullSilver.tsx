@@ -20,14 +20,14 @@ declare const df: GameManager
 declare const ui: GameUIManager
 
 function onDistributeClick(selectedPlanet: Planet|null = null) {
-  // distributeSilver({
-  //   fromId: selectedPlanet?.locationId,
-  //   fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_ASTEROID,
-  //   fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_ASTEROID,
-  //   fromPlanetType: selectedPlanet?.planetType || PlanetTypes.ASTEROID,
-  //   toMinLevel: config.MIN_LEVEL_PLANET,
-  //   toPlanetType: PlanetTypes.PLANET,
-  // })
+  distributeSilver({
+    fromId: selectedPlanet?.locationId,
+    fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_ASTEROID,
+    fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_ASTEROID,
+    fromPlanetType: selectedPlanet?.planetType || PlanetTypes.ASTEROID,
+    toMinLevel: config.MIN_LEVEL_PLANET,
+    toPlanetType: PlanetTypes.PLANET,
+  })
 
   distributeSilver({
     fromId: selectedPlanet?.locationId,

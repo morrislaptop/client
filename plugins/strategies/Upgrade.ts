@@ -20,7 +20,8 @@ export function upgrade(config: config)
 {
   getMyPlanets()
     .filter(canPlanetUpgrade)
-    .filter(p => ! p.transactions?.hasTransaction(isUnconfirmedUpgradeTx))
+    .filter(p => p.unconfirmedUpgrades.length === 0)
+    // .filter(p => ! p.transactions?.hasTransaction(isUnconfirmedUpgradeTx))
     .filter(p => energy(p) > 37.5) // once we upgrade, energy cap goes up which means we're lower on the S curve, better off to wait a bit.
     .filter(p => ! config.fromId || p.locationId === config.fromId)
     .map(p => {
