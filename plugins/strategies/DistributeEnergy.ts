@@ -42,7 +42,7 @@ export function distributeEnergy(config: config)
 
     const to = getClosestPlanet(from, p => {
       const foundryWantingEnergy = isMine(p) && isFoundry(p) && !hasBeenProspected(p) && !enoughEnergyToProspect(p);
-      const mineBiggerPlanetNeedsEnergy = mineAndBigger(from, p) && p.energy >= p.energyCap;
+      const mineBiggerPlanetNeedsEnergy = mineAndBigger(from, p) && p.energy < p.energyCap;
       const unownedAndWant = isUnowned(p) && p.planetLevel >= from.planetLevel && p.planetType !== PlanetTypes.QUASAR;
       const enemyAndWant = isEnemy(p) && p.planetLevel >= from.planetLevel && p.planetType !== PlanetTypes.QUASAR;
 
