@@ -29,14 +29,16 @@ function onDistributeClick(selectedPlanet: Planet|null = null) {
     toPlanetType: PlanetTypes.PLANET,
   })
 
-  distributeSilver({
-    fromId: selectedPlanet?.locationId,
-    fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_ASTEROID,
-    fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_ASTEROID,
-    fromPlanetType: selectedPlanet?.planetType || PlanetTypes.ASTEROID,
-    toMinLevel: PlanetLevel.THREE,
-    toPlanetType: PlanetTypes.RIP,
-  })
+  // @todo - reserve asteroids which have a planet nearby that needs upgrading...
+
+  // distributeSilver({
+  //   fromId: selectedPlanet?.locationId,
+  //   fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_ASTEROID,
+  //   fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_ASTEROID,
+  //   fromPlanetType: selectedPlanet?.planetType || PlanetTypes.ASTEROID,
+  //   toMinLevel: PlanetLevel.THREE,
+  //   toPlanetType: PlanetTypes.RIP,
+  // })
 }
 
 function onWithdrawClick(selectedPlanet: Planet|null = null) {

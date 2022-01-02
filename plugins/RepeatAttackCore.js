@@ -191,6 +191,7 @@ function pester(
     console.error(`[pester] You don't own planet: ${yourPlanetLocationId}`);
     return;
   }
+  console.log({ um: getUnconfirmedMoves(source)} )
   const unconfirmedDepartures = getUnconfirmedMoves(source).reduce(
     (acc, dep) => {
       return acc + dep.forces;

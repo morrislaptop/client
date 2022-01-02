@@ -231,8 +231,9 @@ export function distToCenter(coords: WorldCoords) {
 }
 
 export function getUnconfirmedMoves(p: Planet): UnconfirmedMove[] {
-  const txns = p.transactions?.getTransactions(isUnconfirmedMoveTx)
-  const moves = txns?.map(t => t.intent)
+  return p.unconfirmedDepartures
+  // const txns = p.transactions?.getTransactions(isUnconfirmedMoveTx)
+  // const moves = txns?.map(t => t.intent)
 
   return moves as UnconfirmedMove[]
 }
