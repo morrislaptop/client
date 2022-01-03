@@ -1,7 +1,7 @@
 import GameManager from '@df/GameManager'
 import GameUIManager from '@df/GameUIManager'
 import { LocatablePlanet, LocationId, Planet, PlanetLevel, PlanetType, WorldCoords } from "@darkforest_eth/types";
-import { center, getEnergyNeeded, getMyPlanets, hasIncomingMove, isUnowned, Move, planetName, PlanetTypes, planetWillHaveMinEnergyAfterMove, distToCenter, isFoundry, hasCannon, isUnownedOrEnemy } from 'plugins/utils';
+import { center, getEnergyNeeded, getMyPlanets, hasIncomingMove, isUnowned, Move, planetName, PlanetTypes, planetWillHaveMinEnergyAfterMove, distToCenter, isFoundry, hasCannon, isUnownedOrEnemy, energy } from 'plugins/utils';
 import { moveSyntheticComments } from 'typescript';
 import { isLocatable } from 'src/_types/global/GlobalTypes';
 // import { isUnowned } from 'utils/utils';
@@ -114,6 +114,8 @@ export function capturePlanets(config: config)
     .filter(isLocatable)
     .filter(p => p.planetLevel >= config.fromMinLevel)
     .filter(p => p.planetLevel <= config.fromMaxLevel)
+    .filter(p => ! hasCannon(p))
+    .filter(p => energy(p) > 75)
     .filter(p => [PlanetTypes.PLANET].includes(p.planetType))
     .filter(p => ! config.fromId || p.locationId === config.fromId)
 

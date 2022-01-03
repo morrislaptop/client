@@ -29,7 +29,7 @@ interface config {
   fromMaxLevel: PlanetLevel,
   fromPlanetType: PlanetType,
   toMinLevel: PlanetLevel,
-  toPlanetType: PlanetType,
+  toPlanetTypes: PlanetType[],
 }
 export function distributeSilver(config: config)
 {
@@ -45,13 +45,13 @@ export function distributeSilver(config: config)
   const movesToMake: Move[] = from.flatMap(from => {
     const to = getMyPlanetsInRange(from) // this is missing planets not sure why
       .filter(p => p.planetLevel >= config.toMinLevel)
-      .filter(p => p.planetType === config.toPlanetType)
+      .filter(p => config.toPlanetTypes.includes(p.planetType))
       .filter(p => getPlanetRank(p) < getPlanetMaxRank(p))
       .filter(p => {
         console.log(`Silver required for ${planetName(p)}: ${getSilverRequiredForNextUpgrade(p)})`)
         const hasSilverForUpgrade = getSilverRequiredForNextUpgrade(p) - availableSilver(p) <  from.silver
         const fullSilver = from.silver === from.silverCap
-        return p.planetType == PlanetTypes.RIP || hasSilverForUpgrade || fullSilver
+        return hasSilverForUpgrade || (fullSilver && p.planetType == PlanetTypes.RIP)
       })
       // .filter(p => p.planetLevel >= from.planetLevel - 1) // L4 to L3 etc..
       .filter(p => p.silverCap !== p.silver)

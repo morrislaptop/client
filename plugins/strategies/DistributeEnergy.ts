@@ -2,6 +2,7 @@ import GameManager from '../../declarations/src/Backend/GameLogic/GameManager'
 import GameUIManager from '../../declarations/src/Backend/GameLogic/GameUIManager'
 import { LocationId, Planet, PlanetLevel, PlanetType } from '@darkforest_eth/types';
 import { ArtifactTypes, availableSilver, energy, enoughEnergyToProspect, getClosestPlanet, getIncomingMoves, getMinimumEnergyNeeded, getMyPlanets, getMyPlanetsInRange, getPlanetMaxRank, getPlanetRank, getSilverRequiredForNextUpgrade, hasBeenProspected, hasCannon, isAsteroid, isEnemy, isFoundry, isFoundry, isMine, isUnowned, Move, planetCanAcceptMove, planetName, PlanetTypes, planetWillHaveMinEnergyAfterMove } from '../utils';
+import { PlanetEventType } from 'src/_types/darkforest/api/ContractsAPITypes';
 
 declare const df: GameManager
 declare const ui: GameUIManager
@@ -25,7 +26,7 @@ export function distributeEnergy(config: config)
     .filter(p => p.planetLevel <= config.fromMaxLevel)
     .filter(p => ! hasCannon(p))
     .filter(p => {
-      const planetOrRip = [PlanetTypes.PLANET, PlanetTypes.RIP].includes(p.planetType)
+      const planetOrRip = [PlanetTypes.PLANET, PlanetTypes.RIP, PlanetTypes.ASTEROID].includes(p.planetType)
       const usedFoundry = isFoundry(p) && hasBeenProspected(p)
 
       return planetOrRip || usedFoundry
@@ -41,7 +42,7 @@ export function distributeEnergy(config: config)
     const energy = Math.floor(0.5 * from.energy)
 
     const to = getClosestPlanet(from, p => {
-      const foundryWantingEnergy = isMine(p) && isFoundry(p) && !hasBeenProspected(p) && !enoughEnergyToProspect(p);
+      const foundryWantingEnergy = isMine(p) && isFoundry(p) && !hasBeenProspected(p) && !enoughEnergyToProspect(p) && p.planetLevel >= (from.planetLevel - 2);
       const mineBiggerPlanetNeedsEnergy = mineAndBigger(from, p) && p.energy < p.energyCap;
       const unownedAndWant = isUnowned(p) && p.planetLevel >= from.planetLevel && p.planetType !== PlanetTypes.QUASAR;
       const enemyAndWant = isEnemy(p) && p.planetLevel >= from.planetLevel && p.planetType !== PlanetTypes.QUASAR;

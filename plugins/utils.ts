@@ -95,12 +95,27 @@ export function hasPendingMove(p: Planet) {
   // return p.transactions.length > 0
 }
 
+export function hasActiveCannon(p: Planet) {
+  return df.getArtifactsWithIds(p.heldArtifactIds).find(a => {
+
+    if (!a || a.artifactType !== ArtifactTypes.PhotoidCannon || !isActivated(a)) {
+      return false
+    }
+
+    const lastActivated = fromUnixTime(a.lastActivated)
+    const readyAt = addHours(lastActivated, 3.5) // allow 30 mins to gather energy
+    const ready = isAfter(new Date, readyAt)
+
+    return ready
+  })
+}
+
 export function energy(p: Planet) {
   return Math.floor(availableEnergy(p) / p.energyCap * 100);
 }
 
 export function hasCannon(p: Planet) {
-  return df.getArtifactsWithIds(p.heldArtifactIds).some(a => a?.artifactType === ArtifactTypes.PhotoCannon)
+  return df.getArtifactsWithIds(p.heldArtifactIds).some(a => a?.artifactType === ArtifactTypes.PhotoidCannon)
 }
 
 /**

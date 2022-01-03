@@ -15,7 +15,13 @@ declare const ui: GameUIManager
 
 export function Cannons(props: SelectedPlanetProp)
 {
-  const headers = ['Name', 'Planet', 'Rarity', 'Status', 'Level'];
+  const headers = [
+    // 'Name',
+    'Planet',
+    'Rarity',
+    'Status',
+    // 'Level'
+  ];
   const alignments: Array<'r' | 'c' | 'l'> = ['l', 'l', 'c', 'c', 'r'];
 
   const rows = getAllArtifacts()
@@ -26,6 +32,7 @@ export function Cannons(props: SelectedPlanetProp)
     // .filter(a => a && ! a.transactions?.hasTransaction(isUnconfirmedActivateArtifactTx))
     .filter(a => a && a.rarity > ArtifactRarities.Common)
     .sort((a, b) => {
+      return b.rarity - a.rarity
       const pa = df.getPlanetWithId(a.onPlanetId)
       const pb = df.getPlanetWithId(b.onPlanetId)
       const levelA = pa ? pa.planetLevel : 10
@@ -38,13 +45,13 @@ export function Cannons(props: SelectedPlanetProp)
     })
 
   const columns = [
-    (a: Artifact) => <Sub>{artifactNameFromArtifact(a)}</Sub>,
+    // (a: Artifact) => <Sub>{artifactNameFromArtifact(a)}</Sub>,
     (a: Artifact) => {
       const planet = df.getPlanetWithId(a.onPlanetId)
 
       if (! planet) return <Sub>inventory</Sub>
 
-      return <PlanetLink planet={planet}>P{getPlanetTypeAcronym(planet)} {planetName(planet)}</PlanetLink>
+      return <PlanetLink planet={planet}>{getPlanetTypeAcronym(planet)}{planet.planetLevel} {planetName(planet)}</PlanetLink>
     },
     (a: Artifact) => <Sub>{Object.keys(ArtifactRarities)[a.rarity]}</Sub>,
     (a: Artifact) => {
@@ -57,13 +64,13 @@ export function Cannons(props: SelectedPlanetProp)
 
       return <Sub>{status}</Sub>
     },
-    (a: Artifact) => {
-      const planet = df.getPlanetWithId(a.onPlanetId)
+    // (a: Artifact) => {
+    //   const planet = df.getPlanetWithId(a.onPlanetId)
 
-      if (! planet) return <Sub>-</Sub>
+    //   if (! planet) return <Sub>-</Sub>
 
-      return <Sub>{planet!.planetLevel}</Sub>
-    },
+    //   return <Sub>{planet!.planetLevel}</Sub>
+    // },
   ];
 
   return <div>

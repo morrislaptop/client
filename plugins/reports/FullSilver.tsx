@@ -26,19 +26,8 @@ function onDistributeClick(selectedPlanet: Planet|null = null) {
     fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_ASTEROID,
     fromPlanetType: selectedPlanet?.planetType || PlanetTypes.ASTEROID,
     toMinLevel: config.MIN_LEVEL_PLANET,
-    toPlanetType: PlanetTypes.PLANET,
+    toPlanetTypes: [PlanetTypes.PLANET, PlanetTypes.RIP],
   })
-
-  // @todo - reserve asteroids which have a planet nearby that needs upgrading...
-
-  // distributeSilver({
-  //   fromId: selectedPlanet?.locationId,
-  //   fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_ASTEROID,
-  //   fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_ASTEROID,
-  //   fromPlanetType: selectedPlanet?.planetType || PlanetTypes.ASTEROID,
-  //   toMinLevel: PlanetLevel.THREE,
-  //   toPlanetType: PlanetTypes.RIP,
-  // })
 }
 
 function onWithdrawClick(selectedPlanet: Planet|null = null) {
@@ -53,7 +42,7 @@ export class FullSilver extends Component
 
   constructor() {
     super()
-    this.interval = pauseable.setInterval(PrimeMinutes.FIVE * config.TIME_FACTOR, () => {
+    this.interval = pauseable.setInterval(PrimeMinutes.ELEVEN * config.TIME_FACTOR, () => {
       onDistributeClick()
       onWithdrawClick()
     })

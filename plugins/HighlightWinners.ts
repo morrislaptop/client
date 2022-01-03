@@ -44,79 +44,167 @@ declare const ui: GameUIManager
 
 const html = htm.bind(h)
 
-const MAX_WINNERS = 63
+let Button = {
+  display: 'block'
+}
 
-export function getWinnerPlanets(all: LocatablePlanet[]) {
-  const winners = new Set()
-  const planets = []
-  const claimed = all.filter(p => p.claimer)
+// export function getWinnerPlanets(all: LocatablePlanet[]) {
+//   const winners = new Set()
+//   const planets = []
+//   const claimed = all.filter(p => p.claimer)
 
-  for (const planet of claimed) {
-    if (isUnowned(planet)) {
-      planets.push(planet)
+//   for (const planet of claimed) {
+//     if (isUnowned(planet)) {
+//       planets.push(planet)
+//     }
+//     else if (! winners.has(planet.owner)) {
+//       planets.push(planet)
+//       winners.add(planet.owner)
+//     }
+
+//     if (planets.length >= 63) break
+//   }
+
+//   return planets
+// }
+
+// export function l5PlanetesWithNoWormhole(mine: LocatablePlanet[]) {
+//   return mine
+//     .filter(isLocatable)
+//     .filter(p => p.planetLevel >= PlanetLevel.FIVE)
+//     .filter(p => p.planetType === PlanetTypes.PLANET)
+//     .filter(p => {
+//       const artifacts = df.getArtifactsWithIds(p.heldArtifactIds).filter(isArtifact)
+//       return ! artifacts.some(a => [ArtifactTypes.Wormhole, ArtifactTypes.PhotoidCannon].includes(a.artifactType))
+//     })
+// }
+
+// export function planetsWithDoubleRange(all: LocatablePlanet[]) {
+//   return all
+//     .filter(p => p.planetLevel >= PlanetLevel.SIX)
+//     .filter(p => p.planetType === PlanetTypes.PLANET)
+//     .filter(p => p.bonus[2]) // range bonus
+// }
+
+function all() {
+  return Array.from(df.getAllPlanets())
+  .filter(isLocatable)
+  .filter(p => p.planetLevel >= PlanetLevel.THREE)
+  .filter(p => ! p.destroyed)
+  .sort(closestToCenter)
+}
+
+function mine() {
+  return df.getMyPlanets()
+}
+
+const ripsL3Plus = {
+  name: 'Rips L3+',
+  color: 'red',
+  planets: [],
+  callback: function () {
+    return all()
+      .filter(p => p.planetLevel >= PlanetLevel.THREE)
+      .filter(p => p.planetType === PlanetTypes.RIP)
+  }
+}
+
+const quasarsL4 = {
+  name: 'Quasars L4',
+  color: 'green',
+  planets: [],
+  callback: function () {
+    return all()
+      .filter(p => p.planetLevel === PlanetLevel.FOUR)
+      .filter(p => p.planetType === PlanetTypes.QUASAR)
+  }
+}
+
+const quasarsL6 = {
+  name: 'Quasars L6',
+  color: 'blue',
+  planets: [],
+  callback: function () {
+    return all()
+      .filter(p => p.planetLevel === PlanetLevel.SIX)
+      .filter(p => p.planetType === PlanetTypes.QUASAR)
+  }
+}
+
+const doubleRange = {
+  name: 'Double Range',
+  color: 'yellow',
+  planets: [],
+  callback: function () {
+    return all()
+      .filter(p => p.planetLevel >= PlanetLevel.FOUR)
+      // .filter(p => p.planetType === PlanetTypes.PLANET)
+      .filter(p => p.bonus[2]) // range bonus
+  }
+}
+const foundries = {
+  name: 'Foundries',
+  color: 'orange',
+  planets: [],
+  callback: function () {
+    return all().filter(canHaveArtifact).filter(p => p.planetLevel >= 3)
+  }
+}
+
+const readyToFire = {
+  name: 'Fire!',
+  color: 'red',
+  planets: [],
+  callback: function readyToFire() {
+      return mine()
+        .filter(p => {
+          return df.getArtifactsWithIds(p.heldArtifactIds).some(a => {
+            const isCannon = a!.artifactType === ArtifactTypes.PhotoidCannon
+            const lastActivated = fromUnixTime(a!.lastActivated)
+            const readyAt = addHours(lastActivated, 4)
+            return isCannon && isActivated(a!) && isAfter(new Date, readyAt)
+          })
+        })
     }
-    else if (! winners.has(planet.owner)) {
-      planets.push(planet)
-      winners.add(planet.owner)
-    }
+}
 
-    if (planets.length >= 63) break
+function Toggle({ obj })
+{
+  const [active, setActive] = useState(false)
+
+  function onClick() {
+    if (active) {
+      obj.planets = []
+      setActive(false)
+    }
+    else {
+      obj.planets = obj.callback()
+      setActive(true)
+    }
   }
 
-  return planets
-}
+  const ButtonActive = Object.assign({}, Button, {
+    backgroundColor: obj.color
+  })
 
-export function l5PlanetesWithNoWormhole(mine: LocatablePlanet[]) {
-  return mine
-    .filter(isLocatable)
-    .filter(p => p.planetLevel >= PlanetLevel.FIVE)
-    .filter(p => p.planetType === PlanetTypes.PLANET)
-    .filter(p => {
-      const artifacts = df.getArtifactsWithIds(p.heldArtifactIds).filter(isArtifact)
-      return ! artifacts.some(a => [ArtifactTypes.Wormhole, ArtifactTypes.PhotoidCannon].includes(a.artifactType))
-    })
-}
-
-export function planetsWithDoubleRange(all: LocatablePlanet[]) {
-  return all
-    .filter(p => p.planetLevel >= PlanetLevel.SIX)
-    .filter(p => p.planetType === PlanetTypes.PLANET)
-    .filter(p => p.bonus[2]) // range bonus
-}
-
-export function readyToFire(mine: LocatablePlanet[]) {
-  return mine
-    .filter(p => {
-      return df.getArtifactsWithIds(p.heldArtifactIds).some(a => {
-        const isCannon = a!.artifactType === ArtifactTypes.PhotoidCannon
-        const lastActivated = fromUnixTime(a!.lastActivated)
-        const readyAt = addHours(lastActivated, 4)
-        return isCannon && isActivated(a!) && isAfter(new Date, readyAt)
-      })
-    })
-}
-
-export function getRips(all: LocatablePlanet[]) {
-  return all
-    .filter(p => p.planetLevel >= PlanetLevel.THREE)
-    .filter(p => p.planetType === PlanetTypes.RIP)
-}
-
-export function lotsOfSilver(all: LocatablePlanet[]) {
-  return all
-    .filter(p => p.silver >= 100_000)
-}
-
-export function getFoundries(all: LocatablePlanet[]) {
-  return all.filter(canHaveArtifact).filter(p => p.planetLevel >= 4)
+  return html`
+    <button style=${active ? ButtonActive : Button} onClick=${onClick}>
+        ${obj.name}
+    </button>
+  `;
 }
 
 function App() {
   console.log('Running Highlight Winners')
 
   return html`
-    <div>
-      <div><a href="#" onClick=${() => this.forceUpdate()}>🔄</a></div>
+    <div style="display: grid; gap: 1rem; grid-template-columns: 1fr 1fr;">
+      <${Toggle} all=${all} mine=${mine} obj=${ripsL3Plus}/>
+      <${Toggle} all=${all} mine=${mine} obj=${quasarsL4}/>
+      <${Toggle} all=${all} mine=${mine} obj=${quasarsL6}/>
+      <${Toggle} all=${all} mine=${mine} obj=${doubleRange}/>
+      <${Toggle} all=${all} mine=${mine} obj=${foundries}/>
+      <${Toggle} all=${all} mine=${mine} obj=${readyToFire}/>
     </div>
   `;
 }
@@ -145,44 +233,23 @@ function circlePlanet(ctx: CanvasRenderingContext2D, planet: LocatablePlanet, co
 class HighlightWinners implements DFPlugin {
 
   container: HTMLDivElement
-  winnerPlanets: LocatablePlanet[] = []
-  extraPlanets: LocatablePlanet[] = []
-  rips: LocatablePlanet[] = []
-  foundries: LocatablePlanet[] = []
-  cannons: LocatablePlanet[] = []
-  doubleRange: LocatablePlanet[] = []
-  readyToFire: LocatablePlanet[] = []
-  closest63: LocatablePlanet[] = []
 
-  constructor() {
-    const all = Array.from(df.getAllPlanets())
-      .filter(isLocatable)
-      .filter(p => p.planetLevel >= PlanetLevel.THREE)
-      .filter(p => ! p.destroyed)
-      .sort(closestToCenter)
+  constructor() {}
 
-    const mine = Array.from(df.getMyPlanets())
-
-    // this.closest63 = all.slice(0, 63)
-    // this.winnerPlanets = getWinnerPlanets(all)
-    // this.rips = getRips(all)
-    // this.foundries = getFoundries(all)
-    // this.cannons = l5PlanetesWithNoWormhole(mine)
-    // this.doubleRange = planetsWithDoubleRange(all)
-    // this.readyToFire = readyToFire(mine)
-    this.lotsOfSilver = lotsOfSilver(all)
+  drawObj(ctx, obj) {
+    obj.planets.map(p => circlePlanet(ctx, p, obj.color))
   }
 
   draw(ctx) {
     ctx.save();
-    // this.rips.map(p => circlePlanet(ctx, p, 'red'))
-    // this.cannons.map(p => circlePlanet(ctx, p, 'blue'))
-    // this.foundries.map(p => circlePlanet(ctx, p, 'yellow'))
-    // // this.winnerPlanets.map(p => circlePlanet(ctx, p, 'green'))
-    // this.doubleRange.map(p => circlePlanet(ctx, p, 'pink'))
-    // this.readyToFire.map(p => circlePlanet(ctx, p, 'orange', 5))
-    // this.closest63.map(p => circlePlanet(ctx, p, 'green', 1))
-    this.lotsOfSilver.map(p => circlePlanet(ctx, p, 'green', 1))
+
+    this.drawObj(ctx, ripsL3Plus)
+    this.drawObj(ctx, quasarsL4)
+    this.drawObj(ctx, doubleRange)
+    this.drawObj(ctx, quasarsL6)
+    this.drawObj(ctx, foundries)
+    this.drawObj(ctx, readyToFire)
+
     ctx.restore();
   }
 
@@ -192,7 +259,7 @@ class HighlightWinners implements DFPlugin {
   async render(container: HTMLDivElement) {
       this.container = container
 
-
+      container.style.width = '320px';
 
       render(html`<${App} />`, container)
   }

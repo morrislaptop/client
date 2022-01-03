@@ -77,7 +77,7 @@ function onDistributeClick(selectedPlanet: Planet|null = null) {
     rarities: [ArtifactRarities.Rare],
     nearPlanetType: PlanetTypes.PLANET,
     nearMinLevel: PlanetLevel.FIVE,
-    nearMaxLevel: PlanetLevel.FIVE,
+    nearMaxLevel: PlanetLevel.SIX,
     ifEmpty: true,
   })
 
@@ -101,12 +101,12 @@ function onActivateClick(selectedPlanet: Planet|null = null) {
     planetTypes: [PlanetTypes.PLANET],
   })
 
-  activateArtifacts({
-    fromId: selectedPlanet?.locationId,
-    minLevel: PlanetLevel.FOUR,
-    artifactTypes: [ArtifactTypes.Wormhole],
-    planetTypes: [PlanetTypes.PLANET],
-  })
+  // activateArtifacts({
+  //   fromId: selectedPlanet?.locationId,
+  //   minLevel: PlanetLevel.FOUR,
+  //   artifactTypes: [ArtifactTypes.Wormhole],
+  //   planetTypes: [PlanetTypes.PLANET],
+  // })
 
   activateArtifacts({
     fromId: selectedPlanet?.locationId,
@@ -140,12 +140,12 @@ export class UsefulArtifacts extends Component
   render()
   {
     const headers = [
-      'Name',
+      // 'Name',
       'Type',
       'Planet',
       'Rarity',
       // 'Status',
-      'Lvl'
+      // 'Lvl'
     ];
     const alignments: Array<'r' | 'c' | 'l'> = ['l', 'l', 'l', 'c', 'c', 'r'];
 
@@ -175,7 +175,7 @@ export class UsefulArtifacts extends Component
       })
 
     const columns = [
-      (a: Artifact) => <Sub>{artifactNameFromArtifact(a)}</Sub>,
+      // (a: Artifact) => <Sub>{artifactNameFromArtifact(a)}</Sub>,
       (a: Artifact) => <Sub>{artifactType(a)}</Sub>,
       (a: Artifact) => {
         const planet = df.getPlanetWithId(a.onPlanetId)
@@ -192,13 +192,13 @@ export class UsefulArtifacts extends Component
 
       //   return <Sub>{status}</Sub>
       // },
-      (a: Artifact) => {
-        const planet = df.getPlanetWithId(a.onPlanetId)
+      // (a: Artifact) => {
+      //   const planet = df.getPlanetWithId(a.onPlanetId)
 
-        if (! planet) return <Sub>-</Sub>
+      //   if (! planet) return <Sub>-</Sub>
 
-        return <Sub>{planet.planetLevel}</Sub>
-      },
+      //   return <Sub>{planet.planetLevel}</Sub>
+      // },
     ];
 
     return <div>
