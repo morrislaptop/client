@@ -8,6 +8,13 @@ import { config } from '../config'
 declare const df: GameManager
 declare const ui: GameUIManager
 
+export function mineAndBigger(from: Planet, candidate: Planet) {
+  const isBigger = candidate.planetLevel > from.planetLevel;
+  const isPlanet = candidate.planetType === PlanetTypes.PLANET;
+
+  return isMine(candidate) && isBigger && isPlanet
+}
+
 // @todo unqueued move doesn't have energyArriving?
 function getPlanetIncomingEnergy(planet: Planet) {
   // @ts-ignore
