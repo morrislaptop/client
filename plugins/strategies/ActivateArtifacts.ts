@@ -43,15 +43,15 @@ export function activateArtifacts(config: config)
 
     if (! artifact) return
 
-    // if (artifact.artifactType === ArtifactTypes.Wormhole) {
-    //   const filter = (p: Planet) => mineAndBigger(from, p)
-    //   const wormholeTo = getClosestPlanet(from, filter)
-    //   wormholeTo && df.activateArtifact(from.locationId, artifact.id, wormholeTo.locationId)
-    //   wormholeTo && console.log(`Activating wormhole on ${planetName(from)} to ${planetName(wormholeTo)}`)
-    // }
-    // else {
+    if (artifact.artifactType === ArtifactTypes.Wormhole) {
+      const filter = (p: Planet) => mineAndBigger(from, p)
+      const wormholeTo = getClosestPlanet(from, filter)
+      wormholeTo && df.activateArtifact(from.locationId, artifact.id, wormholeTo.locationId)
+      wormholeTo && console.log(`Activating wormhole on ${planetName(from)} to ${planetName(wormholeTo)}`)
+    }
+    else {
       df.activateArtifact(from.locationId, artifact.id, undefined)
       console.log('Activating on ' + planetName(from))
-    // }
+    }
   })
 }
