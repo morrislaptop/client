@@ -74,7 +74,7 @@ function onDistributeClick(selectedPlanet: Planet|null = null) {
   distributeArtifacts({
     fromId: selectedPlanet?.locationId,
     types: [ArtifactTypes.PhotoidCannon],
-    rarities: [ArtifactRarities.Rare],
+    rarities: [ArtifactRarities.Rare, ArtifactRarities.Epic],
     nearPlanetType: PlanetTypes.PLANET,
     nearMinLevel: PlanetLevel.FIVE,
     nearMaxLevel: PlanetLevel.SIX,
@@ -85,7 +85,7 @@ function onDistributeClick(selectedPlanet: Planet|null = null) {
   distributeArtifacts({
     fromId: selectedPlanet?.locationId,
     types: [ArtifactTypes.Wormhole],
-    rarities: [ArtifactRarities.Rare],
+    rarities: [ArtifactRarities.Rare, ArtifactRarities.Epic],
     nearPlanetType: PlanetTypes.PLANET,
     nearMinLevel: PlanetLevel.SIX,
     nearMaxLevel: PlanetLevel.NINE,
@@ -101,12 +101,12 @@ function onActivateClick(selectedPlanet: Planet|null = null) {
     planetTypes: [PlanetTypes.PLANET],
   })
 
-  // activateArtifacts({
-  //   fromId: selectedPlanet?.locationId,
-  //   minLevel: PlanetLevel.FOUR,
-  //   artifactTypes: [ArtifactTypes.Wormhole],
-  //   planetTypes: [PlanetTypes.PLANET],
-  // })
+  activateArtifacts({
+    fromId: selectedPlanet?.locationId,
+    minLevel: PlanetLevel.FOUR,
+    artifactTypes: [ArtifactTypes.Wormhole],
+    planetTypes: [PlanetTypes.PLANET],
+  })
 
   activateArtifacts({
     fromId: selectedPlanet?.locationId,
@@ -156,10 +156,7 @@ export class UsefulArtifacts extends Component
       // .filter(a => a && ! a.transactions?.hasTransaction(isUnconfirmedMoveTx))
       // .filter(a => a && ! a.transactions?.hasTransaction(isUnconfirmedActivateArtifactTx))
       .filter(a => a && a.rarity >= ArtifactRarities.Rare)
-      .filter(a => (
-        [ArtifactTypes.Wormhole,ArtifactTypes.BloomFilter].includes(a.artifactType))
-        || a.artifactType === ArtifactTypes.PlanetaryShield && a.rarity >= ArtifactRarities.Epic
-      )
+      .filter(a => [ArtifactTypes.Wormhole, ArtifactTypes.BloomFilter].includes(a.artifactType))
       .filter(canBeActivated)
       .sort((a, b) => {
         const pa = df.getPlanetWithId(a.onPlanetId)

@@ -8,6 +8,13 @@ import { config } from '../config'
 declare const df: GameManager
 declare const ui: GameUIManager
 
+export function mineAndBigger(from: Planet, candidate: Planet) {
+  const isBigger = candidate.planetLevel > from.planetLevel;
+  const isPlanet = candidate.planetType === PlanetTypes.PLANET;
+
+  return isMine(candidate) && isBigger && isPlanet
+}
+
 // @todo unqueued move doesn't have energyArriving?
 function getPlanetIncomingEnergy(planet: Planet) {
   // @ts-ignore
@@ -26,7 +33,7 @@ interface localConfig {
   fromMinLevel: PlanetLevel,
   fromMaxLevel: PlanetLevel,
 }
-export function distributeEnergy(localConfig: localConfig)
+export function attackEnergy(localConfig: localConfig)
 {
   const from = getMyPlanets()
     .filter(p => p.planetLevel >= localConfig.fromMinLevel)
@@ -41,7 +48,7 @@ export function distributeEnergy(localConfig: localConfig)
     .filter(p => energy(p) > 75)
     .filter(p => ! localConfig.fromId || p.locationId === localConfig.fromId)
 
-  console.log('Distributing energy from', from)
+  console.log('Attacking energy from', from)
 
   const movesToMake: Move[] = from.map(from => {
 
@@ -49,18 +56,10 @@ export function distributeEnergy(localConfig: localConfig)
     const energyFrom = Math.floor(0.5 * from.energy)
 
     const to = getClosestPlanet(from, p => {
-      if (! isMine(p)) return false
+      const unownedAndWant = isUnowned(p) && p.planetLevel >= from.planetLevel && p.planetType !== PlanetTypes.QUASAR;
+      const enemyAndWant = isEnemy(p) && p.planetLevel >= from.planetLevel && p.planetType !== PlanetTypes.QUASAR;
 
-      const foundryWantingEnergy = isFoundry(p) && !hasBeenProspected(p) && !enoughEnergyToProspect(p);
-
-      const isBiggerPlanet = p.planetType === PlanetTypes.PLANET && p.planetLevel > from.planetLevel
-      const planetNeedsEnergy = isBiggerPlanet && energy(p) < 75
-
-      const dist = df.getDist(from.locationId, p.locationId)
-      const energyArriving = df.getEnergyArrivingForMove(from.locationId, p.locationId, dist, energyFrom)
-      const energyArrivingUnderCap = energyArriving <= maxEnergyToReceive(p)
-
-      return energyArrivingUnderCap && (planetNeedsEnergy || foundryWantingEnergy)
+      return unownedAndWant || enemyAndWant;
     })
 
     if (! to) return null
@@ -80,7 +79,7 @@ export function distributeEnergy(localConfig: localConfig)
   // Make the moves with the MOST energy first.
   const movesToMake2 = movesToMake.filter(m => m).sort((a, b) => b.energyArriving - a.energyArriving)
 
-  console.log('Distributing energy to ', movesToMake2)
+  console.log('Attacking energy to ', movesToMake2)
 
   const moves = movesToMake2.map(move => {
     if (

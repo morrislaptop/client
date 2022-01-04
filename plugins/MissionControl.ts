@@ -88,6 +88,7 @@ class MissionControl implements DFPlugin {
   async render(container: HTMLDivElement) {
       this.container = container
       container.style.width = '320px';
+      // container.style.height = '390px';
 
       render(html`<${App} />`, container)
       this.loop = setInterval(

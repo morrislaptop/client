@@ -25,8 +25,7 @@ function onDistributeClick(selectedPlanet: Planet|null = null) {
     fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_ASTEROID,
     fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_ASTEROID,
     fromPlanetType: selectedPlanet?.planetType || PlanetTypes.ASTEROID,
-    toMinLevel: config.MIN_LEVEL_PLANET,
-    toPlanetTypes: [PlanetTypes.PLANET, PlanetTypes.RIP],
+    toMinPlanetLevel: config.MIN_LEVEL_SILVER,
   })
 }
 

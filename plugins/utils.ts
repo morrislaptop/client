@@ -171,8 +171,12 @@ export function artifactType(a: Artifact) {
   return Object.keys(ArtifactTypes)[a.artifactType]
 }
 
+export function inRadius(p: LocatablePlanet) {
+  return p.location.coords.x ** 2 + p.location.coords.y ** 2 < df.getWorldRadius() ** 2
+}
+
 export function getMyPlanets(): LocatablePlanet[] {
-  return df.getMyPlanets().filter(p => ! p.destroyed).filter(isLocatable)
+  return df.getMyPlanets().filter(p => ! p.destroyed).filter(isLocatable).filter(inRadius)
 }
 
 export function getMyPlanetsInRange(p: Planet) {
@@ -186,6 +190,7 @@ export function getMyPlanetsInRange(p: Planet) {
 export function getClosestPlanet(p: Planet, filter: (p: Planet) => boolean) {
   return df.getPlanetsInRange(p.locationId, 100)
     .filter(p => ! p.destroyed)
+    .filter(inRadius)
     .filter(filter)
     .sort((a, b) => getMinimumEnergyNeeded(p, a) - getMinimumEnergyNeeded(p, b))
     [0]

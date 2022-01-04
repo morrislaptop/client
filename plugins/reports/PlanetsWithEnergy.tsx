@@ -9,6 +9,7 @@ import { ManageInterval } from '../components/ManageInterval'
 
 import { bestStats, capturePlanets, closestToCenter, directionToCenter, highestLevel, lowestEnergy } from '../strategies/Crawl'
 import { distributeEnergy } from '../strategies/DistributeEnergy'
+import { attackEnergy } from '../strategies/AttackEnergy'
 import { buttonGridStyle, energy, getMyPlanets, getPlanetTypeAcronym, hasPendingMove, isAsteroid, isFoundry, planetName, PlanetTypes, PrimeMinutes } from '../utils'
 import { config } from 'plugins/config'
 const pauseable = require('pauseable')
@@ -19,11 +20,7 @@ declare const ui: GameUIManager
 function onCrawlThenDistributeClick(selectedPlanet: Planet|null = null) {
   console.log('Crawling and Distributing')
 
-  distributeEnergy({
-    fromId: selectedPlanet?.locationId,
-    fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_PLANET,
-    fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_PLANET,
-  })
+  // capture
 
   capturePlanets({
     fromId: selectedPlanet?.locationId,
@@ -32,7 +29,7 @@ function onCrawlThenDistributeClick(selectedPlanet: Planet|null = null) {
     fromMinEnergyLeftPercent: 37.5,
     toMinLevel: config.MIN_LEVEL_FOUNDRY,
     toPlanetTypes: [PlanetTypes.FOUNDRY],
-    toTargetEnergy: 50,
+    toTargetEnergy: 96,
     sortFunction: highestLevel,
   })
 
@@ -45,6 +42,20 @@ function onCrawlThenDistributeClick(selectedPlanet: Planet|null = null) {
     toMinLevel: config.MIN_LEVEL_PLANET,
     toTargetEnergy: 15,
     sortFunction: bestStats,
+  })
+
+  // attack to unowned >=
+  attackEnergy({
+    fromId: selectedPlanet?.locationId,
+    fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_PLANET,
+    fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_PLANET,
+  })
+
+  // distribute to mine >
+  distributeEnergy({
+    fromId: selectedPlanet?.locationId,
+    fromMinLevel: selectedPlanet?.planetLevel || config.MIN_LEVEL_PLANET,
+    fromMaxLevel: selectedPlanet?.planetLevel || config.MAX_LEVEL_PLANET,
   })
 }
 

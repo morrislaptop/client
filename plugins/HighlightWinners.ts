@@ -38,6 +38,7 @@ import { addHours, formatDistanceToNow, fromUnixTime, isAfter, isBefore, subHour
 import { isLocatable } from 'src/_types/global/GlobalTypes'
 import { ArtifactTypes, canHaveArtifact, closestToCenter, distToCenter, isActivated, isArtifact, isOwned, isUnowned, PlanetTypes } from './utils'
 import { EMPTY_ADDRESS } from '@darkforest_eth/constants'
+import { config } from './config'
 
 declare const df: GameManager
 declare const ui: GameUIManager
@@ -137,17 +138,27 @@ const doubleRange = {
   planets: [],
   callback: function () {
     return all()
-      .filter(p => p.planetLevel >= PlanetLevel.FOUR)
+      .filter(p => p.planetLevel >= config.MIN_LEVEL_PLANET)
       // .filter(p => p.planetType === PlanetTypes.PLANET)
       .filter(p => p.bonus[2]) // range bonus
   }
 }
+
 const foundries = {
   name: 'Foundries',
   color: 'orange',
   planets: [],
   callback: function () {
-    return all().filter(canHaveArtifact).filter(p => p.planetLevel >= 3)
+    return all().filter(canHaveArtifact).filter(p => p.planetLevel >= config.MIN_LEVEL_FOUNDRY)
+  }
+}
+
+const legFoundries = {
+  name: 'Leg. Foundries',
+  color: 'orange',
+  planets: [],
+  callback: function () {
+    return all().filter(canHaveArtifact).filter(p => p.planetLevel >= 6)
   }
 }
 
@@ -204,6 +215,7 @@ function App() {
       <${Toggle} all=${all} mine=${mine} obj=${quasarsL6}/>
       <${Toggle} all=${all} mine=${mine} obj=${doubleRange}/>
       <${Toggle} all=${all} mine=${mine} obj=${foundries}/>
+      <${Toggle} all=${all} mine=${mine} obj=${legFoundries}/>
       <${Toggle} all=${all} mine=${mine} obj=${readyToFire}/>
     </div>
   `;
@@ -248,6 +260,7 @@ class HighlightWinners implements DFPlugin {
     this.drawObj(ctx, doubleRange)
     this.drawObj(ctx, quasarsL6)
     this.drawObj(ctx, foundries)
+    this.drawObj(ctx, legFoundries)
     this.drawObj(ctx, readyToFire)
 
     ctx.restore();

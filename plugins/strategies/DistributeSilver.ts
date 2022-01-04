@@ -13,9 +13,16 @@ function getPlanetIncomingSilver(planet: Planet) {
   return future
 }
 
+// @todo outgoing silver?
+// silverCap - silver - silverIncoming + silverOutgoing
+function maxSilverToReceive(to: Planet) {
+  return Math.ceil(to.silverCap - to.silver - getPlanetIncomingSilver(to))
+}
+
+// @todo check this function...
 function maxSilverToSend(from: Planet, to: Planet)
 {
-  const potential = Math.ceil(to.silverCap - to.silver - getPlanetIncomingSilver(to))
+  const potential = maxSilverToReceive(to)
   const available = availableSilver(from)
 
   const silver = Math.min(potential, available)
@@ -28,8 +35,7 @@ interface config {
   fromMinLevel: PlanetLevel,
   fromMaxLevel: PlanetLevel,
   fromPlanetType: PlanetType,
-  toMinLevel: PlanetLevel,
-  toPlanetTypes: PlanetType[],
+  toMinPlanetLevel: PlanetLevel,
 }
 export function distributeSilver(config: config)
 {
@@ -44,16 +50,24 @@ export function distributeSilver(config: config)
 
   const movesToMake: Move[] = from.flatMap(from => {
     const to = getMyPlanetsInRange(from) // this is missing planets not sure why
-      .filter(p => p.planetLevel >= config.toMinLevel)
-      .filter(p => config.toPlanetTypes.includes(p.planetType))
+      .filter(p => {
+        const minPlanet = p.planetType === PlanetTypes.PLANET && p.planetLevel >= config.toMinPlanetLevel
+        const minRip = p.planetType === PlanetTypes.RIP && p.planetLevel >= config.fromMinLevel
+
+        return minPlanet || minRip
+      })
       .filter(p => getPlanetRank(p) < getPlanetMaxRank(p))
       .filter(p => {
         console.log(`Silver required for ${planetName(p)}: ${getSilverRequiredForNextUpgrade(p)})`)
-        const hasSilverForUpgrade = getSilverRequiredForNextUpgrade(p) - availableSilver(p) <  from.silver
+
+        const hasEnoughSilverForUpgrade = getSilverRequiredForNextUpgrade(p) - availableSilver(p) <  from.silver
+        const silverForPlanet = p.planetType === PlanetTypes.PLANET && hasEnoughSilverForUpgrade
+
         const fullSilver = from.silver === from.silverCap
-        return hasSilverForUpgrade || (fullSilver && p.planetType == PlanetTypes.RIP)
+        const silverForRip = p.planetType === PlanetTypes.RIP && fullSilver
+
+        return silverForPlanet || silverForRip
       })
-      // .filter(p => p.planetLevel >= from.planetLevel - 1) // L4 to L3 etc..
       .filter(p => p.silverCap !== p.silver)
 
     const moves = to.map(to => {

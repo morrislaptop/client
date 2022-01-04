@@ -64,7 +64,7 @@ export function distributeArtifacts(config: config)
     })
 
     // i'll decide where to drop artifacts from now on...
-    return
+    // return
 
     // Planets which want an artifact - drop nearby
     getMyPlanets()

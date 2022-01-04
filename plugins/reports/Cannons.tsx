@@ -7,7 +7,7 @@ import { Header, Sub, Title } from '../components/Text'
 import { Table } from '../Components/Table';
 
 import { ArtifactRarities, ArtifactTypes, canBeActivated, getAllArtifacts, getPlanetRank, getPlanetTypeAcronym, hasPendingMove, isActivated, isAsteroid, isFindable, isProspectable, isReachable, isUnowned, planetName, PlanetTypes, SelectedPlanetProp } from '../utils'
-import { addHours, formatDistanceToNow, fromUnixTime, isAfter } from 'date-fns'
+import { addHours, formatDistanceToNow, fromUnixTime, isAfter, format } from 'date-fns'
 import { isUnconfirmedActivateArtifactTx, isUnconfirmedMoveTx } from '@darkforest_eth/serde'
 
 declare const df: GameManager
@@ -62,7 +62,7 @@ export function Cannons(props: SelectedPlanetProp)
           ? (isAfter(new Date, readyAt) ? 'FIRE' : formatDistanceToNow(readyAt))
           : canBeActivated(a) ? 'IDLE' : `WAIT`
 
-      return <Sub>{status}</Sub>
+      return <Sub title={format(readyAt, 'HH:mm')}>{status}</Sub>
     },
     // (a: Artifact) => {
     //   const planet = df.getPlanetWithId(a.onPlanetId)

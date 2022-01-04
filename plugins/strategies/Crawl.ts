@@ -1,7 +1,7 @@
 import GameManager from '@df/GameManager'
 import GameUIManager from '@df/GameUIManager'
 import { LocatablePlanet, LocationId, Planet, PlanetLevel, PlanetType, WorldCoords } from "@darkforest_eth/types";
-import { center, getEnergyNeeded, getMyPlanets, hasIncomingMove, isUnowned, Move, planetName, PlanetTypes, planetWillHaveMinEnergyAfterMove, distToCenter, isFoundry, hasCannon, isUnownedOrEnemy, energy } from 'plugins/utils';
+import { center, getEnergyNeeded, getMyPlanets, hasIncomingMove, isUnowned, Move, planetName, PlanetTypes, planetWillHaveMinEnergyAfterMove, distToCenter, isFoundry, hasCannon, isUnownedOrEnemy, energy, getMyPlanetsInRange, inRadius } from 'plugins/utils';
 import { moveSyntheticComments } from 'typescript';
 import { isLocatable } from 'src/_types/global/GlobalTypes';
 // import { isUnowned } from 'utils/utils';
@@ -103,19 +103,22 @@ interface config {
 export function capturePlanets(config: config)
 {
   // @ts-ignore
-  const to = Array.from(df.getAllPlanets())
+  const to = (config.fromId ? df.getPlanetsInRange(config.fromId, 100) : Array.from(df.getAllPlanets()))
     .filter(isLocatable)
     .filter(isUnownedOrEnemy)
     .filter(p => ! hasIncomingMove(p))
     .filter(p => p.planetLevel >= config.toMinLevel)
     .filter(p => config.toPlanetTypes.includes(p.planetType))
+    .filter(inRadius)
+
+  console.log(`Found ${to.length} planets to capture`)
 
   const from = getMyPlanets()
     .filter(isLocatable)
     .filter(p => p.planetLevel >= config.fromMinLevel)
     .filter(p => p.planetLevel <= config.fromMaxLevel)
-    .filter(p => ! hasCannon(p))
-    .filter(p => energy(p) > 75)
+    // .filter(p => ! hasCannon(p))
+    // .filter(p => energy(p) > 75)
     .filter(p => [PlanetTypes.PLANET].includes(p.planetType))
     .filter(p => ! config.fromId || p.locationId === config.fromId)
 
@@ -128,7 +131,7 @@ export function capturePlanets(config: config)
   // sort according to callback, then the lowest energy required to take.
   movesToMake.sort((a, b) => config.sortFunction(a, b) || a.energy - b.energy)
 
-  console.log({ movesToMake })
+  console.log({ CAPTURES: movesToMake })
 
   const moves = movesToMake.map(move => {
     if (
