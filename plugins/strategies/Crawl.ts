@@ -105,6 +105,7 @@ export function capturePlanets(config: config)
   // @ts-ignore
   const to = (config.fromId ? df.getPlanetsInRange(config.fromId, 100) : Array.from(df.getAllPlanets()))
     .filter(isLocatable)
+    .filter(inRadius)
     .filter(isUnownedOrEnemy)
     .filter(p => ! hasIncomingMove(p))
     .filter(p => p.planetLevel >= config.toMinLevel)
