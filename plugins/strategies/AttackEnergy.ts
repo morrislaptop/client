@@ -56,8 +56,8 @@ export function attackEnergy(localConfig: localConfig)
     const energyFrom = Math.floor(0.5 * from.energy)
 
     const to = getClosestPlanet(from, p => {
-      const unownedAndWant = isUnowned(p) && p.planetLevel >= from.planetLevel && p.planetType !== PlanetTypes.QUASAR;
-      const enemyAndWant = isEnemy(p) && p.planetLevel >= from.planetLevel && p.planetType !== PlanetTypes.QUASAR;
+      const unownedAndWant = isUnowned(p) && p.planetLevel >= (from.planetLevel-1) && p.planetType !== PlanetTypes.QUASAR;
+      const enemyAndWant = isEnemy(p) && p.planetLevel >= (from.planetLevel-1) && p.planetType !== PlanetTypes.QUASAR;
 
       return unownedAndWant || enemyAndWant;
     })

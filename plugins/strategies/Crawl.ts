@@ -15,12 +15,17 @@ type MoveWithData = Move & {
   angleToTarget: number,
   angleDiff: number,
   angleDiffGroup: number,
+  distanceToCenter: number,
   fromName: string,
   toName: string,
 }
 
 export function getMovesToTake(to: LocatablePlanet, from: LocatablePlanet[], targetEnergy: number): MoveWithData[] {
   const moves = from.map(from => {
+
+    // only capture planets one level below..
+    if (to.planetLevel < from.planetLevel - 1) return
+
     const angleToCenter = angle(from.location.coords, center)
     const angleToTarget = angle(from.location.coords, to.location.coords)
     const angleDiff = Math.abs(angleToCenter - angleToTarget) // 0 to 270
@@ -40,7 +45,7 @@ export function getMovesToTake(to: LocatablePlanet, from: LocatablePlanet[], tar
     }
   })
 
-  return moves
+  return moves.filter((m): m is MoveWithData => !!m)
 }
 
 export type SortFunction = (a: MoveWithData, b: MoveWithData) => number
