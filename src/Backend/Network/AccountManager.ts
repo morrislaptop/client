@@ -5,9 +5,12 @@ import stringify from 'json-stable-stringify';
 
 /**
  * Represents an account with which the user plays the game.
+ * 
+ * Score address = contractAddress ?? address
  */
 export interface Account {
   address: EthAddress;
+  contractAddress?: EthAddress;
   privateKey: string;
 }
 
@@ -34,6 +37,10 @@ function save() {
   for (const account of accounts) {
     localStorage.setItem(`skey-${account.address}`, account.privateKey);
   }
+
+  for (const account of accounts) {
+    if (account.contractAddress) localStorage.setItem(`caddr-${account.address}`, account.contractAddress);
+  }
 }
 
 /**
@@ -55,10 +62,12 @@ function load(): Account[] {
   // then we load the private keys
   for (const addy of knownAddresses) {
     const skey = localStorage.getItem(`skey-${addy}`);
+    const caddr = localStorage.getItem(`caddr-${addy}`);
 
     if (skey !== null) {
       accounts.push({
         address: addy,
+        contractAddress: caddr ? address(caddr) : undefined,
         privateKey: skey,
       });
     }
@@ -84,4 +93,18 @@ export function addAccount(privateKey: string) {
   });
 
   save();
+}
+
+export function getContractAddressForAccount(addr: string) {
+  const account = accounts.find(account => account.address === addr);
+  return account?.contractAddress;
+}
+
+export function setContractAddressForAccount(addr: string, contractAdress: string) {
+  const account = accounts.find(account => account.address === addr);
+  
+  if (account) {
+    account.contractAddress = address(contractAdress);
+    save();
+  }
 }

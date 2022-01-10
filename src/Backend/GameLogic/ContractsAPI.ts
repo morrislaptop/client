@@ -136,6 +136,11 @@ export class ContractsAPI extends EventEmitter {
   private readonly txExecutor: TxExecutor | undefined;
 
   /**
+   * Use this contract for calls if set.
+   */
+  private readonly playerContractAddress: EthAddress | undefined;
+
+  /**
    * Our connection to the blockchain. In charge of low level networking, and also of the burner
    * wallet.
    */
@@ -143,6 +148,10 @@ export class ContractsAPI extends EventEmitter {
 
   get coreContract() {
     return this.ethConnection.getContract<DarkForestCore>(CORE_CONTRACT_ADDRESS);
+  }
+
+  get writeContract() {
+    return this.ethConnection.getContract<DarkForestCore>(this.playerContractAddress ?? CORE_CONTRACT_ADDRESS);
   }
 
   get scoreContract() {
@@ -161,10 +170,11 @@ export class ContractsAPI extends EventEmitter {
     return this.ethConnection.getContract<DarkForestGPTCredit>(GPT_CREDIT_CONTRACT_ADDRESS);
   }
 
-  public constructor(ethConnection: EthConnection) {
+  public constructor(ethConnection: EthConnection, playerContractAddress: EthAddress | undefined) {
     super();
     this.contractCaller = new ContractCaller();
     this.ethConnection = ethConnection;
+    this.playerContractAddress = playerContractAddress;
     this.txExecutor = new TxExecutor(
       ethConnection,
       () => getSetting(this.ethConnection.getAddress(), Setting.GasFeeGwei),
@@ -468,7 +478,7 @@ export class ContractsAPI extends EventEmitter {
     }
     const tx = this.txExecutor.queueTransaction(
       action.actionId,
-      this.coreContract,
+      this.writeContract,
       ContractMethodName.INIT,
       args
     );
@@ -721,7 +731,7 @@ export class ContractsAPI extends EventEmitter {
 
     const tx = this.txExecutor.queueTransaction(
       actionId,
-      this.coreContract,
+      this.writeContract,
       ContractMethodName.MOVE,
       args
     );
@@ -1308,7 +1318,7 @@ export class ContractsAPI extends EventEmitter {
   }
 }
 
-export async function makeContractsAPI(ethConnection: EthConnection): Promise<ContractsAPI> {
+export async function makeContractsAPI(ethConnection: EthConnection, playerContractAddress?: EthAddress | undefined): Promise<ContractsAPI> {
   // Could turn this into an array and iterate, but I like the explicitness
   await ethConnection.loadContract(CORE_CONTRACT_ADDRESS, loadCoreContract);
   await ethConnection.loadContract(SCORING_CONTRACT_ADDRESS, loadScoringContract);
@@ -1316,5 +1326,9 @@ export async function makeContractsAPI(ethConnection: EthConnection): Promise<Co
   await ethConnection.loadContract(WHITELIST_CONTRACT_ADDRESS, loadWhitelistContract);
   await ethConnection.loadContract(GPT_CREDIT_CONTRACT_ADDRESS, loadGptCreditContract);
 
-  return new ContractsAPI(ethConnection);
+  if (playerContractAddress) {
+    await ethConnection.loadContract(playerContractAddress, loadCoreContract);
+  }
+
+  return new ContractsAPI(ethConnection, playerContractAddress);
 }

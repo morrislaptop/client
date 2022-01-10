@@ -532,6 +532,7 @@ class GameManager extends EventEmitter {
   }
 
   static async create(
+    contractPlayerAddress: EthAddress | undefined,
     ethConnection: EthConnection,
     terminal: React.MutableRefObject<TerminalHandle | undefined>
   ): Promise<GameManager> {
@@ -539,14 +540,14 @@ class GameManager extends EventEmitter {
       throw new Error('you must pass in a handle to a terminal');
     }
 
-    const account = ethConnection.getAddress();
+    const account = contractPlayerAddress ?? ethConnection.getAddress();
 
     if (!account) {
       throw new Error('no account on eth connection');
     }
 
     const gameStateDownloader = new InitialGameStateDownloader(terminal.current);
-    const contractsAPI = await makeContractsAPI(ethConnection);
+    const contractsAPI = await makeContractsAPI(ethConnection, contractPlayerAddress);
 
     terminal.current?.println('Loading game data from disk...');
 
@@ -1261,6 +1262,7 @@ class GameManager extends EventEmitter {
    * Whether or not this client has successfully found and landed on a home planet.
    */
   hasJoinedGame(): boolean {
+    console.log('hasJoinedGame', this.account);
     return this.players.has(this.account as string);
   }
 

@@ -2,13 +2,15 @@ import { BLOCK_EXPLORER_URL } from '@darkforest_eth/constants';
 import { WHITELIST_CONTRACT_ADDRESS } from '@darkforest_eth/contracts';
 import { EthConnection, neverResolves, weiToEth } from '@darkforest_eth/network';
 import { address } from '@darkforest_eth/serde';
+import { EthAddress } from '@darkforest_eth/types';
 import { utils, Wallet } from 'ethers';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import GameManager from '../../Backend/GameLogic/GameManager';
 import GameUIManager, { GameUIManagerEvent } from '../../Backend/GameLogic/GameUIManager';
+import { playerAddress } from '../../Backend/GameLogic/PlayerContract';
 import TutorialManager, { TutorialState } from '../../Backend/GameLogic/TutorialManager';
-import { addAccount, getAccounts } from '../../Backend/Network/AccountManager';
+import { addAccount, getAccounts, getContractAddressForAccount as getContractPlayerAddressForAddress, setContractAddressForAccount as setContractPlayerAddressForAddress } from '../../Backend/Network/AccountManager';
 import { getEthConnection, loadWhitelistContract } from '../../Backend/Network/Blockchain';
 import {
   EmailResponse,
@@ -71,6 +73,8 @@ export function GameLandingPage() {
   const [initRenderState, setInitRenderState] = useState(InitRenderState.NONE);
   const [ethConnection, setEthConnection] = useState<EthConnection | undefined>();
   const [step, setStep] = useState(TerminalPromptStep.NONE);
+  
+  let contractPlayerAddress = ''
 
   useEffect(() => {
     getEthConnection()
@@ -344,6 +348,21 @@ export function GameLandingPage() {
         const address = ethConnection?.getAddress();
         if (!address || !ethConnection) throw new Error('not logged in');
 
+        const defaultContractPlayerAddress = getContractPlayerAddressForAddress(address)
+
+        terminal.current?.println('');
+        terminal.current?.println(
+          'Contract player?' + (defaultContractPlayerAddress ? ` (${defaultContractPlayerAddress})` : ''),
+          TerminalTextStyle.Text
+        );
+        const newContractPlayerAddress = (await terminal.current?.getInput()) || defaultContractPlayerAddress;
+        if (newContractPlayerAddress) {
+            setContractPlayerAddressForAddress(address, newContractPlayerAddress);
+            contractPlayerAddress = newContractPlayerAddress
+        }
+
+        // @todo use contract player address for whitelist...
+
         const whitelist = await ethConnection.loadContract(
           WHITELIST_CONTRACT_ADDRESS,
           loadWhitelistContract
@@ -503,7 +522,8 @@ export function GameLandingPage() {
       try {
         if (!ethConnection) throw new Error('no eth connection');
 
-        newGameManager = await GameManager.create(ethConnection, terminal);
+        const playerAddress = contractPlayerAddress ? address(contractPlayerAddress) : undefined;
+        newGameManager = await GameManager.create(playerAddress, ethConnection, terminal);
       } catch (e) {
         console.error(e);
 
