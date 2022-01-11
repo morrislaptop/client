@@ -1,5 +1,6 @@
 // These are loaded as URL paths by a webpack loader
 import coreContractAbiUrl from '@darkforest_eth/contracts/abis/DarkForestCore.json';
+import playerContractAbiUrl from '@darkforest_eth/contracts/abis/DarkForestPlayer.json';
 import gettersContractAbiUrl from '@darkforest_eth/contracts/abis/DarkForestGetters.json';
 import gptCreditContractAbiUrl from '@darkforest_eth/contracts/abis/DarkForestGPTCredit.json';
 import scoringContractAbiUrl from '@darkforest_eth/contracts/abis/DarkForestScoringRound3.json';
@@ -8,6 +9,8 @@ import type {
   DarkForestCore,
   DarkForestGetters,
   DarkForestGPTCredit,
+  // DarkForestCore as DarkForestPlayer,
+  DarkForestPlayer,
   DarkForestScoringRound3,
   Whitelist,
 } from '@darkforest_eth/contracts/typechain';
@@ -26,6 +29,20 @@ export async function loadCoreContract(
   const coreContractAbi = await fetch(coreContractAbiUrl).then((r) => r.json());
 
   return createContract<DarkForestCore>(address, coreContractAbi, provider, signer);
+}
+
+/**
+ * Loads the Player game contract, which is responsible for representing a player.
+ * @see https://github.com/morrislaptop/df-eth/blob/master/contracts/DarkForestPlayer.sol
+ */
+ export async function loadPlayerContract(
+  address: string,
+  provider: providers.JsonRpcProvider,
+  signer?: Wallet
+): Promise<DarkForestPlayer> {
+  const playerContractAbi = await fetch(playerContractAbiUrl).then((r) => r.json());
+
+  return createContract<DarkForestPlayer>(address, playerContractAbi, provider, signer);
 }
 
 /**

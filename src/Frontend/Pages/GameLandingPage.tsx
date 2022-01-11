@@ -8,7 +8,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import GameManager from '../../Backend/GameLogic/GameManager';
 import GameUIManager, { GameUIManagerEvent } from '../../Backend/GameLogic/GameUIManager';
-import { playerAddress } from '../../Backend/GameLogic/PlayerContract';
 import TutorialManager, { TutorialState } from '../../Backend/GameLogic/TutorialManager';
 import { addAccount, getAccounts, getContractAddressForAccount as getContractPlayerAddressForAddress, setContractAddressForAccount as setContractPlayerAddressForAddress } from '../../Backend/Network/AccountManager';
 import { getEthConnection, loadWhitelistContract } from '../../Backend/Network/Blockchain';

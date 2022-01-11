@@ -10,6 +10,8 @@ import type {
   DarkForestCore,
   DarkForestGetters,
   DarkForestGPTCredit,
+  // DarkForestCore as DarkForestPlayer,
+  DarkForestPlayer,
   DarkForestScoringRound3,
   Whitelist,
 } from '@darkforest_eth/contracts/typechain';
@@ -108,6 +110,7 @@ import {
   loadCoreContract,
   loadGettersContract,
   loadGptCreditContract,
+  loadPlayerContract,
   loadScoringContract,
   loadWhitelistContract,
 } from '../Network/Blockchain';
@@ -152,6 +155,10 @@ export class ContractsAPI extends EventEmitter {
 
   get writeContract() {
     return this.ethConnection.getContract<DarkForestCore>(this.playerContractAddress ?? CORE_CONTRACT_ADDRESS);
+  }
+
+  get playerContract() {
+    return this.ethConnection.getContract<DarkForestPlayer>(this.playerContractAddress!);
   }
 
   get scoreContract() {
@@ -755,6 +762,123 @@ export class ContractsAPI extends EventEmitter {
     return this.waitFor(unminedMoveTx, tx.confirmed);
   }
 
+  // batchMoveStruct
+  async batchMoveStruct(actionId: string, moves: {
+    actionId: string,
+    snarkArgs: MoveSnarkContractCallArgs,
+    shipsMoved: number,
+    silverMoved: number,
+    artifactMoved?: ArtifactId
+  }[]): Promise<providers.TransactionReceipt> {
+    if (!this.txExecutor) {
+      throw new Error('no signer, cannot execute tx');
+    }
+
+    const args = []
+
+    for (const move of moves) {
+      const arg = [
+        move.snarkArgs[ZKArgIdx.PROOF_A],
+        move.snarkArgs[ZKArgIdx.PROOF_B],
+        move.snarkArgs[ZKArgIdx.PROOF_C],
+        [
+          ...move.snarkArgs[ZKArgIdx.DATA],
+          (move.shipsMoved * CONTRACT_PRECISION).toString(),
+          (move.silverMoved * CONTRACT_PRECISION).toString(),
+          '0',
+        ],
+      ]
+
+      if (move.artifactMoved) {
+        arg[ZKArgIdx.DATA][MoveArgIdxs.ARTIFACT_SENT] = artifactIdToDecStr(move.artifactMoved);
+      }
+
+      args.push(arg)
+    }
+
+    console.log({
+      actionId,
+      playerContract: this.playerContract,
+      args,
+    })
+
+    const tx = this.txExecutor.queueTransaction(
+      actionId,
+      this.playerContract,
+      'batchMove',
+      args
+    );
+
+    const unminedBatchMoveTx: SubmittedTx = {
+      actionId,
+      methodName: ContractMethodName.MOVE,
+      txHash: (await tx.submitted).hash,
+      sentAtTimestamp: Math.floor(Date.now() / 1000),
+    };
+
+    return this.waitFor(unminedBatchMoveTx, tx.confirmed);
+  }
+
+  // batchMoveArrays
+  async batchMove(actionId: string, moves: {
+    actionId: string,
+    snarkArgs: MoveSnarkContractCallArgs,
+    shipsMoved: number,
+    silverMoved: number,
+    artifactMoved?: ArtifactId
+  }[]): Promise<providers.TransactionReceipt> {
+    if (!this.txExecutor) {
+      throw new Error('no signer, cannot execute tx');
+    }
+
+    const as = []
+    const bs = []
+    const cs = []
+    const inputs = []
+
+    for (const move of moves) {
+      as.push(move.snarkArgs[ZKArgIdx.PROOF_A])
+      bs.push(move.snarkArgs[ZKArgIdx.PROOF_B])
+      cs.push(move.snarkArgs[ZKArgIdx.PROOF_C])
+
+      const input = [
+        ...move.snarkArgs[ZKArgIdx.DATA],
+        (move.shipsMoved * CONTRACT_PRECISION).toString(),
+        (move.silverMoved * CONTRACT_PRECISION).toString(),
+        '0',
+      ]
+
+      if (move.artifactMoved) {
+        input[MoveArgIdxs.ARTIFACT_SENT] = artifactIdToDecStr(move.artifactMoved);
+      }
+
+      inputs.push(input)
+    }
+
+    const args = [
+      as,
+      bs,
+      cs,
+      inputs,
+    ]
+
+    const tx = this.txExecutor.queueTransaction(
+      actionId,
+      this.playerContract,
+      'batchMove2',
+      args
+    );
+
+    const unminedBatchMoveTx: SubmittedTx = {
+      actionId,
+      methodName: ContractMethodName.MOVE,
+      txHash: (await tx.submitted).hash,
+      sentAtTimestamp: Math.floor(Date.now() / 1000),
+    };
+
+    return this.waitFor(unminedBatchMoveTx, tx.confirmed);
+  }
+
   async buyHat(planetIdDecStr: string, currentHatLevel: number, actionId: string) {
     if (!this.txExecutor) {
       throw new Error('no signer, cannot execute tx');
@@ -1328,6 +1452,7 @@ export async function makeContractsAPI(ethConnection: EthConnection, playerContr
 
   if (playerContractAddress) {
     await ethConnection.loadContract(playerContractAddress, loadCoreContract);
+    await ethConnection.loadContract(playerContractAddress, loadPlayerContract);
   }
 
   return new ContractsAPI(ethConnection, playerContractAddress);

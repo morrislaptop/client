@@ -13,6 +13,7 @@ import {
   weiToEth,
 } from '@darkforest_eth/network';
 import { locationIdFromBigInt, locationIdToDecStr } from '@darkforest_eth/serde';
+import { MoveSnarkContractCallArgs } from '@darkforest_eth/snarks';
 import {
   Artifact,
   ArtifactId,
@@ -59,7 +60,7 @@ import {
 } from '@darkforest_eth/types';
 import { BigInteger } from 'big-integer';
 import delay from 'delay';
-import { BigNumber, Contract, ContractInterface } from 'ethers';
+import { BigNumber, Contract, ContractInterface, providers } from 'ethers';
 import { EventEmitter } from 'events';
 import stringify from 'json-stable-stringify';
 import NotificationManager from '../../Frontend/Game/NotificationManager';
@@ -2621,6 +2622,114 @@ class GameManager extends EventEmitter {
       .catch((err) => {
         this.onTxIntentFail(txIntent, err);
       });
+    return this;
+  }
+
+  async batchMove(moves: { 
+    from: LocationId,
+    to: LocationId,
+    forces: number,
+    silver: number,
+    artifactMoved?: ArtifactId,
+    bypassChecks: boolean
+  }[]): Promise<GameManager> {
+    if (this.checkGameHasEnded()) return this;
+
+    const batchMoves = []
+    const actionId = getRandomActionId()
+
+    for (const move of moves) 
+    {
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-fromPlanet`, move.from);
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-toPlanet`, move.to);
+
+      if (!move.bypassChecks && Date.now() / 1000 > this.endTimeSeconds) {
+        this.terminal.current?.println('[ERROR] Game has ended.');
+        return this;
+      }
+
+      const oldLocation = this.entityStore.getLocationOfPlanet(move.from);
+      const newLocation = this.entityStore.getLocationOfPlanet(move.to);
+      if (!oldLocation) {
+        console.error('tried to move from planet that does not exist');
+        return this;
+      }
+      if (!newLocation) {
+        console.error('tried to move from planet that does not exist');
+        return this;
+      }
+
+      const oldX = oldLocation.coords.x;
+      const oldY = oldLocation.coords.y;
+      const newX = newLocation.coords.x;
+      const newY = newLocation.coords.y;
+      const xDiff = newX - oldX;
+      const yDiff = newY - oldY;
+
+      const distMax = Math.ceil(Math.sqrt(xDiff ** 2 + yDiff ** 2));
+
+      const shipsMoved = move.forces;
+      const silverMoved = move.silver;
+
+      if (newX ** 2 + newY ** 2 >= this.worldRadius ** 2) {
+        throw new Error('attempted to move out of bounds');
+      }
+
+      const oldPlanet = this.entityStore.getPlanetWithLocation(oldLocation);
+
+      if ((!move.bypassChecks && !this.account) || !oldPlanet || oldPlanet.owner !== this.account) {
+        throw new Error('attempted to move from a planet not owned by player');
+      }
+      const actionId = getRandomActionId();
+      const txIntent: UnconfirmedMove = {
+        actionId,
+        methodName: ContractMethodName.MOVE,
+        from: oldLocation.hash,
+        to: newLocation.hash,
+        forces: shipsMoved,
+        silver: silverMoved,
+      };
+
+      if (move.artifactMoved) {
+        const artifact = this.entityStore.getArtifactById(move.artifactMoved);
+        if (!move.bypassChecks) {
+          if (!artifact) {
+            throw new Error("couldn't find this artifact");
+          }
+          if (isActivated(artifact)) {
+            throw new Error("can't move an activated artifact");
+          }
+          if (!oldPlanet.heldArtifactIds.includes(move.artifactMoved)) {
+            throw new Error("that artifact isn't on this planet!");
+          }
+        }
+        txIntent.artifact = move.artifactMoved;
+      }
+
+      // this.handleTxIntent(txIntent);
+
+      try {
+        const snarkArgs = await this.snarkHelper.getMoveArgs(oldX, oldY, newX, newY, this.worldRadius, distMax)
+
+        this.terminal.current?.println('MOVE: calculated SNARK with args:', TerminalTextStyle.Sub);
+        this.terminal.current?.println(
+          JSON.stringify(hexifyBigIntNestedArray(snarkArgs)),
+          TerminalTextStyle.Sub
+        );
+        this.terminal.current?.newline();
+
+        batchMoves.push({ actionId, snarkArgs, shipsMoved, silverMoved, artifactMoved: move.artifactMoved });
+      } catch (err) {
+        // this.onTxIntentFail(txIntent, err);
+      }
+    }
+
+    console.log({
+      batchMoves
+    })
+
+    this.contractsAPI.batchMove(actionId, batchMoves);
+
     return this;
   }
 
